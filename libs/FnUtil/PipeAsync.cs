@@ -14,7 +14,8 @@ public static partial class F
     /// <param name="v">The initial value.</param>
     /// <param name="f001002">An async function to apply.</param>
     /// <returns>A task that resolves to the final result.</returns>
-    public static async Task<T002> PipeAsync<T001, T002>(
+    public static async Task<T002>
+    PipeAsync<T001, T002>(
         T001 v,
         Func<T001, Task<T002>> f001002
     )
@@ -31,7 +32,8 @@ public static partial class F
     /// <param name="f001002">The first async function.</param>
     /// <param name="f002003">The second async function.</param>
     /// <returns>A task that resolves to the final result.</returns>
-    public static async Task<T003> PipeAsync<T001, T002, T003>(
+    public static async Task<T003>
+    PipeAsync<T001, T002, T003>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003
@@ -54,7 +56,8 @@ public static partial class F
     /// <param name="f002003">The second async function.</param>
     /// <param name="f003004">The third async function.</param>
     /// <returns>A task that resolves to the final result.</returns>
-    public static async Task<T004> PipeAsync<T001, T002, T003, T004>(
+    public static async Task<T004>
+    PipeAsync<T001, T002, T003, T004>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -74,7 +77,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T005> PipeAsync<T001, T002, T003, T004, T005>(
+    public static async Task<T005>
+    PipeAsync<T001, T002, T003, T004, T005>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -96,7 +100,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T006> PipeAsync<T001, T002, T003, T004, T005, T006>(
+    public static async Task<T006>
+    PipeAsync<T001, T002, T003, T004, T005, T006>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -120,7 +125,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T007> PipeAsync<T001, T002, T003, T004, T005, T006, T007>(
+    public static async Task<T007>
+    PipeAsync<T001, T002, T003, T004, T005, T006, T007>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -146,7 +152,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T008> PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008>(
+    public static async Task<T008>
+    PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -174,7 +181,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T009> PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009>(
+    public static async Task<T009>
+    PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -204,7 +212,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T010> PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010>(
+    public static async Task<T010>
+    PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -236,7 +245,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T011> PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011>(
+    public static async Task<T011>
+    PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -270,7 +280,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T012> PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012>(
+    public static async Task<T012>
+    PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -306,7 +317,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T013> PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013>(
+    public static async Task<T013>
+    PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -344,7 +356,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T014> PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014>(
+    public static async Task<T014>
+    PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -384,7 +397,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T015> PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015>(
+    public static async Task<T015>
+    PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -426,7 +440,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T016> PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015, T016>(
+    public static async Task<T016>
+    PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015, T016>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -470,7 +485,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T017> PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015, T016, T017>(
+    public static async Task<T017>
+    PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015, T016, T017>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -516,7 +532,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T018> PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015, T016, T017, T018>(
+    public static async Task<T018>
+    PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015, T016, T017, T018>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -564,7 +581,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T019> PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015, T016, T017, T018, T019>(
+    public static async Task<T019>
+    PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015, T016, T017, T018, T019>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -614,7 +632,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T020> PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015, T016, T017, T018, T019, T020>(
+    public static async Task<T020>
+    PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015, T016, T017, T018, T019, T020>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,
@@ -666,7 +685,8 @@ public static partial class F
     /// To use synchronous functions, wrap them: x =&gt;
     /// Task.FromResult(syncFunc(x))
     /// </remarks>
-    public static async Task<T021> PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015, T016, T017, T018, T019, T020, T021>(
+    public static async Task<T021>
+    PipeAsync<T001, T002, T003, T004, T005, T006, T007, T008, T009, T010, T011, T012, T013, T014, T015, T016, T017, T018, T019, T020, T021>(
         T001 v,
         Func<T001, Task<T002>> f001002,
         Func<T002, Task<T003>> f002003,

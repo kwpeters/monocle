@@ -13,141 +13,175 @@ public class ResultExtTests
 {
     //
     // ══════════════════════════════════════════════════════════════════════
-    // ── AssertError ──────────────────────────────────────────────────────
+    // ── ToResult ─────────────────────────────────────────────────────────
     // ══════════════════════════════════════════════════════════════════════
     //
 
     [Fact]
-    public void AssertError_WhenGivenErrorResult_ReturnsErrorValue()
+    public void ToResult_WhenGivenNonNullReference_ReturnsSuccess()
     {
-        var err =
-            ErrorE<double, string>("Error message")
-            .AssertError();
+        string? value = "alpha";
 
-        Assert.Equal("Error message", err);
+        var result = value.ToResult(() => "missing value");
+
+        Assert.Equal("alpha", result.ThrowIfError());
     }
 
 
     [Fact]
-    public void AssertError_WhenGivenSuccessResult_ThrowsException()
+    public void ToResult_WhenGivenNullReference_ReturnsErrorFromFactory()
     {
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-            SuccessE<int, string>(42)
-            .AssertError()
-        );
+        string? value = null;
 
-        Assert.Contains("Expected error Result but got success: 42", ex.Message);
+        var result = value.ToResult(() => "missing value");
+
+        Assert.Equal("missing value", result.ThrowIfSuccess());
     }
 
 
     [Fact]
-    public void AssertError_WhenGivenSuccessResultWithCustomMessage_ThrowsWithCustomMessage()
+    public void ToResult_WhenGivenNonNullReference_DoesNotInvokeErrorFactory()
     {
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-            SuccessE<int, string>(42)
-            .AssertError("Custom error")
-        );
+        string? value = "alpha";
+        var invoked = false;
 
-        Assert.Equal("Custom error", ex.Message);
-    }
+        var result = value.ToResult(() =>
+        {
+            invoked = true;
+            return "missing value";
+        });
 
-
-    // ── AssertError (Tier 2 lift) ────────────────────────────────────────
-
-    [Fact]
-    public async Task AssertError_Task_WhenGivenErrorResult_ReturnsErrorValue()
-    {
-        var err = await Task.FromResult(ErrorE<int, string>("Error message")).AssertError();
-        Assert.Equal("Error message", err);
+        Assert.Equal("alpha", result.ThrowIfError());
+        Assert.False(invoked);
     }
 
 
     [Fact]
-    public async Task AssertError_Task_WhenGivenSuccessResult_ThrowsException()
+    public void ToResult_WhenGivenNullErrorFactory_ThrowsArgumentNullException()
     {
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await Task.FromResult(SuccessE<int, string>(42)).AssertError());
-        Assert.Contains("Expected error Result but got success: 42", ex.Message);
+        string? value = "alpha";
+
+        Assert.Throws<ArgumentNullException>(() => value.ToResult<string, string>(null!));
     }
 
 
     [Fact]
-    public async Task AssertError_Task_WhenGivenSuccessResultWithCustomMessage_ThrowsWithCustomMessage()
+    public void ToResult_WhenGivenSomeOption_ReturnsSuccess()
     {
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await Task.FromResult(SuccessE<int, string>(42)).AssertError("Custom error"));
-        Assert.Equal("Custom error", ex.Message);
-    }
+        Option<string> input = Some("alpha");
 
+        var result = input.ToResult(() => "missing value");
 
-    //
-    // ══════════════════════════════════════════════════════════════════════
-    // ── AssertSuccessful ─────────────────────────────────────────────────
-    // ══════════════════════════════════════════════════════════════════════
-    //
-
-    [Fact]
-    public void AssertSuccessful_WhenGivenSuccessResult_ReturnsSuccessValue()
-    {
-        var val =
-            SuccessE<int, string>(42)
-            .AssertSuccessful();
-
-        Assert.Equal(42, val);
+        Assert.Equal("alpha", result.ThrowIfError());
     }
 
 
     [Fact]
-    public void AssertSuccessful_WhenGivenErrorResult_ThrowsException()
+    public void ToResult_WhenGivenNoneOption_ReturnsErrorFromFactory()
     {
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-            ErrorE<int, string>("Error message")
-            .AssertSuccessful()
-        );
+        Option<string> input = none;
 
-        Assert.Contains("Expected successful Result but got error: Error message", ex.Message);
+        var result = input.ToResult(() => "missing value");
+
+        Assert.Equal("missing value", result.ThrowIfSuccess());
     }
 
 
     [Fact]
-    public void AssertSuccessful_WhenGivenErrorResultWithCustomMessage_ThrowsWithCustomMessage()
+    public void ToResult_WhenGivenSomeOption_DoesNotInvokeErrorFactory()
     {
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-            ErrorE<int, string>("Error message")
-            .AssertSuccessful("Custom error")
-        );
+        Option<string> input = Some("alpha");
+        var invoked = false;
 
-        Assert.Equal("Custom error", ex.Message);
-    }
+        var result = input.ToResult(() =>
+        {
+            invoked = true;
+            return "missing value";
+        });
 
-
-    // ── AssertSuccessful (Tier 2 lift) ───────────────────────────────────
-
-    [Fact]
-    public async Task AssertSuccessful_Task_WhenGivenSuccessResult_ReturnsSuccessValue()
-    {
-        var val = await Task.FromResult(SuccessE<int, string>(42)).AssertSuccessful();
-        Assert.Equal(42, val);
+        Assert.Equal("alpha", result.ThrowIfError());
+        Assert.False(invoked);
     }
 
 
     [Fact]
-    public async Task AssertSuccessful_Task_WhenGivenErrorResult_ThrowsException()
+    public void ToResult_WhenGivenNullOption_ThrowsArgumentNullException()
     {
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await Task.FromResult(ErrorE<int, string>("Error message")).AssertSuccessful());
-        Assert.Contains("Expected successful Result but got error: Error message", ex.Message);
+        Option<string> input = null!;
+
+        Assert.Throws<ArgumentNullException>(() => input.ToResult(() => "missing value"));
     }
 
 
     [Fact]
-    public async Task AssertSuccessful_Task_WhenGivenErrorResultWithCustomMessage_ThrowsWithCustomMessage()
+    public void ToResult_WhenGivenNoneOptionAndNullErrorFactory_ThrowsArgumentNullException()
     {
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await Task.FromResult(ErrorE<int, string>("Error message")).AssertSuccessful("Custom error"));
-        Assert.Equal("Custom error", ex.Message);
+        Option<string> input = none;
+
+        Assert.Throws<ArgumentNullException>(() => input.ToResult<string, string>(null!));
     }
 
+
+    [Fact]
+    public void ToOption_WhenGivenSuccessResult_ReturnsSome()
+    {
+        Result<string, string> input = SuccessE<string, string>("alpha");
+
+        Option<string> result = input.ToOption();
+
+        Assert.Equal(Some("alpha"), result);
+    }
+
+
+    [Fact]
+    public void ToOption_WhenGivenErrorResult_ReturnsNone()
+    {
+        Result<string, string> input = ErrorE<string, string>("missing value");
+
+        Option<string> result = input.ToOption();
+
+        Assert.True(result.IsNone);
+    }
+
+
+    [Fact]
+    public void ToOption_WhenGivenNullResult_ThrowsArgumentNullException()
+    {
+        Result<string, string> input = null!;
+
+        Assert.Throws<ArgumentNullException>(() => input.ToOption());
+    }
+
+
+    [Fact]
+    public async Task ToOption_Task_WhenGivenSuccessResult_ReturnsSome()
+    {
+        Task<Result<string, string>> input = Task.FromResult(SuccessE<string, string>("alpha"));
+
+        Option<string> result = await input.ToOption();
+
+        Assert.Equal(Some("alpha"), result);
+    }
+
+
+    [Fact]
+    public async Task ToOption_Task_WhenGivenErrorResult_ReturnsNone()
+    {
+        Task<Result<string, string>> input = Task.FromResult(ErrorE<string, string>("missing value"));
+
+        Option<string> result = await input.ToOption();
+
+        Assert.True(result.IsNone);
+    }
+
+
+    [Fact]
+    public async Task ToOption_Task_WhenGivenNullTask_ThrowsArgumentNullException()
+    {
+        Task<Result<string, string>> input = null!;
+
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await input.ToOption());
+    }
 
     //
     // ══════════════════════════════════════════════════════════════════════
@@ -171,7 +205,7 @@ public class ResultExtTests
         var err =
             ErrorE<double, string>("Initial error!")
             .Bind(sqrt)
-            .AssertError();
+            .ThrowIfSuccess();
 
         Assert.Equal(0, numInvocations);
         Assert.Equal("Initial error!", err);
@@ -194,7 +228,7 @@ public class ResultExtTests
         var val =
             SuccessE<double, string>(4d)
             .Bind(sqrt)
-            .AssertSuccessful();
+            .ThrowIfError();
 
         Assert.Equal(1, numInvocations);
         Assert.Equal(2d, val);
@@ -208,7 +242,7 @@ public class ResultExtTests
     {
         var result = await Task.FromResult(SuccessE<int, string>(42))
             .Bind((x) => SuccessE<string, string>($"Value: {x}"));
-        var val = result.AssertSuccessful();
+        var val = result.ThrowIfError();
         Assert.Equal("Value: 42", val);
     }
 
@@ -222,7 +256,7 @@ public class ResultExtTests
                 fnCalled = true;
                 return SuccessE<string, string>($"Value: {x}");
             });
-        var err = result.AssertError();
+        var err = result.ThrowIfSuccess();
         Assert.False(fnCalled);
         Assert.Equal("Error message", err);
     }
@@ -238,7 +272,7 @@ public class ResultExtTests
                 await Task.Delay(1);
                 return SuccessE<string, string>($"Value: {x}");
             });
-        var val = result.AssertSuccessful();
+        var val = result.ThrowIfError();
         Assert.Equal("Value: 42", val);
     }
 
@@ -253,7 +287,7 @@ public class ResultExtTests
                 await Task.Delay(1);
                 return SuccessE<string, string>($"Value: {x}");
             });
-        var err = result.AssertError();
+        var err = result.ThrowIfSuccess();
         Assert.False(fnCalled);
         Assert.Equal("Error message", err);
     }
@@ -267,7 +301,7 @@ public class ResultExtTests
                 await Task.Delay(1);
                 return ErrorE<string, string>("Function error");
             });
-        var err = result.AssertError();
+        var err = result.ThrowIfSuccess();
         Assert.Equal("Function error", err);
     }
 
@@ -431,7 +465,7 @@ public class ResultExtTests
                 Result<int, string> r = Success(3);
                 return r;
             })
-            .AssertError();
+            .ThrowIfSuccess();
 
         Assert.Equal(0, numInvocations);
         Assert.Equal("Initial error", err);
@@ -450,7 +484,7 @@ public class ResultExtTests
                 Result<int, string> r = Success(2);
                 return r;
             })
-            .AssertSuccessful();
+            .ThrowIfError();
 
         Assert.Equal(1, numInvocations);
         Assert.Equal(1, val);
@@ -469,7 +503,7 @@ public class ResultExtTests
                 Result<int, string> r = Error("error");
                 return r;
             })
-            .AssertError();
+            .ThrowIfSuccess();
 
         Assert.Equal(1, numInvocations);
         Assert.Equal("error", err);
@@ -488,7 +522,7 @@ public class ResultExtTests
                     ErrorE<bool, string>("Validation failed");
                 return r;
             });
-        var val = result.AssertSuccessful();
+        var val = result.ThrowIfError();
         Assert.Equal(42, val);
     }
 
@@ -503,7 +537,7 @@ public class ResultExtTests
                     ErrorE<bool, string>("Gate validation failed");
                 return r;
             });
-        var err = result.AssertError();
+        var err = result.ThrowIfSuccess();
         Assert.Equal("Gate validation failed", err);
     }
 
@@ -518,7 +552,7 @@ public class ResultExtTests
                 Result<bool, string> r = SuccessE<bool, string>(true);
                 return r;
             });
-        var err = result.AssertError();
+        var err = result.ThrowIfSuccess();
         Assert.False(gateCalled);
         Assert.Equal("Input error", err);
     }
@@ -534,7 +568,7 @@ public class ResultExtTests
                 await Task.Delay(1);
                 return x > 0 ? SuccessE<bool, string>(true) : ErrorE<bool, string>("Validation failed");
             });
-        var val = result.AssertSuccessful();
+        var val = result.ThrowIfError();
         Assert.Equal(42, val);
     }
 
@@ -547,7 +581,7 @@ public class ResultExtTests
                 await Task.Delay(1);
                 return x < 0 ? SuccessE<bool, string>(true) : ErrorE<bool, string>("Gate validation failed");
             });
-        var err = result.AssertError();
+        var err = result.ThrowIfSuccess();
         Assert.Equal("Gate validation failed", err);
     }
 
@@ -562,9 +596,76 @@ public class ResultExtTests
                 await Task.Delay(1);
                 return SuccessE<bool, string>(true);
             });
-        var err = result.AssertError();
+        var err = result.ThrowIfSuccess();
         Assert.False(gateCalled);
         Assert.Equal("Input error", err);
+    }
+
+    //
+    // ══════════════════════════════════════════════════════════════════════
+    // ── GetError / GetValue ──────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void GetError_WhenGivenErrorResult_ReturnsErrorValue()
+    {
+        var err = ErrorE<int, string>("Error message").GetError();
+        Assert.Equal("Error message", err);
+    }
+
+
+    [Fact]
+    public void GetError_WhenGivenSuccessResult_ThrowsException()
+    {
+        Assert.Throws<InvalidOperationException>(() => SuccessE<int, string>(42).GetError());
+    }
+
+
+    [Fact]
+    public async Task GetError_Task_WhenGivenErrorResult_ReturnsErrorValue()
+    {
+        var err = await Task.FromResult(ErrorE<int, string>("Error message")).GetError();
+        Assert.Equal("Error message", err);
+    }
+
+
+    [Fact]
+    public async Task GetError_Task_WhenGivenSuccessResult_ThrowsException()
+    {
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await Task.FromResult(SuccessE<int, string>(42)).GetError());
+    }
+
+
+    [Fact]
+    public void GetValue_WhenGivenSuccessResult_ReturnsSuccessValue()
+    {
+        var val = SuccessE<int, string>(42).GetValue();
+        Assert.Equal(42, val);
+    }
+
+
+    [Fact]
+    public void GetValue_WhenGivenErrorResult_ThrowsException()
+    {
+        Assert.Throws<InvalidOperationException>(() => ErrorE<int, string>("Error message").GetValue());
+    }
+
+
+    [Fact]
+    public async Task GetValue_Task_WhenGivenSuccessResult_ReturnsSuccessValue()
+    {
+        var val = await Task.FromResult(SuccessE<int, string>(42)).GetValue();
+        Assert.Equal(42, val);
+    }
+
+
+    [Fact]
+    public async Task GetValue_Task_WhenGivenErrorResult_ThrowsException()
+    {
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await Task.FromResult(ErrorE<int, string>("Error message")).GetValue());
     }
 
 
@@ -588,7 +689,7 @@ public class ResultExtTests
         var err =
             ErrorE<int, string>("Initial error!")
             .MapSuccess(doubleValue)
-            .AssertError();
+            .ThrowIfSuccess();
 
         Assert.Equal(0, numInvocations);
         Assert.Equal("Initial error!", err);
@@ -609,7 +710,7 @@ public class ResultExtTests
         var val =
             SuccessE<int, string>(5)
             .MapSuccess(doubleValue)
-            .AssertSuccessful();
+            .ThrowIfError();
 
         Assert.Equal(1, numInvocations);
         Assert.Equal(10, val);
@@ -622,7 +723,7 @@ public class ResultExtTests
         var val =
             SuccessE<int, string>(42)
             .MapSuccess(x => $"Value: {x}")
-            .AssertSuccessful();
+            .ThrowIfError();
 
         Assert.Equal("Value: 42", val);
     }
@@ -636,7 +737,7 @@ public class ResultExtTests
             .MapSuccess(x => x * 2)      // 3 * 2 = 6
             .MapSuccess(x => x + 10)     // 6 + 10 = 16
             .MapSuccess(x => x.ToString(CultureInfo.InvariantCulture))
-            .AssertSuccessful();
+            .ThrowIfError();
 
         Assert.Equal("16", val);
     }
@@ -652,7 +753,7 @@ public class ResultExtTests
             .MapSuccess(x => { invocations++; return x * 2; })
             .MapSuccess(x => { invocations++; return x + 10; })
             .MapSuccess(x => { invocations++; return x.ToString(CultureInfo.InvariantCulture); })
-            .AssertError();
+            .ThrowIfSuccess();
 
         Assert.Equal(0, invocations);
         Assert.Equal("Initial error", err);
@@ -666,7 +767,7 @@ public class ResultExtTests
     {
         var result = await Task.FromResult(SuccessE<int, string>(42))
             .MapSuccess((x) => x * 2);
-        var val = result.AssertSuccessful();
+        var val = result.ThrowIfError();
         Assert.Equal(84, val);
     }
 
@@ -680,7 +781,7 @@ public class ResultExtTests
                 fnCalled = true;
                 return x * 2;
             });
-        var err = result.AssertError();
+        var err = result.ThrowIfSuccess();
         Assert.False(fnCalled);
         Assert.Equal("Error message", err);
     }
@@ -696,7 +797,7 @@ public class ResultExtTests
                 await Task.Delay(1);
                 return x * 2;
             });
-        var val = result.AssertSuccessful();
+        var val = result.ThrowIfError();
         Assert.Equal(84, val);
     }
 
@@ -711,7 +812,7 @@ public class ResultExtTests
                 await Task.Delay(1);
                 return x * 2;
             });
-        var err = result.AssertError();
+        var err = result.ThrowIfSuccess();
         Assert.False(fnCalled);
         Assert.Equal("Error message", err);
     }
@@ -737,7 +838,7 @@ public class ResultExtTests
         var val =
             SuccessE<int, string>(42)
             .MapError(appendText)
-            .AssertSuccessful();
+            .ThrowIfError();
 
         Assert.Equal(0, numInvocations);
         Assert.Equal(42, val);
@@ -758,7 +859,7 @@ public class ResultExtTests
         var err =
             ErrorE<int, string>("Original error")
             .MapError(appendText)
-            .AssertError();
+            .ThrowIfSuccess();
 
         Assert.Equal(1, numInvocations);
         Assert.Equal("Original error (modified)", err);
@@ -771,7 +872,7 @@ public class ResultExtTests
         var errVal =
             ErrorE<int, string>("Error message")
             .MapError(err => err.Length)
-            .AssertError();
+            .ThrowIfSuccess();
 
         Assert.Equal(13, errVal);
     }
@@ -785,7 +886,7 @@ public class ResultExtTests
             .MapError(err => err.ToUpper(CultureInfo.InvariantCulture))  // "ERROR"
             .MapError(err => err + "!")               // "ERROR!"
             .MapError(err => err.Length)              // 6
-            .AssertError();
+            .ThrowIfSuccess();
 
         Assert.Equal(6, errVal);
     }
@@ -801,7 +902,7 @@ public class ResultExtTests
             .MapError(err => { invocations++; return err.ToUpper(CultureInfo.InvariantCulture); })
             .MapError(err => { invocations++; return err + "!"; })
             .MapError(err => { invocations++; return err.Length; })
-            .AssertSuccessful();
+            .ThrowIfError();
 
         Assert.Equal(0, invocations);
         Assert.Equal(42, val);
@@ -819,7 +920,7 @@ public class ResultExtTests
                 fnCalled = true;
                 return $"Transformed: {err}";
             });
-        var val = result.AssertSuccessful();
+        var val = result.ThrowIfError();
         Assert.False(fnCalled);
         Assert.Equal(42, val);
     }
@@ -830,7 +931,7 @@ public class ResultExtTests
     {
         var result = await Task.FromResult(ErrorE<int, string>("Error message"))
             .MapError((err) => $"Transformed: {err}");
-        var err = result.AssertError();
+        var err = result.ThrowIfSuccess();
         Assert.Equal("Transformed: Error message", err);
     }
 
@@ -847,7 +948,7 @@ public class ResultExtTests
                 await Task.Delay(1);
                 return $"Transformed: {err}";
             });
-        var val = result.AssertSuccessful();
+        var val = result.ThrowIfError();
         Assert.False(fnCalled);
         Assert.Equal(42, val);
     }
@@ -861,7 +962,7 @@ public class ResultExtTests
                 await Task.Delay(1);
                 return $"Transformed: {err}";
             });
-        var err = result.AssertError();
+        var err = result.ThrowIfSuccess();
         Assert.Equal("Transformed: Error message", err);
     }
 
@@ -933,8 +1034,8 @@ public class ResultExtTests
         var errorCalled = false;
         await Task.FromResult(SuccessE<int, string>(42))
             .Match(
-                (s) => { successCalled = true; },
-                (e) => { errorCalled = true; }
+                (s) => successCalled = true,
+                (e) => errorCalled = true
             );
         Assert.True(successCalled);
         Assert.False(errorCalled);
@@ -948,8 +1049,8 @@ public class ResultExtTests
         var errorCalled = false;
         await Task.FromResult(ErrorE<int, string>("Error message"))
             .Match(
-                (s) => { successCalled = true; },
-                (e) => { errorCalled = true; }
+                (s) => successCalled = true,
+                (e) => errorCalled = true
             );
         Assert.False(successCalled);
         Assert.True(errorCalled);
@@ -1186,5 +1287,141 @@ public class ResultExtTests
         }.PartitionAsync();
         Assert.Equal(new[] { 1, 2 }, successes);
         Assert.Equal(new[] { "err1" }, failures);
+    }
+
+    //
+    // ══════════════════════════════════════════════════════════════════════
+    // ── ThrowIfError ─────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void ThrowIfError_WhenGivenSuccessResult_ReturnsSuccessValue()
+    {
+        var val =
+            SuccessE<int, string>(42)
+            .ThrowIfError();
+
+        Assert.Equal(42, val);
+    }
+
+
+    [Fact]
+    public void ThrowIfError_WhenGivenErrorResult_ThrowsException()
+    {
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            ErrorE<int, string>("Error message")
+            .ThrowIfError()
+        );
+
+        Assert.Contains("Expected successful Result but got error: Error message", ex.Message);
+    }
+
+
+    [Fact]
+    public void ThrowIfError_WhenGivenErrorResultWithCustomMessage_ThrowsWithCustomMessage()
+    {
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            ErrorE<int, string>("Error message")
+            .ThrowIfError("Custom error")
+        );
+
+        Assert.Equal("Custom error", ex.Message);
+    }
+
+
+    // ── ThrowIfError (Tier 2 lift) ───────────────────────────────────
+
+    [Fact]
+    public async Task ThrowIfError_Task_WhenGivenSuccessResult_ReturnsSuccessValue()
+    {
+        var val = await Task.FromResult(SuccessE<int, string>(42)).ThrowIfError();
+        Assert.Equal(42, val);
+    }
+
+
+    [Fact]
+    public async Task ThrowIfError_Task_WhenGivenErrorResult_ThrowsException()
+    {
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await Task.FromResult(ErrorE<int, string>("Error message")).ThrowIfError());
+        Assert.Contains("Expected successful Result but got error: Error message", ex.Message);
+    }
+
+
+    [Fact]
+    public async Task ThrowIfError_Task_WhenGivenErrorResultWithCustomMessage_ThrowsWithCustomMessage()
+    {
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await Task.FromResult(ErrorE<int, string>("Error message")).ThrowIfError("Custom error"));
+        Assert.Equal("Custom error", ex.Message);
+    }
+
+    //
+    // ══════════════════════════════════════════════════════════════════════
+    // ── ThrowIfSuccess ───────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void ThrowIfSuccess_WhenGivenErrorResult_ReturnsErrorValue()
+    {
+        var err =
+            ErrorE<double, string>("Error message")
+            .ThrowIfSuccess();
+
+        Assert.Equal("Error message", err);
+    }
+
+
+    [Fact]
+    public void ThrowIfSuccess_WhenGivenSuccessResult_ThrowsException()
+    {
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            SuccessE<int, string>(42)
+            .ThrowIfSuccess()
+        );
+
+        Assert.Contains("Expected error Result but got success: 42", ex.Message);
+    }
+
+
+    [Fact]
+    public void ThrowIfSuccess_WhenGivenSuccessResultWithCustomMessage_ThrowsWithCustomMessage()
+    {
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            SuccessE<int, string>(42)
+            .ThrowIfSuccess("Custom error")
+        );
+
+        Assert.Equal("Custom error", ex.Message);
+    }
+
+
+    // ── ThrowIfSuccess (Tier 2 lift) ────────────────────────────────────
+
+    [Fact]
+    public async Task ThrowIfSuccess_Task_WhenGivenErrorResult_ReturnsErrorValue()
+    {
+        var err = await Task.FromResult(ErrorE<int, string>("Error message")).ThrowIfSuccess();
+        Assert.Equal("Error message", err);
+    }
+
+
+    [Fact]
+    public async Task ThrowIfSuccess_Task_WhenGivenSuccessResult_ThrowsException()
+    {
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await Task.FromResult(SuccessE<int, string>(42)).ThrowIfSuccess());
+        Assert.Contains("Expected error Result but got success: 42", ex.Message);
+    }
+
+
+    [Fact]
+    public async Task ThrowIfSuccess_Task_WhenGivenSuccessResultWithCustomMessage_ThrowsWithCustomMessage()
+    {
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await Task.FromResult(SuccessE<int, string>(42)).ThrowIfSuccess("Custom error"));
+        Assert.Equal("Custom error", ex.Message);
     }
 }

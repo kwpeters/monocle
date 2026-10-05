@@ -1,9 +1,4 @@
 <Solution>
-  <Folder Name="/apps/">
-    <Project Path="apps/SampleConsoleXyzzy/SampleConsoleXyzzy.csproj" />
-  </Folder>
-  <Folder Name="/libs/">
-    <Project Path="libs/SampleClassLibXyzzy.Tests/SampleClassLibXyzzy.Tests.csproj" />
-    <Project Path="libs/SampleClassLibXyzzy/SampleClassLibXyzzy.csproj" />
-  </Folder>
+  <Folder Name="/apps/" />
+  <Folder Name="/libs/" />
 </Solution>

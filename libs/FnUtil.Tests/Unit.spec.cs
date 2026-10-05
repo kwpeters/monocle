@@ -2,6 +2,9 @@ namespace FnUtil.Tests;
 
 public class UnitTests
 {
+    //------------------------------------------------------------------------------
+    // Static methods
+    //------------------------------------------------------------------------------
 
     [Fact]
     public void CanBeUsedConveniently()

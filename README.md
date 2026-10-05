@@ -35,7 +35,6 @@ To make sure the source code conforms to the configured formatting and style:
 dotnet format --verify-no-changes --severity info
 ```
 
-
 ## Publishing
 
 ```powershell

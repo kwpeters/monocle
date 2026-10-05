@@ -1,6 +1,60 @@
 namespace FnUtil.Tests;
 
 
+public class ResultSuccessTypeTests
+{
+    [Fact]
+    public void Value_StoresProvidedValue()
+    {
+        var s = new ResultSuccessType<int>(42);
+        Assert.Equal(42, s.Value);
+    }
+
+    [Fact]
+    public void Equality_SameValue_AreEqual()
+    {
+        var a = new ResultSuccessType<int>(42);
+        var b = new ResultSuccessType<int>(42);
+        Assert.Equal(a, b);
+    }
+
+    [Fact]
+    public void Equality_DifferentValues_AreNotEqual()
+    {
+        var a = new ResultSuccessType<int>(1);
+        var b = new ResultSuccessType<int>(2);
+        Assert.NotEqual(a, b);
+    }
+}
+
+
+public class ResultErrorTypeTests
+{
+    [Fact]
+    public void Error_StoresProvidedError()
+    {
+        var e = new ResultErrorType<string>("oops");
+        Assert.Equal("oops", e.Error);
+    }
+
+    [Fact]
+    public void Equality_SameError_AreEqual()
+    {
+        var a = new ResultErrorType<string>("oops");
+        var b = new ResultErrorType<string>("oops");
+        Assert.Equal(a, b);
+    }
+
+    [Fact]
+    public void Equality_DifferentErrors_AreNotEqual()
+    {
+        var a = new ResultErrorType<string>("one");
+        var b = new ResultErrorType<string>("two");
+        Assert.NotEqual(a, b);
+    }
+}
+
+
 public class SuccessResultTests
 {
 

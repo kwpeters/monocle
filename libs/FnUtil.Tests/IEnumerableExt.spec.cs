@@ -103,4 +103,32 @@ public class IEnumerableExtTests
         Assert.Equal(6, res);
     }
 
+
+    [Fact]
+    public void Tap_CallsActionForEachElement()
+    {
+        var numbers = new int[] { 1, 2, 3 };
+        var seen = new List<int>();
+        numbers.Tap(seen.Add);
+        Assert.Equal(new int[] { 1, 2, 3 }, seen);
+    }
+
+
+    [Fact]
+    public void Tap_ReturnsOriginalCollection()
+    {
+        var numbers = new int[] { 1, 2, 3 };
+        var result = numbers.Tap((_) => { });
+        Assert.Same(numbers, result);
+    }
+
+
+    [Fact]
+    public void Tap_WhenEmptyCollection_DoesNotCallAction()
+    {
+        var called = false;
+        Array.Empty<int>().Tap((_) => called = true);
+        Assert.False(called);
+    }
+
 }

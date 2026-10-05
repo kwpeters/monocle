@@ -8,6 +8,39 @@ namespace FnUtil;
 public static class OptionExt
 {
     /// <summary>
+    /// Converts a nullable reference to an Option explicitly:
+    /// null becomes None, otherwise Some(value).
+    /// </summary>
+    public static Option<T>
+    ToOption<T>(this T value)
+    {
+        return value is null ? none : Some(value);
+    }
+
+
+    /// <summary>
+    /// Transforms the value inside an Option using the provided mapping function.
+    /// If the Option is None, None is returned without invoking the mapping function.
+    /// </summary>
+    /// <typeparam name="T">The type of value contained in the input Option.</typeparam>
+    /// <typeparam name="TMapped">The type of value contained in the output Option.</typeparam>
+    /// <param name="input">The Option to transform.</param>
+    /// <param name="mapFn">A function to apply to the contained value if the Option is Some.</param>
+    /// <returns>
+    /// Some containing the mapped value if the input is Some; otherwise None.
+    /// </returns>
+    public static Option<TMapped>
+    Map<T, TMapped>(
+        this Option<T> input,
+        Func<T, TMapped> mapFn
+    ) =>
+        input.Match(
+            (val) => Some(mapFn(val)),
+            () => none
+        );
+
+
+    /// <summary>
     /// Pattern matches on an Option, executing one of two functions depending on
     /// whether the Option contains a value (Some) or is empty (None).
     /// </summary>
@@ -31,7 +64,7 @@ public static class OptionExt
         Func<TResult> noneFn
     ) =>
         opt switch {
-            Some<T>(var t) => someFn(t),
+            Some<T> some => someFn(some.Value),
             None<T> => noneFn(),
             _ => throw new ArgumentException("Option must be None or Some.")
         };
@@ -79,4 +112,43 @@ public static class OptionExt
             (t) => Task.FromResult(t),
             () => fallback()
         );
+
+
+    //--------------------------------------------------------------------------
+    // GetValue
+    //--------------------------------------------------------------------------
+
+    /// <summary>
+    /// Returns the contained value from an Option.
+    /// </summary>
+    /// <typeparam name="T">The type of value contained in the Option.</typeparam>
+    /// <param name="input">The Option to extract a value from.</param>
+    /// <returns>The contained value if the Option is Some.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the Option is None.
+    /// </exception>
+    public static T
+    GetValue<T>(this Option<T> input)
+    {
+        return input.Match(
+            (t) => t,
+            () => throw new InvalidOperationException("Cannot get value from a None option.")
+        );
+    }
+
+    /// <summary>
+    /// Returns the contained value from a Task-wrapped Option.
+    /// </summary>
+    /// <typeparam name="T">The type of value contained in the Option.</typeparam>
+    /// <param name="input">A task that resolves to an Option.</param>
+    /// <returns>A Task containing the value if the Option is Some.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the Option is None.
+    /// </exception>
+    public static async Task<T>
+    GetValue<T>(this Task<Option<T>> input)
+    {
+        var option = await input.ConfigureAwait(false);
+        return option.GetValue();
+    }
 }

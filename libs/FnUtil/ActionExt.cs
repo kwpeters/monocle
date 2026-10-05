@@ -5,6 +5,10 @@ namespace FnUtil;
 
 public static class ActionExt
 {
+    //------------------------------------------------------------------------------
+    // Static methods
+    //------------------------------------------------------------------------------
+
     public static Func<Unit> ToFunc(this Action action)
         => () => { action(); return unit; };
 
@@ -19,6 +23,10 @@ public static class ActionExt
 
 public partial class F
 {
+    //------------------------------------------------------------------------------
+    // Static methods
+    //------------------------------------------------------------------------------
+
     /// <summary>
     /// Invokes the action and returns unit.
     /// </summary>

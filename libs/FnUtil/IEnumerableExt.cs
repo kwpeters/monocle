@@ -9,6 +9,9 @@ namespace FnUtil;
 
 public static class IEnumerableExt
 {
+    //------------------------------------------------------------------------------
+    // Static methods
+    //------------------------------------------------------------------------------
 
     /// <summary>
     /// Filters out elements from the collection that match the specified

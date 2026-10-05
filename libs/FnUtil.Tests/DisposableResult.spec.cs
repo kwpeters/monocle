@@ -1,19 +1,18 @@
-﻿namespace FnUtil.Tests;
-
-#pragma warning disable CA2000 // Ownership is intentionally transferred to DisposableResult in these tests
+namespace FnUtil.Tests;
 
 public class DisposableResultTests
 {
     private sealed class FakeDisposable : IDisposable
     {
         public bool IsDisposed { get; private set; }
-        public void Dispose() => this.IsDisposed = true;
+        public void Dispose() => IsDisposed = true;
     }
 
     [Fact]
     public void Ok_IsSuccess_ReturnsTrue()
     {
-        using var dr = DisposableResult.Success<FakeDisposable, string>(new FakeDisposable());
+        using var inner = new FakeDisposable();
+        using var dr = DisposableResult.Success<FakeDisposable, string>(inner);
         Assert.True(dr.IsSuccess);
         Assert.False(dr.IsError);
     }
@@ -29,7 +28,7 @@ public class DisposableResultTests
     [Fact]
     public void Detach_ReturnsValue_And_Dispose_DoesNotDisposeValue()
     {
-        var inner = new FakeDisposable();
+        using var inner = new FakeDisposable();
         var dr = DisposableResult.Success<FakeDisposable, string>(inner);
 
         var detached = dr.Detach();
@@ -42,7 +41,7 @@ public class DisposableResultTests
     [Fact]
     public void Dispose_DisposesValue_WhenNotDetached()
     {
-        var inner = new FakeDisposable();
+        using var inner = new FakeDisposable();
         var dr = DisposableResult.Success<FakeDisposable, string>(inner);
 
         dr.Dispose();
@@ -52,7 +51,7 @@ public class DisposableResultTests
     [Fact]
     public void Dispose_IsIdempotent()
     {
-        var inner = new FakeDisposable();
+        using var inner = new FakeDisposable();
         var dr = DisposableResult.Success<FakeDisposable, string>(inner);
 
         dr.Dispose();
@@ -77,7 +76,7 @@ public class DisposableResultTests
     [Fact]
     public void Match_OnSuccess_CallsSuccessFn()
     {
-        var inner = new FakeDisposable();
+        using var inner = new FakeDisposable();
         using var dr = DisposableResult.Success<FakeDisposable, string>(inner);
 
         var result = dr.Match(
@@ -102,14 +101,13 @@ public class DisposableResultTests
     [Fact]
     public void MatchVoid_OnSuccess_CallsSuccessAction()
     {
-        var inner = new FakeDisposable();
+        using var inner = new FakeDisposable();
         using var dr = DisposableResult.Success<FakeDisposable, string>(inner);
 
         var called = false;
         dr.Match(
-            (s) => { called = true; },
-            (e) => { Assert.Fail("Should not call error action"); }
-        );
+            (s) => called = true,
+            (e) => Assert.Fail("Should not call error action"));
         Assert.True(called);
     }
 
@@ -120,16 +118,15 @@ public class DisposableResultTests
 
         var errorValue = "";
         dr.Match(
-            (s) => { Assert.Fail("Should not call success action"); },
-            (e) => { errorValue = e; }
-        );
+            (s) => Assert.Fail("Should not call success action"),
+            (e) => errorValue = e);
         Assert.Equal("boom", errorValue);
     }
 
     [Fact]
     public void ImplicitConversion_FromResult_Works()
     {
-        var inner = new FakeDisposable();
+        using var inner = new FakeDisposable();
         Result<FakeDisposable, string> result = Success(inner);
 
         DisposableResult<FakeDisposable, string> dr = result;
@@ -141,16 +138,17 @@ public class DisposableResultTests
     }
 
     [Fact]
-    public void AssertError_OnError_ReturnsError()
+    public void ThrowIfSuccess_OnError_ReturnsError()
     {
-        using var dr = DisposableResult.Error<FakeDisposable, string>("boom");
-        Assert.Equal("boom", dr.AssertError());
+        var dr = DisposableResult.Error<FakeDisposable, string>("boom");
+        Assert.Equal("boom", dr.ThrowIfSuccess());
     }
 
     [Fact]
-    public void AssertError_OnSuccess_Throws()
+    public void ThrowIfSuccess_OnSuccess_Throws()
     {
-        using var dr = DisposableResult.Success<FakeDisposable, string>(new FakeDisposable());
-        Assert.Throws<InvalidOperationException>(() => dr.AssertError());
+        using var inner = new FakeDisposable();
+        var dr = DisposableResult.Success<FakeDisposable, string>(inner);
+        Assert.Throws<InvalidOperationException>(() => dr.ThrowIfSuccess());
     }
 }

@@ -74,4 +74,20 @@ public class OptionTests
         Option<int> opt = none;
         Assert.True(opt.IsNone);
     }
+
+
+    [Fact]
+    public void ToOption_WhenGivenNullReference_ReturnsNone()
+    {
+        string? name = null;
+        Option<string> opt = name!.ToOption();
+        Assert.True(opt.IsNone);
+    }
+
+
+    [Fact]
+    public void Some_WhenGivenNullReference_ThrowsArgumentNullException()
+    {
+        Assert.Throws<ArgumentNullException>(() => Some<string>(null!));
+    }
 }

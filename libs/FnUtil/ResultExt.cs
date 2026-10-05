@@ -1,4 +1,4 @@
-﻿//
+//
 // At least a portion of the code below was created using AI tool GitHub Copilot.
 //
 
@@ -9,107 +9,94 @@ namespace FnUtil;
 
 public static class ResultExt
 {
-    //
-    // ══════════════════════════════════════════════════════════════════════
-    // ── AssertError ──────────────────────────────────────────────────────
-    // ══════════════════════════════════════════════════════════════════════
-    //
+    //------------------------------------------------------------------------------
+    // Static methods
+    //------------------------------------------------------------------------------
 
     /// <summary>
-    /// Asserts that a Result is an error and returns the error value.  If the
-    /// Result is a success, throws an ApplicationException.
+    /// Converts a nullable reference to a Result explicitly.
+    /// Returns Success(value) when value is non-null; otherwise returns
+    /// Error(errorFactory()).
     /// </summary>
-    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
-    /// <typeparam name="TError">The type of the error value.</typeparam>
-    /// <param name="res">The Result to assert.</param>
-    /// <param name="errMsg">
-    /// Optional custom error message to use if the assertion fails. If not
-    /// provided, a default message including the success value will be used.
+    /// <typeparam name="TSuccess">The success value type.</typeparam>
+    /// <typeparam name="TError">The error value type.</typeparam>
+    /// <param name="value">The nullable input value.</param>
+    /// <param name="errorFactory">
+    /// Factory for the error value. This factory is invoked only when value is null.
     /// </param>
-    /// <returns>The error value if the Result is an error.</returns>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if the Result is a success instead of an error.
-    /// </exception>
-    public static TError
-    AssertError<TSuccess, TError>(
-        this Result<TSuccess, TError> res,
-        string? errMsg = null
+    public static Result<TSuccess, TError>
+    ToResult<TSuccess, TError>(
+        this TSuccess? value,
+        Func<TError> errorFactory
+    ) where TSuccess : class
+    {
+        ArgumentNullException.ThrowIfNull(errorFactory);
+
+        return value is null ?
+            Error(errorFactory()) :
+            Success(value);
+    }
+
+    /// <summary>
+    /// Converts an Option to a Result explicitly.
+    /// Returns Success(value) when the Option is Some; otherwise returns
+    /// Error(errorFactory()).
+    /// </summary>
+    /// <typeparam name="TSuccess">The success value type.</typeparam>
+    /// <typeparam name="TError">The error value type.</typeparam>
+    /// <param name="input">The Option input value.</param>
+    /// <param name="errorFactory">
+    /// Factory for the error value. This factory is invoked only when the Option is None.
+    /// </param>
+    public static Result<TSuccess, TError>
+    ToResult<TSuccess, TError>(
+        this Option<TSuccess> input,
+        Func<TError> errorFactory
     )
     {
-        return res.Match(
-            (s) => throw new InvalidOperationException(errMsg ?? $"Expected error Result but got success: {s}"),
-            (e) => e
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(errorFactory);
+
+        return input.Match<TSuccess, Result<TSuccess, TError>>(
+            someFn: (value) => Success(value),
+            noneFn: () => Error(errorFactory())
         );
     }
 
     /// <summary>
-    /// Asserts that a Result is an error and returns the error value.  If the
-    /// Result is a success, throws an InvalidOperationException.
+    /// Converts a Result to an Option explicitly.
+    /// Returns Some(value) when the Result is success; otherwise returns none.
     /// </summary>
-    public static async Task<TError>
-    AssertError<TSuccess, TError>(
-        this Task<Result<TSuccess, TError>> taskResult,
-        string? errMsg = null
-    )
+    /// <typeparam name="TSuccess">The success value type.</typeparam>
+    /// <typeparam name="TError">The error value type.</typeparam>
+    /// <param name="input">The Result input value.</param>
+    public static Option<TSuccess>
+    ToOption<TSuccess, TError>(this Result<TSuccess, TError> input)
     {
-        var res = await taskResult.ConfigureAwait(false);
-        return res.AssertError(errMsg);
-    }
+        ArgumentNullException.ThrowIfNull(input);
 
-
-    //
-    // ══════════════════════════════════════════════════════════════════════
-    // ── AssertSuccessful ─────────────────────────────────────────────────
-    // ══════════════════════════════════════════════════════════════════════
-    //
-
-    /// <summary>
-    /// Asserts that a Result is successful and returns the success value.  If
-    /// the Result is an error, throws an ApplicationException.
-    /// </summary>
-    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
-    /// <typeparam name="TError">The type of the error value.</typeparam>
-    /// <param name="res">The Result to assert.</param>
-    /// <param name="errMsg">
-    /// Optional custom error message to use if the assertion fails. If not
-    /// provided, a default message including the error value will be used.
-    /// </param>
-    /// <returns>The success value if the Result is successful.</returns>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if the Result is an error instead of a success.
-    /// </exception>
-    public static TSuccess
-    AssertSuccessful<TSuccess, TError>(
-        this Result<TSuccess, TError> res,
-        string? errMsg = null
-    )
-    {
-        return res.Match(
-            (s) => s,
-            (e) => throw new InvalidOperationException(errMsg ?? $"Expected successful Result but got error: {e}")
+        return input.Match<TSuccess, TError, Option<TSuccess>>(
+            successFn: (value) => Some(value),
+            errorFn: (_) => none
         );
     }
 
     /// <summary>
-    /// Asserts that a Result is successful and returns the success value.  If
-    /// the Result is an error, throws an InvalidOperationException.
+    /// Converts a Task-wrapped Result to an Option explicitly.
+    /// Returns Some(value) when the Result is success; otherwise returns none.
     /// </summary>
-    public static async Task<TSuccess>
-    AssertSuccessful<TSuccess, TError>(
-        this Task<Result<TSuccess, TError>> taskResult,
-        string? errMsg = null
-    )
+    /// <typeparam name="TSuccess">The success value type.</typeparam>
+    /// <typeparam name="TError">The error value type.</typeparam>
+    /// <param name="taskInput">A task that resolves to a Result.</param>
+    public static async Task<Option<TSuccess>>
+    ToOption<TSuccess, TError>(this Task<Result<TSuccess, TError>> taskInput)
     {
-        var res = await taskResult.ConfigureAwait(false);
-        return res.AssertSuccessful(errMsg);
+        ArgumentNullException.ThrowIfNull(taskInput);
+
+        var input = await taskInput.ConfigureAwait(false);
+        return input.ToOption();
     }
 
-
-    //
-    // ══════════════════════════════════════════════════════════════════════
-    // ── Bind ─────────────────────────────────────────────────────────────
-    // ══════════════════════════════════════════════════════════════════════
-    //
 
     /// <summary>
     /// Monadic bind operation for Result.  If the input Result is successful,
@@ -177,12 +164,6 @@ public static class ResultExt
     }
 
 
-    //
-    // ══════════════════════════════════════════════════════════════════════
-    // ── DefaultValue ─────────────────────────────────────────────────────
-    // ══════════════════════════════════════════════════════════════════════
-    //
-
     /// <summary>
     /// Returns the success value of a Result or a default value if the Result
     /// is an error.
@@ -221,12 +202,6 @@ public static class ResultExt
         return input.DefaultValue(defaultValue);
     }
 
-
-    //
-    // ══════════════════════════════════════════════════════════════════════
-    // ── DefaultWith ──────────────────────────────────────────────────────
-    // ══════════════════════════════════════════════════════════════════════
-    //
 
     /// <summary>
     /// Returns the success value of a Result or computes a default value using
@@ -291,12 +266,6 @@ public static class ResultExt
         return result;
     }
 
-
-    //
-    // ══════════════════════════════════════════════════════════════════════
-    // ── Gate ─────────────────────────────────────────────────────────────
-    // ══════════════════════════════════════════════════════════════════════
-    //
 
     /// <summary>
     /// Gates a Result by applying a validation function. If the input Result is
@@ -387,11 +356,83 @@ public static class ResultExt
     }
 
 
-    //
-    // ══════════════════════════════════════════════════════════════════════
-    // ── MapSuccess ───────────────────────────────────────────────────────
-    // ══════════════════════════════════════════════════════════════════════
-    //
+    /// <summary>
+    /// Returns the error value from a Result.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="input">The input Result.</param>
+    /// <returns>The error value if the Result is an error.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the Result is successful.
+    /// </exception>
+    public static TError
+    GetError<TSuccess, TError>(this Result<TSuccess, TError> input)
+    {
+        return input.Match(
+            (s) => throw new InvalidOperationException("Cannot access Error on a SuccessResult."),
+            (e) => e
+        );
+    }
+
+    /// <summary>
+    /// Returns the error value from a Task-wrapped Result.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="taskInput">A task that resolves to a Result.</param>
+    /// <returns>A task containing the error value if the Result is an error.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the Result is successful.
+    /// </exception>
+    public static async Task<TError>
+    GetError<TSuccess, TError>(this Task<Result<TSuccess, TError>> taskInput)
+    {
+        var input = await taskInput.ConfigureAwait(false);
+        return input.GetError();
+    }
+
+
+    /// <summary>
+    /// Returns the success value from a Result.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="input">The input Result.</param>
+    /// <returns>The success value if the Result is successful.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the Result is an error.
+    /// </exception>
+    public static TSuccess
+    GetValue<TSuccess, TError>(this Result<TSuccess, TError> input)
+    {
+        return input.Match(
+            (s) => s,
+            (e) => throw new InvalidOperationException("Cannot access Value on an ErrorResult.")
+        );
+    }
+
+    /// <summary>
+    /// Returns the success value from a Task-wrapped Result.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="taskInput">A task that resolves to a Result.</param>
+    /// <returns>A task containing the success value if the Result is successful.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the Result is an error.
+    /// </exception>
+    public static async Task<TSuccess>
+    GetValue<TSuccess, TError>(this Task<Result<TSuccess, TError>> taskInput)
+    {
+        var input = await taskInput.ConfigureAwait(false);
+        return input.GetValue();
+    }
+
+
+    //--------------------------------------------------------------------------
+    // MapSuccess
+    //--------------------------------------------------------------------------
 
     /// <summary>
     /// Maps the success value of a Result to a new value using the provided
@@ -462,12 +503,6 @@ public static class ResultExt
     }
 
 
-    //
-    // ══════════════════════════════════════════════════════════════════════
-    // ── MapError ─────────────────────────────────────────────────────────
-    // ══════════════════════════════════════════════════════════════════════
-    //
-
     /// <summary>
     /// Maps the error value of a Result to a new value using the provided
     /// function.  If the input Result is successful, propagates the success
@@ -532,12 +567,6 @@ public static class ResultExt
         return result;
     }
 
-
-    //
-    // ══════════════════════════════════════════════════════════════════════
-    // ── Match ────────────────────────────────────────────────────────────
-    // ══════════════════════════════════════════════════════════════════════
-    //
 
     /// <summary>
     /// Pattern matches on a Result, executing one of two functions depending on
@@ -685,12 +714,6 @@ public static class ResultExt
     }
 
 
-    //
-    // ══════════════════════════════════════════════════════════════════════
-    // ── Partition ────────────────────────────────────────────────────────
-    // ══════════════════════════════════════════════════════════════════════
-    //
-
     /// <summary>
     /// Partitions a sequence of Results into two separate collections: one
     /// containing all success values and another containing all error values.
@@ -749,5 +772,85 @@ public static class ResultExt
         }
 
         return (successes, failures);
+    }
+
+
+    /// <summary>
+    /// Throws an InvalidOperationException if the Result is an error, otherwise returns the success value.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="res">The Result to assert.</param>
+    /// <param name="errMsg">
+    /// Optional custom error message to use if the assertion fails. If not
+    /// provided, a default message including the error value will be used.
+    /// </param>
+    /// <returns>The success value if the Result is successful.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the Result is an error instead of a success.
+    /// </exception>
+    public static TSuccess
+    ThrowIfError<TSuccess, TError>(
+        this Result<TSuccess, TError> res,
+        string? errMsg = null
+    )
+    {
+        return res.Match(
+            (s) => s,
+            (e) => throw new InvalidOperationException(errMsg ?? $"Expected successful Result but got error: {e}")
+        );
+    }
+
+    /// <summary>
+    /// Throws an InvalidOperationException if the Task-wrapped Result is an error, otherwise returns the success value.
+    /// </summary>
+    public static async Task<TSuccess>
+    ThrowIfError<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskResult,
+        string? errMsg = null
+    )
+    {
+        var res = await taskResult.ConfigureAwait(false);
+        return res.ThrowIfError(errMsg);
+    }
+
+
+    /// <summary>
+    /// Throws an InvalidOperationException if the Result is a success, otherwise returns the error value.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="res">The Result to assert.</param>
+    /// <param name="errMsg">
+    /// Optional custom error message to use if the assertion fails. If not
+    /// provided, a default message including the success value will be used.
+    /// </param>
+    /// <returns>The error value if the Result is an error.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the Result is a success instead of an error.
+    /// </exception>
+    public static TError
+    ThrowIfSuccess<TSuccess, TError>(
+        this Result<TSuccess, TError> res,
+        string? errMsg = null
+    )
+    {
+        return res.Match(
+            (s) => throw new InvalidOperationException(errMsg ?? $"Expected error Result but got success: {s}"),
+            (e) => e
+        );
+    }
+
+    /// <summary>
+    /// Throws an InvalidOperationException if the Task-wrapped Result is a success, otherwise returns the error value.
+    /// </summary>
+    public static async Task<TError>
+    ThrowIfSuccess<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskResult,
+        string? errMsg = null
+    )
+    {
+        var res = await taskResult.ConfigureAwait(false);
+        return res.ThrowIfSuccess(errMsg);
     }
 }

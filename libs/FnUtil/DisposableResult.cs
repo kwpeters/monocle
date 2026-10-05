@@ -1,4 +1,4 @@
-﻿namespace FnUtil;
+namespace FnUtil;
 
 /// <summary>
 /// Wraps a <see cref="Result{TSuccess, TError}"/> whose success value is
@@ -11,15 +11,38 @@
 public sealed class DisposableResult<TSuccess, TError> : IDisposable
     where TSuccess : IDisposable
 {
+    //------------------------------------------------------------------------------
+    // Static methods
+    //------------------------------------------------------------------------------
+
+    public static implicit operator DisposableResult<TSuccess, TError>(
+        Result<TSuccess, TError> result) => new(result);
+
+    //------------------------------------------------------------------------------
+    // Instance fields
+    //------------------------------------------------------------------------------
+
     private readonly Result<TSuccess, TError> _result;
     private bool _disposed;
     private bool _detached;
 
-    internal DisposableResult(Result<TSuccess, TError> result) => this._result = result;
+    //------------------------------------------------------------------------------
+    // Constructors
+    //------------------------------------------------------------------------------
 
-    public bool IsSuccess => this._result.IsSuccess;
+    internal DisposableResult(Result<TSuccess, TError> result) => _result = result;
 
-    public bool IsError => this._result.IsError;
+    //------------------------------------------------------------------------------
+    // Properties
+    //------------------------------------------------------------------------------
+
+    public bool IsSuccess => _result.IsSuccess;
+
+    public bool IsError => _result.IsError;
+
+    //------------------------------------------------------------------------------
+    // Instance methods
+    //------------------------------------------------------------------------------
 
     /// <summary>
     /// Extracts the success value and transfers ownership to the caller.
@@ -31,69 +54,85 @@ public sealed class DisposableResult<TSuccess, TError> : IDisposable
     /// </exception>
     public TSuccess Detach()
     {
-        this._detached = true;
-        return this._result.Match(
+        _detached = true;
+        return _result.Match(
             (s) => s,
             (e) => throw new InvalidOperationException(
                 $"Cannot detach value from an error result: {e}")
         );
     }
 
+
     /// <summary>
-    /// Asserts that the result is an error and returns the error value.
+    /// Throws an InvalidOperationException if the result is a success, otherwise returns the error value.
+     /// </summary>
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public TError GetError()
+    {
+        return _result.Match(
+            (s) => throw new InvalidOperationException($"Expected error result but got success: {s}"),
+            (e) => e
+        );
+    }
+
+
+    /// <summary>
+    /// Throws an InvalidOperationException if the result is a success, otherwise returns the error value.
     /// </summary>
     /// <exception cref="InvalidOperationException">
     /// Thrown if the result is a success.
     /// </exception>
-    public TError AssertError(string? errMsg = null)
+    public TError ThrowIfSuccess(string? errMsg = null)
     {
-        return this._result.Match(
+        return _result.Match(
             (s) => throw new InvalidOperationException(errMsg ?? $"Expected error result but got success: {s}"),
             (e) => e
         );
     }
 
+
     /// <summary>
     /// Pattern matches on the underlying result.
     /// </summary>
-    public TResult Match<TResult>(
+    public TResult
+    Match<TResult>(
         Func<TSuccess, TResult> successFn,
         Func<TError, TResult> errorFn
     )
     {
-        return this._result.Match(successFn, errorFn);
+        return _result.Match(successFn, errorFn);
     }
 
     /// <summary>
     /// Pattern matches on the underlying result for side-effects only.
     /// </summary>
-    public void Match(
+    public void
+    Match(
         Action<TSuccess> successAction,
         Action<TError> errorAction
     )
     {
-        this._result.Match(successAction, errorAction);
+        _result.Match(successAction, errorAction);
     }
 
     public void Dispose()
     {
-        if (this._disposed)
+        if (_disposed)
         {
             return;
         }
 
-        this._disposed = true;
-        if (!this._detached && this._result.IsSuccess)
+        _disposed = true;
+        if (!_detached && _result.IsSuccess)
         {
-            this._result.Match(
-                (s) => { s.Dispose(); },
+            _result.Match(
+                (s) => s.Dispose(),
                 (e) => { }
             );
         }
     }
-
-    public static implicit operator DisposableResult<TSuccess, TError>(
-        Result<TSuccess, TError> result) => new(result);
 }
 
 
@@ -102,7 +141,12 @@ public sealed class DisposableResult<TSuccess, TError> : IDisposable
 /// </summary>
 public static class DisposableResult
 {
-    public static DisposableResult<TSuccess, TError> Success<TSuccess, TError>(TSuccess value)
+    //------------------------------------------------------------------------------
+    // Static factory methods
+    //------------------------------------------------------------------------------
+
+    public static DisposableResult<TSuccess, TError>
+    Success<TSuccess, TError>(TSuccess value)
         where TSuccess : IDisposable
     {
         Result<TSuccess, TError> result = F.Success(value);
@@ -110,7 +154,8 @@ public static class DisposableResult
     }
 
 
-    public static DisposableResult<TSuccess, TError> Error<TSuccess, TError>(TError error)
+    public static DisposableResult<TSuccess, TError>
+    Error<TSuccess, TError>(TError error)
         where TSuccess : IDisposable
     {
         Result<TSuccess, TError> result = F.Error(error);

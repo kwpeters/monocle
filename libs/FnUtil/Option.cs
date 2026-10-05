@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Unit = System.ValueTuple;
 
@@ -18,13 +18,20 @@ namespace FnUtil;
 /// Option</typeparam>
 public abstract record Option<T>
 {
-    public abstract bool IsSome { get; }
-
-    public bool IsNone => !this.IsSome;
+    //------------------------------------------------------------------------------
+    // Static methods
+    //------------------------------------------------------------------------------
 
 #pragma warning disable CA2225      // Explicit conversion method not needed.
     public static implicit operator Option<T>(None _) => new None<T>();
 #pragma warning restore CA2225
+
+    //------------------------------------------------------------------------------
+    // Properties
+    //------------------------------------------------------------------------------
+
+    public abstract bool IsSome { get; }
+    public bool IsNone => !IsSome;
 }
 
 
@@ -40,8 +47,12 @@ public abstract record Option<T>
 /// </summary>
 /// <typeparam name="T">The type of the value when this Option is a Some
 /// Option</typeparam>
-internal record None<T> : Option<T>
+internal sealed record None<T> : Option<T>
 {
+    //------------------------------------------------------------------------------
+    // Properties
+    //------------------------------------------------------------------------------
+
     public override
     bool IsSome => false;
 }
@@ -55,10 +66,35 @@ internal record None<T> : Option<T>
 /// <typeparam name="T">The type of the value when this Option is a Some
 /// Option</typeparam>
 /// <param name="Value">The wrapped value</param>
-internal record Some<T>(T Value) : Option<T>
+internal sealed record Some<T> : Option<T>
 {
-    public override
-    bool IsSome => true;
+    //------------------------------------------------------------------------------
+    // Constructors
+    //------------------------------------------------------------------------------
+
+    public Some(T value)
+    {
+        if (value is null)
+        {
+            throw new ArgumentNullException(
+                nameof(value),
+                "Cannot wrap a null value in Some; use none instead.");
+        }
+
+        Value = value;
+    }
+
+    //------------------------------------------------------------------------------
+    // Properties
+    //------------------------------------------------------------------------------
+
+    public T Value { get; }
+
+    //------------------------------------------------------------------------------
+    // Properties
+    //------------------------------------------------------------------------------
+
+    public override bool IsSome => true;
 }
 
 
@@ -76,13 +112,21 @@ internal record Some<T>(T Value) : Option<T>
 /// </summary>
 public static partial class F
 {
+    //------------------------------------------------------------------------------
+    // Static properties
+    //------------------------------------------------------------------------------
+
 #pragma warning disable IDE1006 // Naming rule violation: lowercase 'none' follows functional programming convention
     public static
     None none => None.Instance;
 #pragma warning restore IDE1006
 
-    public static
-    Option<T> Some<T>(T value) => new Some<T>(value);
+    //------------------------------------------------------------------------------
+    // Static factory methods
+    //------------------------------------------------------------------------------
+
+    public static Option<T>
+    Some<T>(T value) => new Some<T>(value);
 }
 
 
@@ -97,9 +141,17 @@ public static partial class F
 // parameters can be inferred from the context.
 public sealed class None
 {
+    //------------------------------------------------------------------------------
+    // Static fields
+    //------------------------------------------------------------------------------
+
     // The one-and-only instance.
     private static
     None? _instance;
+
+    //------------------------------------------------------------------------------
+    // Static properties
+    //------------------------------------------------------------------------------
 
     public static None Instance
     {
@@ -108,5 +160,10 @@ public sealed class None
             return _instance;
         }
     }
+
+    //------------------------------------------------------------------------------
+    // Constructors
+    //------------------------------------------------------------------------------
+
     private None() { }
 }

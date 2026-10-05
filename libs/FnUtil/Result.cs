@@ -10,15 +10,22 @@ namespace FnUtil;
 /// <typeparam name="TError">The type of error values</typeparam>
 public abstract record Result<TSuccess, TError>
 {
-    public abstract bool IsSuccess { get; }
-
-    public bool IsError => !this.IsSuccess;
+    //------------------------------------------------------------------------------
+    // Static methods
+    //------------------------------------------------------------------------------
 
 #pragma warning disable CA2225      // Explicit conversion method not needed.
     public static implicit operator Result<TSuccess, TError>(ResultSuccessType<TSuccess> s) => new SuccessResult<TSuccess, TError>(s.Value);
 
     public static implicit operator Result<TSuccess, TError>(ResultErrorType<TError> e) => new ErrorResult<TSuccess, TError>(e.Error);
 #pragma warning restore CA2225
+
+    //------------------------------------------------------------------------------
+    // Properties
+    //------------------------------------------------------------------------------
+
+    public abstract bool IsSuccess { get; }
+    public bool IsError => !this.IsSuccess;
 }
 
 /// <summary>
@@ -29,22 +36,30 @@ public abstract record Result<TSuccess, TError>
 /// <typeparam name="TSuccess">The type of successful values</typeparam>
 /// <typeparam name="TError">The type of error values</typeparam>
 /// <param name="Value">The successful value</param>
-internal record SuccessResult<TSuccess, TError>(TSuccess Value) : Result<TSuccess, TError>
+internal sealed record SuccessResult<TSuccess, TError>(TSuccess Value) : Result<TSuccess, TError>
 {
+    //------------------------------------------------------------------------------
+    // Properties
+    //------------------------------------------------------------------------------
+
     public override bool IsSuccess => true;
 }
 
 
 /// <summary>
-/// Concerete Result type wrapping an error value.
+/// Concrete Result type wrapping an error value.
 ///
 /// This type is not public, because clients should use F.Error() instead.
 /// </summary>
 /// <typeparam name="TSuccess">The type of successful values</typeparam>
 /// <typeparam name="TError">The type of error values</typeparam>
 /// <param name="Error"></param>
-internal record ErrorResult<TSuccess, TError>(TError Error) : Result<TSuccess, TError>
+internal sealed record ErrorResult<TSuccess, TError>(TError Error) : Result<TSuccess, TError>
 {
+    //------------------------------------------------------------------------------
+    // Properties
+    //------------------------------------------------------------------------------
+
     public override bool IsSuccess => false;
 }
 
@@ -54,6 +69,10 @@ internal record ErrorResult<TSuccess, TError>(TError Error) : Result<TSuccess, T
 ////////////////////////////////////////////////////////////////////////////////
 public static partial class F
 {
+    //------------------------------------------------------------------------------
+    // Static factory methods
+    //------------------------------------------------------------------------------
+
     public static ResultSuccessType<TSuccess>
     Success<TSuccess>(TSuccess value) => new(value);
 

@@ -1,4 +1,4 @@
-﻿namespace FnUtil.Tests;
+namespace FnUtil.Tests;
 
 
 public class AsyncDisposableResultTests
@@ -8,7 +8,7 @@ public class AsyncDisposableResultTests
         public bool IsDisposed { get; private set; }
         public ValueTask DisposeAsync()
         {
-            this.IsDisposed = true;
+            IsDisposed = true;
             return ValueTask.CompletedTask;
         }
     }
@@ -111,9 +111,8 @@ public class AsyncDisposableResultTests
 
         var called = false;
         dr.Match(
-            (s) => { called = true; },
-            (e) => { Assert.Fail("Should not call error action"); }
-        );
+            (s) => called = true,
+            (e) => Assert.Fail("Should not call error action"));
         Assert.True(called);
     }
 
@@ -124,9 +123,8 @@ public class AsyncDisposableResultTests
 
         var errorValue = "";
         dr.Match(
-            (s) => { Assert.Fail("Should not call success action"); },
-            (e) => { errorValue = e; }
-        );
+            (s) => Assert.Fail("Should not call success action"),
+            (e) => errorValue = e);
         Assert.Equal("boom", errorValue);
     }
 
@@ -145,17 +143,17 @@ public class AsyncDisposableResultTests
     }
 
     [Fact]
-    public async Task AssertError_OnError_ReturnsError()
+    public async Task ThrowIfSuccess_OnError_ReturnsError()
     {
         await using var dr = AsyncDisposableResult.Error<FakeAsyncDisposable, string>("boom");
-        Assert.Equal("boom", dr.AssertError());
+        Assert.Equal("boom", dr.ThrowIfSuccess());
     }
 
     [Fact]
-    public async Task AssertError_OnSuccess_Throws()
+    public async Task ThrowIfSuccess_OnSuccess_Throws()
     {
         await using var inner = new FakeAsyncDisposable();
-        await using var dr = AsyncDisposableResult.Success<FakeAsyncDisposable, string>(inner);
-        Assert.Throws<InvalidOperationException>(() => dr.AssertError());
+        var dr = AsyncDisposableResult.Success<FakeAsyncDisposable, string>(inner);
+        Assert.Throws<InvalidOperationException>(() => dr.ThrowIfSuccess());
     }
 }
