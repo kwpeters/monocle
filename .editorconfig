@@ -9,10 +9,6 @@ tab_width = 4
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-# Match the dotnet new templates, which write .cs and .csproj files with a UTF-8 BOM.
-[*.{cs,csproj}]
-charset = utf-8-bom
-
 [*.cs]
 # Organize usings
 dotnet_sort_system_directives_first = true
@@ -99,7 +95,7 @@ csharp_prefer_braces = true:silent
 csharp_prefer_simple_using_statement = true:warning
 csharp_style_namespace_declarations = file_scoped:error
 csharp_style_prefer_method_group_conversion = true:warning
-csharp_style_prefer_top_level_statements = true:silent
+csharp_style_prefer_top_level_statements = true:suggestion
 
 # Expression-level preferences
 csharp_prefer_simple_default_expression = true:warning
@@ -988,6 +984,11 @@ quote_type = double
 [*.md]
 max_line_length = off
 trim_trailing_whitespace = false
+
+# Match the dotnet new templates, which write .cs and .csproj files with a UTF-8 BOM.
+[*.{cs,csproj}]
+charset = utf-8-bom
+
 
 [*.yml]
 indent_style = space
