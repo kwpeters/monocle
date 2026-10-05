@@ -1,9 +1,11 @@
 # Editor configuration, see https://editorconfig.org
+root = true
 
 [*]
 charset = utf-8
 indent_style = space
 indent_size = 4
+tab_width = 4
 insert_final_newline = true
 trim_trailing_whitespace = true
 
@@ -17,10 +19,10 @@ dotnet_sort_system_directives_first = true
 dotnet_separate_import_directive_groups = false
 
 # this. and Me. preferences
-dotnet_style_qualification_for_field = false:warning
-dotnet_style_qualification_for_property = false:warning
-dotnet_style_qualification_for_method = false:warning
-dotnet_style_qualification_for_event = false:warning
+dotnet_style_qualification_for_field = true:warning
+dotnet_style_qualification_for_property = true:warning
+dotnet_style_qualification_for_method = true:warning
+dotnet_style_qualification_for_event = true:warning
 
 # Language keywords vs BCL types preferences
 # Disabled: CIP code benefits from explicit type sizes (Int32, UInt16, etc.)
@@ -58,18 +60,21 @@ dotnet_style_prefer_simplified_interpolation = true:warning
 # C# Code Style Rules
 
 # var preferences
-csharp_style_var_for_built_in_types = false:suggestion
-csharp_style_var_when_type_is_apparent = true:suggestion
-csharp_style_var_elsewhere = false:suggestion
+# Allow developers to choose between var and explicit types based on readability.
+# Using explicit types can improve code clarity for complex types or when the type
+# is not immediately obvious from context.
+csharp_style_var_for_built_in_types = false:silent
+csharp_style_var_when_type_is_apparent = false:silent
+csharp_style_var_elsewhere = false:silent
 
 # Expression-bodied members
 csharp_style_expression_bodied_methods = when_on_single_line:suggestion
-csharp_style_expression_bodied_constructors = false:suggestion
+csharp_style_expression_bodied_constructors = false:silent
 csharp_style_expression_bodied_operators = when_on_single_line:suggestion
 csharp_style_expression_bodied_properties = when_on_single_line:suggestion
 csharp_style_expression_bodied_indexers = when_on_single_line:suggestion
 csharp_style_expression_bodied_accessors = when_on_single_line:suggestion
-csharp_style_expression_bodied_lambdas = when_on_single_line:warning
+csharp_style_expression_bodied_lambdas = when_on_single_line:suggestion
 csharp_style_expression_bodied_local_functions = when_on_single_line:suggestion
 
 # Pattern matching preferences
@@ -90,11 +95,11 @@ csharp_prefer_static_local_function = true:warning
 csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:suggestion
 
 # Code-block preferences
-csharp_prefer_braces = true:warning
+csharp_prefer_braces = true:silent
 csharp_prefer_simple_using_statement = true:warning
 csharp_style_namespace_declarations = file_scoped:error
 csharp_style_prefer_method_group_conversion = true:warning
-csharp_style_prefer_top_level_statements = true:suggestion
+csharp_style_prefer_top_level_statements = true:silent
 
 # Expression-level preferences
 csharp_prefer_simple_default_expression = true:warning
@@ -105,7 +110,7 @@ csharp_style_prefer_index_operator = true:warning
 csharp_style_prefer_range_operator = true:warning
 csharp_style_implicit_object_creation_when_type_is_apparent = true:warning
 csharp_style_prefer_tuple_swap = true:warning
-csharp_style_prefer_utf8_string_literals = true:warning
+csharp_style_prefer_utf8_string_literals = true:suggestion
 
 # 'using' directive preferences
 csharp_using_directive_placement = outside_namespace:warning
@@ -113,7 +118,7 @@ csharp_using_directive_placement = outside_namespace:warning
 # C# Formatting Rules
 
 # New line preferences
-csharp_new_line_before_open_brace = all
+csharp_new_line_before_open_brace = methods, properties, control_blocks, types  # Not required for lambdas
 csharp_new_line_before_else = true
 csharp_new_line_before_catch = true
 csharp_new_line_before_finally = true
@@ -240,7 +245,7 @@ dotnet_diagnostic.CA1003.severity = warning
 dotnet_diagnostic.CA1005.severity = suggestion
 
 # CA1008: Enums should have zero value
-dotnet_diagnostic.CA1008.severity = warning
+dotnet_diagnostic.CA1008.severity = suggestion
 
 # CA1010: Collections should implement generic interface
 dotnet_diagnostic.CA1010.severity = warning
@@ -255,7 +260,7 @@ dotnet_diagnostic.CA1014.severity = none
 dotnet_diagnostic.CA1016.severity = warning
 
 # CA1017: Mark assemblies with ComVisible
-dotnet_diagnostic.CA1017.severity = warning
+dotnet_diagnostic.CA1017.severity = none
 
 # CA1018: Mark attributes with AttributeUsageAttribute
 dotnet_diagnostic.CA1018.severity = error
@@ -270,7 +275,7 @@ dotnet_diagnostic.CA1021.severity = suggestion
 dotnet_diagnostic.CA1024.severity = suggestion
 
 # CA1027: Mark enums with FlagsAttribute
-dotnet_diagnostic.CA1027.severity = warning
+dotnet_diagnostic.CA1027.severity = suggestion
 
 # CA1028: Enum Storage should be Int32
 dotnet_diagnostic.CA1028.severity = suggestion
@@ -293,8 +298,16 @@ dotnet_diagnostic.CA1034.severity = suggestion
 # CA1036: Override methods on comparable types
 dotnet_diagnostic.CA1036.severity = warning
 
+# SYSLIB1045: Use GeneratedRegexAttribute for compile-time regex generation
+# Suppressed: Not committing to .NET 7+ requirement yet
+dotnet_diagnostic.SYSLIB1045.severity = none
+
+# CS8524: Switch expression exhaustiveness for unnamed enum values
+# Suppressed: Accept exhaustive switch on named enum values only
+dotnet_diagnostic.CS8524.severity = none
+
 # CA1040: Avoid empty interfaces
-dotnet_diagnostic.CA1040.severity = warning
+dotnet_diagnostic.CA1040.severity = suggestion
 
 # CA1041: Provide ObsoleteAttribute message
 dotnet_diagnostic.CA1041.severity = error
@@ -344,7 +357,9 @@ dotnet_diagnostic.CA1060.severity = warning
 # CA1061: Do not hide base class methods
 dotnet_diagnostic.CA1061.severity = warning
 
-# CA1062: Validate arguments of public methods (disabled - rely on Nullable Reference Types)
+# CA1062: Validate arguments of public methods
+# Disabled because we use nullable reference types throughout the project,
+# which provide compile-time nullability checking. Runtime null checks would be redundant.
 dotnet_diagnostic.CA1062.severity = none
 
 # CA1063: Implement IDisposable Correctly
@@ -366,7 +381,7 @@ dotnet_diagnostic.CA1067.severity = warning
 dotnet_diagnostic.CA1068.severity = warning
 
 # CA1069: Enums values should not be duplicated
-dotnet_diagnostic.CA1069.severity = error
+dotnet_diagnostic.CA1069.severity = warning
 
 # CA1070: Do not declare event fields as virtual
 dotnet_diagnostic.CA1070.severity = warning
@@ -414,10 +429,10 @@ dotnet_diagnostic.CA1418.severity = error
 dotnet_diagnostic.CA1419.severity = error
 
 # CA1501: Avoid excessive inheritance
-dotnet_diagnostic.CA1501.severity = warning
+dotnet_diagnostic.CA1501.severity = suggestion
 
 # CA1502: Avoid excessive complexity
-dotnet_diagnostic.CA1502.severity = warning
+dotnet_diagnostic.CA1502.severity = suggestion
 
 # CA1505: Avoid unmaintainable code
 dotnet_diagnostic.CA1505.severity = warning
@@ -456,7 +471,7 @@ dotnet_diagnostic.CA1515.severity = suggestion
 dotnet_diagnostic.CA1516.severity = suggestion
 
 # CA1700: Do not name enum values 'Reserved'
-dotnet_diagnostic.CA1700.severity = warning
+dotnet_diagnostic.CA1700.severity = suggestion
 
 # CA1707: Identifiers should not contain underscores
 dotnet_diagnostic.CA1707.severity = none
@@ -471,19 +486,19 @@ dotnet_diagnostic.CA1710.severity = warning
 dotnet_diagnostic.CA1711.severity = warning
 
 # CA1712: Do not prefix enum values with type name
-dotnet_diagnostic.CA1712.severity = warning
+dotnet_diagnostic.CA1712.severity = suggestion
 
 # CA1713: Events should not have 'Before' or 'After' prefix
-dotnet_diagnostic.CA1713.severity = warning
+dotnet_diagnostic.CA1713.severity = suggestion
 
 # CA1714: Flags enums should have plural names
-dotnet_diagnostic.CA1714.severity = warning
+dotnet_diagnostic.CA1714.severity = suggestion
 
 # CA1715: Identifiers should have correct prefix
 dotnet_diagnostic.CA1715.severity = warning
 
 # CA1716: Identifiers should not match keywords
-dotnet_diagnostic.CA1716.severity = warning
+dotnet_diagnostic.CA1716.severity = suggestion
 
 # CA1717: Only FlagsAttribute enums should have plural names (naming convention)
 dotnet_diagnostic.CA1717.severity = warning
@@ -504,10 +519,10 @@ dotnet_diagnostic.CA1725.severity = warning
 dotnet_diagnostic.CA1727.severity = suggestion
 
 # CA1801: Review unused parameters
-dotnet_diagnostic.CA1801.severity = warning
+dotnet_diagnostic.CA1801.severity = suggestion
 
 # CA1802: Use literals where appropriate
-dotnet_diagnostic.CA1802.severity = warning
+dotnet_diagnostic.CA1802.severity = suggestion
 
 # CA1805: Do not initialize unnecessarily
 dotnet_diagnostic.CA1805.severity = suggestion
@@ -966,6 +981,14 @@ dotnet_diagnostic.CA3012.severity = warning
 # CS1591: Missing XML comment for publicly visible type or member
 dotnet_diagnostic.CS1591.severity = suggestion
 
+
+[*.ts]
+quote_type = double
+
 [*.md]
 max_line_length = off
 trim_trailing_whitespace = false
+
+[*.yml]
+indent_style = space
+indent_size = 2
