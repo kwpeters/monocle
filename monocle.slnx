@@ -3,6 +3,7 @@
     <Project Path="apps/SampleConsoleXyzzy/SampleConsoleXyzzy.csproj" />
   </Folder>
   <Folder Name="/libs/">
+    <Project Path="libs/SampleClassLibXyzzy.Tests/SampleClassLibXyzzy.Tests.csproj" />
     <Project Path="libs/SampleClassLibXyzzy/SampleClassLibXyzzy.csproj" />
   </Folder>
 </Solution>
