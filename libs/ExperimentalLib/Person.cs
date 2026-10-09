@@ -11,7 +11,7 @@ public readonly record struct PersonStruct
 ////////////////////////////////////////////////////////////////////////////////
 
 
-public record class PersonClass
+public sealed record class PersonClass
 {
     public required string FirstName { get; init; }
     public required string LastName { get; init; }
