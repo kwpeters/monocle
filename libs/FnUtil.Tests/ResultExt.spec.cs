@@ -185,6 +185,142 @@ public class ResultExtTests
 
     //
     // ══════════════════════════════════════════════════════════════════════
+    // ── AllOrErrors ──────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void AllOrErrors_WhenGivenEmptySequence_ReturnsSuccessWithEmptyCollection()
+    {
+        var input = Enumerable.Empty<Result<int, string>>();
+
+        var result = input.AllOrErrors();
+
+        Assert.Empty(result.ThrowIfError());
+    }
+
+
+    [Fact]
+    public void AllOrErrors_WhenGivenAllSuccesses_ReturnsSuccessWithAllValuesInOrder()
+    {
+        var input = new Result<int, string>[] { Success(1), Success(2), Success(3) };
+
+        var result = input.AllOrErrors();
+
+        Assert.Equal(new[] { 1, 2, 3 }, result.ThrowIfError());
+    }
+
+
+    [Fact]
+    public void AllOrErrors_WhenGivenAllErrors_ReturnsErrorWithAllErrorsInOrder()
+    {
+        var input = new Result<int, string>[] { Error("err1"), Error("err2"), Error("err3") };
+
+        var result = input.AllOrErrors();
+
+        Assert.Equal(new[] { "err1", "err2", "err3" }, result.ThrowIfSuccess());
+    }
+
+
+    [Fact]
+    public void AllOrErrors_WhenGivenMixedResults_ReturnsErrorWithOnlyTheErrorsInOrder()
+    {
+        var input = new Result<int, string>[]
+        {
+            Success(1),
+            Error("err1"),
+            Success(2),
+            Error("err2"),
+            Success(3)
+        };
+
+        var result = input.AllOrErrors();
+
+        Assert.Equal(new[] { "err1", "err2" }, result.ThrowIfSuccess());
+    }
+
+
+    [Fact]
+    public void AllOrErrors_WhenGivenAnError_StillEnumeratesEntireSequence()
+    {
+        int numEnumerated = 0;
+        var input = new Result<int, string>[] { Error("err1"), Success(1), Error("err2") }
+            .Select((r) =>
+            {
+                numEnumerated++;
+                return r;
+            });
+
+        var result = input.AllOrErrors();
+
+        Assert.True(result.IsError);
+        Assert.Equal(3, numEnumerated);
+    }
+
+    //
+    // ══════════════════════════════════════════════════════════════════════
+    // ── AllOrFirstError ──────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void AllOrFirstError_WhenGivenEmptySequence_ReturnsSuccessWithEmptyCollection()
+    {
+        var input = Enumerable.Empty<Result<int, string>>();
+
+        var result = input.AllOrFirstError();
+
+        Assert.Empty(result.ThrowIfError());
+    }
+
+
+    [Fact]
+    public void AllOrFirstError_WhenGivenAllSuccesses_ReturnsSuccessWithAllValuesInOrder()
+    {
+        var input = new Result<int, string>[] { Success(1), Success(2), Success(3) };
+
+        var result = input.AllOrFirstError();
+
+        Assert.Equal(new[] { 1, 2, 3 }, result.ThrowIfError());
+    }
+
+
+    [Fact]
+    public void AllOrFirstError_WhenGivenMixedResults_ReturnsFirstError()
+    {
+        var input = new Result<int, string>[]
+        {
+            Success(1),
+            Error("err1"),
+            Success(2),
+            Error("err2")
+        };
+
+        var result = input.AllOrFirstError();
+
+        Assert.Equal("err1", result.ThrowIfSuccess());
+    }
+
+
+    [Fact]
+    public void AllOrFirstError_WhenGivenAnError_StopsEnumeratingAtFirstError()
+    {
+        int numEnumerated = 0;
+        var input = new Result<int, string>[] { Success(1), Error("err1"), Success(2), Error("err2") }
+            .Select((r) =>
+            {
+                numEnumerated++;
+                return r;
+            });
+
+        var result = input.AllOrFirstError();
+
+        Assert.Equal("err1", result.ThrowIfSuccess());
+        Assert.Equal(2, numEnumerated);
+    }
+
+    //
+    // ══════════════════════════════════════════════════════════════════════
     // ── Bind ─────────────────────────────────────────────────────────────
     // ══════════════════════════════════════════════════════════════════════
     //
@@ -1287,6 +1423,174 @@ public class ResultExtTests
         }.PartitionAsync();
         Assert.Equal(new[] { 1, 2 }, successes);
         Assert.Equal(new[] { "err1" }, failures);
+    }
+
+    //
+    // ══════════════════════════════════════════════════════════════════════
+    // ── Select ───────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void Select_WhenInputIsSuccess_MapsValue()
+    {
+        Result<int, string> input = Success(21);
+
+        var result = input.Select((x) => x * 2);
+
+        Assert.Equal(42, result.ThrowIfError());
+    }
+
+
+    [Fact]
+    public void Select_WhenInputIsError_ReturnsErrorWithoutInvokingSelector()
+    {
+        int numInvocations = 0;
+        Result<int, string> input = Error("err1");
+
+        var result = input.Select((x) =>
+        {
+            numInvocations++;
+            return x * 2;
+        });
+
+        Assert.Equal("err1", result.ThrowIfSuccess());
+        Assert.Equal(0, numInvocations);
+    }
+
+
+    [Fact]
+    public void Select_WhenUsedWithQuerySyntax_MapsValue()
+    {
+        Result<int, string> input = Success(21);
+
+        var result =
+            from x in input
+            select x * 2;
+
+        Assert.Equal(42, result.ThrowIfError());
+    }
+
+    //
+    // ══════════════════════════════════════════════════════════════════════
+    // ── SelectMany ───────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void SelectMany_WhenBothSucceed_ProjectsBothValues()
+    {
+        Result<int, string> input = Success(2);
+
+        var result = input.SelectMany(
+            (a) => SuccessE<string, string>(new string('x', a)),
+            (a, b) => $"{a}:{b}");
+
+        Assert.Equal("2:xx", result.ThrowIfError());
+    }
+
+
+    [Fact]
+    public void SelectMany_WhenInputIsError_ReturnsErrorWithoutInvokingNextOrProject()
+    {
+        int numNextInvocations = 0;
+        int numProjectInvocations = 0;
+        Result<int, string> input = Error("err1");
+
+        var result = input.SelectMany(
+            (a) =>
+            {
+                numNextInvocations++;
+                return SuccessE<int, string>(a);
+            },
+            (a, b) =>
+            {
+                numProjectInvocations++;
+                return a + b;
+            });
+
+        Assert.Equal("err1", result.ThrowIfSuccess());
+        Assert.Equal(0, numNextInvocations);
+        Assert.Equal(0, numProjectInvocations);
+    }
+
+
+    [Fact]
+    public void SelectMany_WhenNextReturnsError_ReturnsThatErrorWithoutInvokingProject()
+    {
+        int numProjectInvocations = 0;
+        Result<int, string> input = Success(1);
+
+        var result = input.SelectMany(
+            (a) => ErrorE<int, string>("err2"),
+            (a, b) =>
+            {
+                numProjectInvocations++;
+                return a + b;
+            });
+
+        Assert.Equal("err2", result.ThrowIfSuccess());
+        Assert.Equal(0, numProjectInvocations);
+    }
+
+
+    [Fact]
+    public void SelectMany_WhenUsedWithQuerySyntaxAndAllSucceed_CombinesValuesOfDifferentTypes()
+    {
+        var result =
+            from count in SuccessE<int, string>(3)
+            from text in SuccessE<string, string>("ab")
+            from scale in SuccessE<double, string>(1.5)
+            select $"{count}-{text}-{scale.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+
+        Assert.Equal("3-ab-1.5", result.ThrowIfError());
+    }
+
+
+    [Fact]
+    public void SelectMany_WhenUsedWithQuerySyntaxAndMiddleFails_StopsAtThatError()
+    {
+        int numLastInvocations = 0;
+
+        Result<int, string> last()
+        {
+            numLastInvocations++;
+            return Success(3);
+        }
+
+        var result =
+            from a in SuccessE<int, string>(1)
+            from b in ErrorE<int, string>("err2")
+            from c in last()
+            select a + b + c;
+
+        Assert.Equal("err2", result.ThrowIfSuccess());
+        Assert.Equal(0, numLastInvocations);
+    }
+
+
+    [Fact]
+    public void SelectMany_WhenUsedWithQuerySyntax_AllowsLaterClausesToUseEarlierValues()
+    {
+        static Result<int, string> half(int x) =>
+            x % 2 == 0 ?
+                Success(x / 2) :
+                Error($"{x} is odd");
+
+        var success =
+            from a in SuccessE<int, string>(8)
+            from b in half(a)
+            from c in half(b)
+            select c;
+
+        var error =
+            from a in SuccessE<int, string>(6)
+            from b in half(a)
+            from c in half(b)
+            select c;
+
+        Assert.Equal(2, success.ThrowIfError());
+        Assert.Equal("3 is odd", error.ThrowIfSuccess());
     }
 
     //

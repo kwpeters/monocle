@@ -3,6 +3,8 @@
     <Project Path="apps/ExperimentalCli/ExperimentalCli.csproj" />
   </Folder>
   <Folder Name="/libs/">
+    <Project Path="libs/CsDepot.Tests/CsDepot.Tests.csproj" />
+    <Project Path="libs/CsDepot/CsDepot.csproj" />
     <Project Path="libs/ExperimentalLib/ExperimentalLib.csproj" />
     <Project Path="libs/FnUtil.Tests/FnUtil.Tests.csproj" />
     <Project Path="libs/FnUtil/FnUtil.csproj" />

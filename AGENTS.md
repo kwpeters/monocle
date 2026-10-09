@@ -8,7 +8,7 @@
 - **Braces always required** — no single-line `if` without braces.
 - **Private fields**: `_camelCase` with underscore prefix.
 - **Physical quantities**: include the units.  For example, `timeoutMs`.
-- See [.editorconfig](../.editorconfig) for all formatting and style rules.
+- See [.editorconfig](.editorconfig) for all formatting and style rules.
 
 ### If Statements and Loops
 
@@ -96,6 +96,57 @@ Members within a class or record must be declared in the following order. Use th
 - For operations that can fail but communicating the error reason is not needed,
   `Option<T>` is appropriate.  This allows callers to handle the presence or absence
   of a value without try/catch and without using null references.
+
+### Data and Operations
+
+Keep data and behavior separate. Data is defined as immutable records, and
+operations on that data are pure functions in a companion static class.
+[Person.cs](libs/ExperimentalLib/Person.cs) is the reference example.
+
+- **Data types** are `sealed record class` types using nominal syntax with
+  `required` `{ get; init; }` properties. Records hold data only; they contain no
+  methods beyond compiler-generated members.
+  - Do not use `record struct`, because `default(T)` bypasses `required` and yields
+    null reference-type fields.
+  - Positional syntax (`record Foo(int A, string B)`) is acceptable only for small
+    value-like types whose parameters have distinct types, so that argument-order
+    mistakes cannot compile.
+- **Operations** live in a static class named `<Type>Ops` (e.g. `PersonOps`),
+  declared in the same file as the record.
+  - Operations are pure functions and never mutate their inputs. "Modifying"
+    operations return a new instance using a `with` expression.
+  - Declare operations as extension methods on the record so they can be called
+    either as functions (`PersonOps.FullName(p)`) or fluently (`p.FullName()`).
+  - When a type has invariants, provide a validating factory named `Create` that
+    returns `Result<T, TError>`, and create instances through it.
+  - Operations that can fail return `Result<TSuccess, TError>`. Lookups that may
+    find nothing return `Option<T>`. Compose them with FnUtil's `Bind`,
+    `MapSuccess`, `Map` and `Match`.
+- Stateful components that must own resources (native handles, connections,
+  channels) are the exception. Keep them small, and keep their domain logic in
+  records and `<Type>Ops` functions.
+
+```csharp
+public sealed record class Person
+{
+    public required string FirstName { get; init; }
+    public required string LastName { get; init; }
+}
+
+public static class PersonOps
+{
+    public static Result<Person, string>
+    Create(string firstName, string lastName) => ...;
+
+    public static string
+    FullName(this Person person) => $"{person.FirstName} {person.LastName}";
+
+    public static Result<Person, string>
+    WithLastName(this Person person, string lastName) =>
+        NonBlank(lastName, nameof(lastName))
+        .MapSuccess((last) => person with { LastName = last });
+}
+```
 
 ### Asynchronous Code
 

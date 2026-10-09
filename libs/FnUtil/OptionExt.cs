@@ -151,4 +151,80 @@ public static class OptionExt
         var option = await input.ConfigureAwait(false);
         return option.GetValue();
     }
+
+
+    //--------------------------------------------------------------------------
+    // Query syntax (Select / SelectMany)
+    //--------------------------------------------------------------------------
+
+    /// <summary>
+    /// Maps the value inside an Option.  Equivalent to Map.
+    ///
+    /// This method exists so that Options can be used with C# query syntax.  A
+    /// query with a single from clause, such as
+    /// <c>from x in option select x * 2</c>, is translated by the compiler into
+    /// a call to this method.
+    /// </summary>
+    /// <typeparam name="T">The type of value contained in the input Option.</typeparam>
+    /// <typeparam name="TOut">The type of value contained in the output Option.</typeparam>
+    /// <param name="input">The input Option.</param>
+    /// <param name="selector">
+    /// The function to apply to the contained value.  Only invoked if the input
+    /// Option is Some.
+    /// </param>
+    /// <returns>
+    /// Some containing the selector's return value if the input is Some;
+    /// otherwise None.
+    /// </returns>
+    public static Option<TOut>
+    Select<T, TOut>(
+        this Option<T> input,
+        Func<T, TOut> selector
+    ) =>
+        input.Map(selector);
+
+
+    /// <summary>
+    /// Binds an Option to a function returning another Option, then combines
+    /// both values using a projection.
+    ///
+    /// This method exists so that Options can be used with C# query syntax,
+    /// which flattens chains of operations that may not produce a value:
+    /// <code>
+    /// from userId in FindUserId(userName)
+    /// from email in FindEmail(userId)
+    /// select $"{userName} &lt;{email}&gt;"
+    /// </code>
+    /// Each from clause unwraps a value.  If any Option is None, evaluation
+    /// stops and the whole expression evaluates to None.
+    /// </summary>
+    /// <typeparam name="T">The type of value contained in the input Option.</typeparam>
+    /// <typeparam name="TNext">
+    /// The type of value contained in the Option returned by
+    /// <paramref name="next"/>.
+    /// </typeparam>
+    /// <typeparam name="TOut">The type of value contained in the output Option.</typeparam>
+    /// <param name="input">The input Option.</param>
+    /// <param name="next">
+    /// A function that takes the input's value and returns the next Option.
+    /// Only invoked if the input Option is Some.
+    /// </param>
+    /// <param name="project">
+    /// A function that combines both values into the output value.  Only
+    /// invoked if both Options are Some.
+    /// </param>
+    /// <returns>
+    /// Some containing the projected value if both Options are Some; otherwise
+    /// None.
+    /// </returns>
+    public static Option<TOut>
+    SelectMany<T, TNext, TOut>(
+        this Option<T> input,
+        Func<T, Option<TNext>> next,
+        Func<T, TNext, TOut> project
+    ) =>
+        input.Match(
+            (a) => next(a).Map((b) => project(a, b)),
+            () => none
+        );
 }

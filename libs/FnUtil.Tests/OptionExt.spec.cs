@@ -192,4 +192,146 @@ public class OptionExtTests
         Option<string> opt = none;
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await Task.FromResult(opt).GetValue());
     }
+
+
+    // Select
+
+    [Fact]
+    public void Select_WhenSome_ReturnsSomeWithMappedValue()
+    {
+        Option<string> opt = Some("Fred");
+        var result = opt.Select((name) => name.Length);
+        Assert.Equal(Some(4), result);
+    }
+
+    [Fact]
+    public void Select_WhenNone_ReturnsNoneWithoutCallingSelector()
+    {
+        var called = false;
+        Option<string> opt = none;
+        var result = opt.Select((name) =>
+        {
+            called = true;
+            return name.Length;
+        });
+        Assert.True(result.IsNone);
+        Assert.False(called);
+    }
+
+    [Fact]
+    public void Select_WhenUsedWithQuerySyntax_MapsValue()
+    {
+        Option<string> opt = Some("Fred");
+
+        var result =
+            from name in opt
+            select name.Length;
+
+        Assert.Equal(Some(4), result);
+    }
+
+
+    // SelectMany
+
+    [Fact]
+    public void SelectMany_WhenBothSome_ProjectsBothValues()
+    {
+        Option<string> opt = Some("Fred");
+        var result = opt.SelectMany(
+            (name) => Some(name.Length),
+            (name, length) => $"{name}:{length}");
+        Assert.Equal(Some("Fred:4"), result);
+    }
+
+    [Fact]
+    public void SelectMany_WhenInputIsNone_ReturnsNoneWithoutCallingNextOrProject()
+    {
+        var nextCalled = false;
+        var projectCalled = false;
+        Option<string> opt = none;
+        var result = opt.SelectMany(
+            (name) =>
+            {
+                nextCalled = true;
+                return Some(name.Length);
+            },
+            (name, length) =>
+            {
+                projectCalled = true;
+                return $"{name}:{length}";
+            });
+        Assert.True(result.IsNone);
+        Assert.False(nextCalled);
+        Assert.False(projectCalled);
+    }
+
+    [Fact]
+    public void SelectMany_WhenNextReturnsNone_ReturnsNoneWithoutCallingProject()
+    {
+        var projectCalled = false;
+        Option<string> opt = Some("Fred");
+        var result = opt.SelectMany(
+            (name) => (Option<int>)none,
+            (name, length) =>
+            {
+                projectCalled = true;
+                return $"{name}:{length}";
+            });
+        Assert.True(result.IsNone);
+        Assert.False(projectCalled);
+    }
+
+    [Fact]
+    public void SelectMany_WhenUsedWithQuerySyntaxAndAllSome_CombinesValuesOfDifferentTypes()
+    {
+        var result =
+            from name in Some("Fred")
+            from age in Some(42)
+            from isAdmin in Some(true)
+            select $"{name}/{age}/{isAdmin}";
+
+        Assert.Equal(Some("Fred/42/True"), result);
+    }
+
+    [Fact]
+    public void SelectMany_WhenUsedWithQuerySyntaxAndMiddleIsNone_StopsAndReturnsNone()
+    {
+        var lastCalled = false;
+
+        Option<int> last()
+        {
+            lastCalled = true;
+            return Some(3);
+        }
+
+        var result =
+            from a in Some(1)
+            from b in (Option<int>)none
+            from c in last()
+            select a + b + c;
+
+        Assert.True(result.IsNone);
+        Assert.False(lastCalled);
+    }
+
+    [Fact]
+    public void SelectMany_WhenUsedWithQuerySyntax_AllowsLaterClausesToUseEarlierValues()
+    {
+        var userIds = new Dictionary<string, int> { ["fred"] = 1, ["wilma"] = 2 };
+        var emails = new Dictionary<int, string> { [1] = "fred@example.com" };
+
+        static Option<TValue> lookup<TKey, TValue>(Dictionary<TKey, TValue> dict, TKey key) where TKey : notnull =>
+            dict.TryGetValue(key, out var value) ?
+                Some(value) :
+                none;
+
+        Option<string> contactFor(string userName) =>
+            from userId in lookup(userIds, userName)
+            from email in lookup(emails, userId)
+            select $"{userName} <{email}>";
+
+        Assert.Equal(Some("fred <fred@example.com>"), contactFor("fred"));
+        Assert.True(contactFor("wilma").IsNone);   // User exists, but has no email
+        Assert.True(contactFor("barney").IsNone);  // User does not exist
+    }
 }

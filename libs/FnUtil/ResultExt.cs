@@ -99,6 +99,80 @@ public static class ResultExt
 
 
     /// <summary>
+    /// Combines a sequence of Results into a single Result.  If every input
+    /// Result is successful, returns a successful Result containing all of the
+    /// success values.  Otherwise, returns an error Result containing every
+    /// error value.  The entire input sequence is always examined.
+    ///
+    /// Use this when every problem should be reported at once (for example,
+    /// when validating all fields of a form).  To stop at the first error
+    /// instead, use AllOrFirstError.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success values.</typeparam>
+    /// <typeparam name="TError">The type of the error values.</typeparam>
+    /// <param name="input">The sequence of Results to combine.</param>
+    /// <returns>
+    /// A successful Result containing all success values if every input is
+    /// successful (including when the input is empty).  Otherwise, an error
+    /// Result containing all error values; this collection is never empty.
+    /// Values appear in the same order as in the input sequence.
+    /// </returns>
+    public static Result<IEnumerable<TSuccess>, IEnumerable<TError>>
+    AllOrErrors<TSuccess, TError>(
+        this IEnumerable<Result<TSuccess, TError>> input
+    )
+    {
+        var (successes, errors) = input.Partition();
+
+        return errors.Any() ?
+            Error(errors) :
+            Success(successes);
+    }
+
+
+    /// <summary>
+    /// Combines a sequence of Results into a single Result.  If every input
+    /// Result is successful, returns a successful Result containing all of the
+    /// success values.  Otherwise, returns the first error.  Enumeration of the
+    /// input stops at the first error, so later Results are never evaluated.
+    ///
+    /// This behaves like JavaScript's Promise.all().  To collect every error
+    /// instead, use AllOrErrors.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success values.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="input">The sequence of Results to combine.</param>
+    /// <returns>
+    /// A successful Result containing all success values, in input order, if
+    /// every input is successful (including when the input is empty).
+    /// Otherwise, an error Result containing the first error encountered.
+    /// </returns>
+    public static Result<IEnumerable<TSuccess>, TError>
+    AllOrFirstError<TSuccess, TError>(
+        this IEnumerable<Result<TSuccess, TError>> input
+    )
+    {
+        List<TSuccess> successes = [];
+
+        foreach (Result<TSuccess, TError> res in input)
+        {
+            switch (res)
+            {
+                case SuccessResult<TSuccess, TError>(var s):
+                    successes.Add(s);
+                    break;
+                case ErrorResult<TSuccess, TError>(var e):
+                    return Error(e);
+                default:
+                    throw new ArgumentException("Result must be SuccessResult or ErrorResult.");
+            }
+        }
+
+        return Success<IEnumerable<TSuccess>>(successes);
+    }
+
+
+    /// <summary>
     /// Monadic bind operation for Result.  If the input Result is successful,
     /// applies the provided function to the success value and returns its
     /// Result. If the input Result is an error, propagates the error without
@@ -773,6 +847,86 @@ public static class ResultExt
 
         return (successes, failures);
     }
+
+
+    /// <summary>
+    /// Maps the success value of a Result.  Equivalent to MapSuccess.
+    ///
+    /// This method exists so that Results can be used with C# query syntax.  A
+    /// query with a single from clause, such as
+    /// <c>from x in result select x * 2</c>, is translated by the compiler
+    /// into a call to this method.
+    /// </summary>
+    /// <typeparam name="TInSuccess">
+    /// The type of the success value in the input Result.
+    /// </typeparam>
+    /// <typeparam name="TOutSuccess">
+    /// The type of the success value in the output Result.
+    /// </typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="input">The input Result.</param>
+    /// <param name="selector">
+    /// The function to apply to the success value.  Only invoked if the input
+    /// Result is successful.
+    /// </param>
+    /// <returns>
+    /// A successful Result containing the selector's return value if the input
+    /// is successful, or the original error if the input is an error.
+    /// </returns>
+    public static Result<TOutSuccess, TError>
+    Select<TInSuccess, TOutSuccess, TError>(
+        this Result<TInSuccess, TError> input,
+        Func<TInSuccess, TOutSuccess> selector
+    ) =>
+        input.MapSuccess(selector);
+
+
+    /// <summary>
+    /// Binds a Result to a function returning another Result, then combines
+    /// both success values using a projection.  Equivalent to Bind followed
+    /// by MapSuccess.
+    ///
+    /// This method exists so that Results can be used with C# query syntax,
+    /// which flattens chains of operations that may fail:
+    /// <code>
+    /// from first in ValidateName(firstName)
+    /// from last in ValidateName(lastName)
+    /// select new Person { FirstName = first, LastName = last }
+    /// </code>
+    /// Each from clause unwraps a success value.  If any Result is an error,
+    /// evaluation stops and the whole expression evaluates to that error.
+    /// </summary>
+    /// <typeparam name="TInSuccess">
+    /// The type of the success value in the input Result.
+    /// </typeparam>
+    /// <typeparam name="TNextSuccess">
+    /// The type of the success value in the Result returned by
+    /// <paramref name="next"/>.
+    /// </typeparam>
+    /// <typeparam name="TOutSuccess">
+    /// The type of the success value in the output Result.
+    /// </typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="input">The input Result.</param>
+    /// <param name="next">
+    /// A function that takes the input's success value and returns the next
+    /// Result.  Only invoked if the input Result is successful.
+    /// </param>
+    /// <param name="project">
+    /// A function that combines both success values into the output value.
+    /// Only invoked if both Results are successful.
+    /// </param>
+    /// <returns>
+    /// A successful Result containing the projected value if both Results are
+    /// successful.  Otherwise, the first error encountered.
+    /// </returns>
+    public static Result<TOutSuccess, TError>
+    SelectMany<TInSuccess, TNextSuccess, TOutSuccess, TError>(
+        this Result<TInSuccess, TError> input,
+        Func<TInSuccess, Result<TNextSuccess, TError>> next,
+        Func<TInSuccess, TNextSuccess, TOutSuccess> project
+    ) =>
+        input.Bind((a) => next(a).MapSuccess((b) => project(a, b)));
 
 
     /// <summary>
