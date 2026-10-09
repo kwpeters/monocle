@@ -13,178 +13,6 @@ public class ResultExtTests
 {
     //
     // ══════════════════════════════════════════════════════════════════════
-    // ── ToResult ─────────────────────────────────────────────────────────
-    // ══════════════════════════════════════════════════════════════════════
-    //
-
-    [Fact]
-    public void ToResult_WhenGivenNonNullReference_ReturnsSuccess()
-    {
-        string? value = "alpha";
-
-        var result = value.ToResult(() => "missing value");
-
-        Assert.Equal("alpha", result.ThrowIfError());
-    }
-
-
-    [Fact]
-    public void ToResult_WhenGivenNullReference_ReturnsErrorFromFactory()
-    {
-        string? value = null;
-
-        var result = value.ToResult(() => "missing value");
-
-        Assert.Equal("missing value", result.ThrowIfSuccess());
-    }
-
-
-    [Fact]
-    public void ToResult_WhenGivenNonNullReference_DoesNotInvokeErrorFactory()
-    {
-        string? value = "alpha";
-        var invoked = false;
-
-        var result = value.ToResult(() =>
-        {
-            invoked = true;
-            return "missing value";
-        });
-
-        Assert.Equal("alpha", result.ThrowIfError());
-        Assert.False(invoked);
-    }
-
-
-    [Fact]
-    public void ToResult_WhenGivenNullErrorFactory_ThrowsArgumentNullException()
-    {
-        string? value = "alpha";
-
-        Assert.Throws<ArgumentNullException>(() => value.ToResult<string, string>(null!));
-    }
-
-
-    [Fact]
-    public void ToResult_WhenGivenSomeOption_ReturnsSuccess()
-    {
-        Option<string> input = Some("alpha");
-
-        var result = input.ToResult(() => "missing value");
-
-        Assert.Equal("alpha", result.ThrowIfError());
-    }
-
-
-    [Fact]
-    public void ToResult_WhenGivenNoneOption_ReturnsErrorFromFactory()
-    {
-        Option<string> input = none;
-
-        var result = input.ToResult(() => "missing value");
-
-        Assert.Equal("missing value", result.ThrowIfSuccess());
-    }
-
-
-    [Fact]
-    public void ToResult_WhenGivenSomeOption_DoesNotInvokeErrorFactory()
-    {
-        Option<string> input = Some("alpha");
-        var invoked = false;
-
-        var result = input.ToResult(() =>
-        {
-            invoked = true;
-            return "missing value";
-        });
-
-        Assert.Equal("alpha", result.ThrowIfError());
-        Assert.False(invoked);
-    }
-
-
-    [Fact]
-    public void ToResult_WhenGivenNullOption_ThrowsArgumentNullException()
-    {
-        Option<string> input = null!;
-
-        Assert.Throws<ArgumentNullException>(() => input.ToResult(() => "missing value"));
-    }
-
-
-    [Fact]
-    public void ToResult_WhenGivenNoneOptionAndNullErrorFactory_ThrowsArgumentNullException()
-    {
-        Option<string> input = none;
-
-        Assert.Throws<ArgumentNullException>(() => input.ToResult<string, string>(null!));
-    }
-
-
-    [Fact]
-    public void ToOption_WhenGivenSuccessResult_ReturnsSome()
-    {
-        Result<string, string> input = SuccessE<string, string>("alpha");
-
-        Option<string> result = input.ToOption();
-
-        Assert.Equal(Some("alpha"), result);
-    }
-
-
-    [Fact]
-    public void ToOption_WhenGivenErrorResult_ReturnsNone()
-    {
-        Result<string, string> input = ErrorE<string, string>("missing value");
-
-        Option<string> result = input.ToOption();
-
-        Assert.True(result.IsNone);
-    }
-
-
-    [Fact]
-    public void ToOption_WhenGivenNullResult_ThrowsArgumentNullException()
-    {
-        Result<string, string> input = null!;
-
-        Assert.Throws<ArgumentNullException>(() => input.ToOption());
-    }
-
-
-    [Fact]
-    public async Task ToOption_Task_WhenGivenSuccessResult_ReturnsSome()
-    {
-        Task<Result<string, string>> input = Task.FromResult(SuccessE<string, string>("alpha"));
-
-        Option<string> result = await input.ToOption();
-
-        Assert.Equal(Some("alpha"), result);
-    }
-
-
-    [Fact]
-    public async Task ToOption_Task_WhenGivenErrorResult_ReturnsNone()
-    {
-        Task<Result<string, string>> input = Task.FromResult(ErrorE<string, string>("missing value"));
-
-        Option<string> result = await input.ToOption();
-
-        Assert.True(result.IsNone);
-    }
-
-
-    [Fact]
-    public async Task ToOption_Task_WhenGivenNullTask_ThrowsArgumentNullException()
-    {
-        Task<Result<string, string>> input = null!;
-
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await input.ToOption());
-    }
-
-    //
-    // ══════════════════════════════════════════════════════════════════════
     // ── AllOrErrors ──────────────────────────────────────────────────────
     // ══════════════════════════════════════════════════════════════════════
     //
@@ -441,7 +269,6 @@ public class ResultExtTests
         Assert.Equal("Function error", err);
     }
 
-
     //
     // ══════════════════════════════════════════════════════════════════════
     // ── DefaultValue ─────────────────────────────────────────────────────
@@ -486,7 +313,6 @@ public class ResultExtTests
         var val = await Task.FromResult(ErrorE<int, string>("Error message")).DefaultValue(0);
         Assert.Equal(0, val);
     }
-
 
     //
     // ══════════════════════════════════════════════════════════════════════
@@ -582,6 +408,32 @@ public class ResultExtTests
         Assert.Equal(13, val);
     }
 
+
+    [Fact]
+    public async Task DefaultWithAsync_SyncResult_WhenGivenSuccessResult_ReturnsSuccessValueWithoutCallingFunction()
+    {
+        var fnCalled = false;
+        Result<int, string> input = Success(42);
+        var val = await input.DefaultWithAsync(async (err) => {
+            fnCalled = true;
+            await Task.Delay(1);
+            return 0;
+        });
+        Assert.False(fnCalled);
+        Assert.Equal(42, val);
+    }
+
+
+    [Fact]
+    public async Task DefaultWithAsync_SyncResult_WhenGivenErrorResult_ComputesDefaultFromError()
+    {
+        Result<int, string> input = Error("Error message");
+        var val = await input.DefaultWithAsync(async (err) => {
+            await Task.Delay(1);
+            return err.Length;
+        });
+        Assert.Equal(13, val);
+    }
 
     //
     // ══════════════════════════════════════════════════════════════════════
@@ -804,6 +656,153 @@ public class ResultExtTests
             async () => await Task.FromResult(ErrorE<int, string>("Error message")).GetValue());
     }
 
+    //
+    // ══════════════════════════════════════════════════════════════════════
+    // ── MapError ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void MapError_WhenInputIsSuccess_DoesNotInvokeFunctionAndReturnsSuccess()
+    {
+        int numInvocations = 0;
+
+        string appendText(string err)
+        {
+            numInvocations++;
+            return err + " (modified)";
+        }
+
+        var val =
+            SuccessE<int, string>(42)
+            .MapError(appendText)
+            .ThrowIfError();
+
+        Assert.Equal(0, numInvocations);
+        Assert.Equal(42, val);
+    }
+
+
+    [Fact]
+    public void MapError_WhenInputIsError_InvokesFunctionAndReturnsErrorWithMappedValue()
+    {
+        int numInvocations = 0;
+
+        string appendText(string err)
+        {
+            numInvocations++;
+            return err + " (modified)";
+        }
+
+        var err =
+            ErrorE<int, string>("Original error")
+            .MapError(appendText)
+            .ThrowIfSuccess();
+
+        Assert.Equal(1, numInvocations);
+        Assert.Equal("Original error (modified)", err);
+    }
+
+
+    [Fact]
+    public void MapError_WhenMappingTypeChanges_ReturnsCorrectType()
+    {
+        var errVal =
+            ErrorE<int, string>("Error message")
+            .MapError(err => err.Length)
+            .ThrowIfSuccess();
+
+        Assert.Equal(13, errVal);
+    }
+
+
+    [Fact]
+    public void MapError_WhenChained_AppliesTransformationsInOrder()
+    {
+        var errVal =
+            ErrorE<int, string>("error")
+            .MapError(err => err.ToUpper(CultureInfo.InvariantCulture))  // "ERROR"
+            .MapError(err => err + "!")               // "ERROR!"
+            .MapError(err => err.Length)              // 6
+            .ThrowIfSuccess();
+
+        Assert.Equal(6, errVal);
+    }
+
+
+    [Fact]
+    public void MapError_WhenChainedWithSuccess_StopsAtFirstSuccess()
+    {
+        int invocations = 0;
+
+        var val =
+            SuccessE<int, string>(42)
+            .MapError(err => { invocations++; return err.ToUpper(CultureInfo.InvariantCulture); })
+            .MapError(err => { invocations++; return err + "!"; })
+            .MapError(err => { invocations++; return err.Length; })
+            .ThrowIfError();
+
+        Assert.Equal(0, invocations);
+        Assert.Equal(42, val);
+    }
+
+
+    // ── MapError (Tier 2 lift — sync callback) ───────────────────────────
+
+    [Fact]
+    public async Task MapError_Task_WhenGivenSuccessResult_PropagatesSuccess()
+    {
+        var fnCalled = false;
+        var result = await Task.FromResult(SuccessE<int, string>(42))
+            .MapError((err) => {
+                fnCalled = true;
+                return $"Transformed: {err}";
+            });
+        var val = result.ThrowIfError();
+        Assert.False(fnCalled);
+        Assert.Equal(42, val);
+    }
+
+
+    [Fact]
+    public async Task MapError_Task_WhenGivenErrorResult_TransformsError()
+    {
+        var result = await Task.FromResult(ErrorE<int, string>("Error message"))
+            .MapError((err) => $"Transformed: {err}");
+        var err = result.ThrowIfSuccess();
+        Assert.Equal("Transformed: Error message", err);
+    }
+
+
+    // ── MapErrorAsync (Tier 3 — async callback) ──────────────────────────
+
+    [Fact]
+    public async Task MapErrorAsync_WhenGivenSuccessResult_PropagatesSuccess()
+    {
+        var fnCalled = false;
+        var result = await Task.FromResult(SuccessE<int, string>(42))
+            .MapErrorAsync(async (err) => {
+                fnCalled = true;
+                await Task.Delay(1);
+                return $"Transformed: {err}";
+            });
+        var val = result.ThrowIfError();
+        Assert.False(fnCalled);
+        Assert.Equal(42, val);
+    }
+
+
+    [Fact]
+    public async Task MapErrorAsync_WhenGivenErrorResult_TransformsError()
+    {
+        var result = await Task.FromResult(ErrorE<int, string>("Error message"))
+            .MapErrorAsync(async (err) => {
+                await Task.Delay(1);
+                return $"Transformed: {err}";
+            });
+        var err = result.ThrowIfSuccess();
+        Assert.Equal("Transformed: Error message", err);
+    }
 
     //
     // ══════════════════════════════════════════════════════════════════════
@@ -953,156 +952,6 @@ public class ResultExtTests
         Assert.Equal("Error message", err);
     }
 
-
-    //
-    // ══════════════════════════════════════════════════════════════════════
-    // ── MapError ─────────────────────────────────────────────────────────
-    // ══════════════════════════════════════════════════════════════════════
-    //
-
-    [Fact]
-    public void MapError_WhenInputIsSuccess_DoesNotInvokeFunctionAndReturnsSuccess()
-    {
-        int numInvocations = 0;
-
-        string appendText(string err)
-        {
-            numInvocations++;
-            return err + " (modified)";
-        }
-
-        var val =
-            SuccessE<int, string>(42)
-            .MapError(appendText)
-            .ThrowIfError();
-
-        Assert.Equal(0, numInvocations);
-        Assert.Equal(42, val);
-    }
-
-
-    [Fact]
-    public void MapError_WhenInputIsError_InvokesFunctionAndReturnsErrorWithMappedValue()
-    {
-        int numInvocations = 0;
-
-        string appendText(string err)
-        {
-            numInvocations++;
-            return err + " (modified)";
-        }
-
-        var err =
-            ErrorE<int, string>("Original error")
-            .MapError(appendText)
-            .ThrowIfSuccess();
-
-        Assert.Equal(1, numInvocations);
-        Assert.Equal("Original error (modified)", err);
-    }
-
-
-    [Fact]
-    public void MapError_WhenMappingTypeChanges_ReturnsCorrectType()
-    {
-        var errVal =
-            ErrorE<int, string>("Error message")
-            .MapError(err => err.Length)
-            .ThrowIfSuccess();
-
-        Assert.Equal(13, errVal);
-    }
-
-
-    [Fact]
-    public void MapError_WhenChained_AppliesTransformationsInOrder()
-    {
-        var errVal =
-            ErrorE<int, string>("error")
-            .MapError(err => err.ToUpper(CultureInfo.InvariantCulture))  // "ERROR"
-            .MapError(err => err + "!")               // "ERROR!"
-            .MapError(err => err.Length)              // 6
-            .ThrowIfSuccess();
-
-        Assert.Equal(6, errVal);
-    }
-
-
-    [Fact]
-    public void MapError_WhenChainedWithSuccess_StopsAtFirstSuccess()
-    {
-        int invocations = 0;
-
-        var val =
-            SuccessE<int, string>(42)
-            .MapError(err => { invocations++; return err.ToUpper(CultureInfo.InvariantCulture); })
-            .MapError(err => { invocations++; return err + "!"; })
-            .MapError(err => { invocations++; return err.Length; })
-            .ThrowIfError();
-
-        Assert.Equal(0, invocations);
-        Assert.Equal(42, val);
-    }
-
-
-    // ── MapError (Tier 2 lift — sync callback) ───────────────────────────
-
-    [Fact]
-    public async Task MapError_Task_WhenGivenSuccessResult_PropagatesSuccess()
-    {
-        var fnCalled = false;
-        var result = await Task.FromResult(SuccessE<int, string>(42))
-            .MapError((err) => {
-                fnCalled = true;
-                return $"Transformed: {err}";
-            });
-        var val = result.ThrowIfError();
-        Assert.False(fnCalled);
-        Assert.Equal(42, val);
-    }
-
-
-    [Fact]
-    public async Task MapError_Task_WhenGivenErrorResult_TransformsError()
-    {
-        var result = await Task.FromResult(ErrorE<int, string>("Error message"))
-            .MapError((err) => $"Transformed: {err}");
-        var err = result.ThrowIfSuccess();
-        Assert.Equal("Transformed: Error message", err);
-    }
-
-
-    // ── MapErrorAsync (Tier 3 — async callback) ──────────────────────────
-
-    [Fact]
-    public async Task MapErrorAsync_WhenGivenSuccessResult_PropagatesSuccess()
-    {
-        var fnCalled = false;
-        var result = await Task.FromResult(SuccessE<int, string>(42))
-            .MapErrorAsync(async (err) => {
-                fnCalled = true;
-                await Task.Delay(1);
-                return $"Transformed: {err}";
-            });
-        var val = result.ThrowIfError();
-        Assert.False(fnCalled);
-        Assert.Equal(42, val);
-    }
-
-
-    [Fact]
-    public async Task MapErrorAsync_WhenGivenErrorResult_TransformsError()
-    {
-        var result = await Task.FromResult(ErrorE<int, string>("Error message"))
-            .MapErrorAsync(async (err) => {
-                await Task.Delay(1);
-                return $"Transformed: {err}";
-            });
-        var err = result.ThrowIfSuccess();
-        Assert.Equal("Transformed: Error message", err);
-    }
-
-
     //
     // ══════════════════════════════════════════════════════════════════════
     // ── Match ────────────────────────────────────────────────────────────
@@ -1137,6 +986,37 @@ public class ResultExtTests
     }
 
 
+    // The callbacks in the VoidAction tests below call List.Add, which returns
+    // void, so they can only bind to the Action overloads.  A callback such as
+    // (s) => called = true returns a value and would bind to the Func overload
+    // instead.
+
+    [Fact]
+    public void Match_VoidAction_WhenGivenSuccessResult_ExecutesSuccessFn()
+    {
+        var calls = new List<string>();
+        SuccessE<int, string>(42)
+            .Match(
+                (s) => calls.Add($"Success: {s}"),
+                (e) => calls.Add($"Error: {e}")
+            );
+        Assert.Equal(new[] { "Success: 42" }, calls);
+    }
+
+
+    [Fact]
+    public void Match_VoidAction_WhenGivenErrorResult_ExecutesErrorFn()
+    {
+        var calls = new List<string>();
+        ErrorE<int, string>("Error message")
+            .Match(
+                (s) => calls.Add($"Success: {s}"),
+                (e) => calls.Add($"Error: {e}")
+            );
+        Assert.Equal(new[] { "Error: Error message" }, calls);
+    }
+
+
     // ── Match (Tier 2 lift — sync callbacks) ─────────────────────────────
 
     [Fact]
@@ -1166,30 +1046,26 @@ public class ResultExtTests
     [Fact]
     public async Task Match_Task_VoidAction_WhenGivenSuccessResult_ExecutesSuccessFn()
     {
-        var successCalled = false;
-        var errorCalled = false;
+        var calls = new List<string>();
         await Task.FromResult(SuccessE<int, string>(42))
             .Match(
-                (s) => successCalled = true,
-                (e) => errorCalled = true
+                (s) => calls.Add($"Success: {s}"),
+                (e) => calls.Add($"Error: {e}")
             );
-        Assert.True(successCalled);
-        Assert.False(errorCalled);
+        Assert.Equal(new[] { "Success: 42" }, calls);
     }
 
 
     [Fact]
     public async Task Match_Task_VoidAction_WhenGivenErrorResult_ExecutesErrorFn()
     {
-        var successCalled = false;
-        var errorCalled = false;
+        var calls = new List<string>();
         await Task.FromResult(ErrorE<int, string>("Error message"))
             .Match(
-                (s) => successCalled = true,
-                (e) => errorCalled = true
+                (s) => calls.Add($"Success: {s}"),
+                (e) => calls.Add($"Error: {e}")
             );
-        Assert.False(successCalled);
-        Assert.True(errorCalled);
+        Assert.Equal(new[] { "Error: Error message" }, calls);
     }
 
 
@@ -1271,7 +1147,6 @@ public class ResultExtTests
         Assert.False(successCalled);
         Assert.True(errorCalled);
     }
-
 
     //
     // ══════════════════════════════════════════════════════════════════════
@@ -1727,5 +1602,234 @@ public class ResultExtTests
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(
             async () => await Task.FromResult(SuccessE<int, string>(42)).ThrowIfSuccess("Custom error"));
         Assert.Equal("Custom error", ex.Message);
+    }
+
+    //
+    // ══════════════════════════════════════════════════════════════════════
+    // ── ToOption ──────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void ToOption_WhenGivenSuccessResult_ReturnsSome()
+    {
+        Result<string, string> input = SuccessE<string, string>("alpha");
+
+        Option<string> result = input.ToOption();
+
+        Assert.Equal(Some("alpha"), result);
+    }
+
+
+    [Fact]
+    public void ToOption_WhenGivenErrorResult_ReturnsNone()
+    {
+        Result<string, string> input = ErrorE<string, string>("missing value");
+
+        Option<string> result = input.ToOption();
+
+        Assert.True(result.IsNone);
+    }
+
+
+    [Fact]
+    public void ToOption_WhenGivenNullResult_ThrowsArgumentNullException()
+    {
+        Result<string, string> input = null!;
+
+        Assert.Throws<ArgumentNullException>(() => input.ToOption());
+    }
+
+
+    // ── ToOption (Tier 2 lift) ────────────────────────────────────────────
+
+    [Fact]
+    public async Task ToOption_Task_WhenGivenSuccessResult_ReturnsSome()
+    {
+        Task<Result<string, string>> input = Task.FromResult(SuccessE<string, string>("alpha"));
+
+        Option<string> result = await input.ToOption();
+
+        Assert.Equal(Some("alpha"), result);
+    }
+
+
+    [Fact]
+    public async Task ToOption_Task_WhenGivenErrorResult_ReturnsNone()
+    {
+        Task<Result<string, string>> input = Task.FromResult(ErrorE<string, string>("missing value"));
+
+        Option<string> result = await input.ToOption();
+
+        Assert.True(result.IsNone);
+    }
+
+
+    [Fact]
+    public async Task ToOption_Task_WhenGivenNullTask_ThrowsArgumentNullException()
+    {
+        Task<Result<string, string>> input = null!;
+
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await input.ToOption());
+    }
+
+    //
+    // ══════════════════════════════════════════════════════════════════════
+    // ── ToResult ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void ToResult_WhenGivenNonNullReference_ReturnsSuccess()
+    {
+        string? value = "alpha";
+
+        var result = value.ToResult(() => "missing value");
+
+        Assert.Equal("alpha", result.ThrowIfError());
+    }
+
+
+    [Fact]
+    public void ToResult_WhenGivenNullReference_ReturnsErrorFromFactory()
+    {
+        string? value = null;
+
+        var result = value.ToResult(() => "missing value");
+
+        Assert.Equal("missing value", result.ThrowIfSuccess());
+    }
+
+
+    [Fact]
+    public void ToResult_WhenGivenNonNullReference_DoesNotInvokeErrorFactory()
+    {
+        string? value = "alpha";
+        var invoked = false;
+
+        var result = value.ToResult(() =>
+        {
+            invoked = true;
+            return "missing value";
+        });
+
+        Assert.Equal("alpha", result.ThrowIfError());
+        Assert.False(invoked);
+    }
+
+
+    [Fact]
+    public void ToResult_WhenGivenNullErrorFactory_ThrowsArgumentNullException()
+    {
+        string? value = "alpha";
+
+        Assert.Throws<ArgumentNullException>(() => value.ToResult<string, string>(null!));
+    }
+
+
+    [Fact]
+    public void ToResult_WhenGivenSomeOption_ReturnsSuccess()
+    {
+        Option<string> input = Some("alpha");
+
+        var result = input.ToResult(() => "missing value");
+
+        Assert.Equal("alpha", result.ThrowIfError());
+    }
+
+
+    [Fact]
+    public void ToResult_WhenGivenNoneOption_ReturnsErrorFromFactory()
+    {
+        Option<string> input = none;
+
+        var result = input.ToResult(() => "missing value");
+
+        Assert.Equal("missing value", result.ThrowIfSuccess());
+    }
+
+
+    [Fact]
+    public void ToResult_WhenGivenSomeOption_DoesNotInvokeErrorFactory()
+    {
+        Option<string> input = Some("alpha");
+        var invoked = false;
+
+        var result = input.ToResult(() =>
+        {
+            invoked = true;
+            return "missing value";
+        });
+
+        Assert.Equal("alpha", result.ThrowIfError());
+        Assert.False(invoked);
+    }
+
+
+    [Fact]
+    public void ToResult_WhenGivenNullOption_ThrowsArgumentNullException()
+    {
+        Option<string> input = null!;
+
+        Assert.Throws<ArgumentNullException>(() => input.ToResult(() => "missing value"));
+    }
+
+
+    [Fact]
+    public void ToResult_WhenGivenNoneOptionAndNullErrorFactory_ThrowsArgumentNullException()
+    {
+        Option<string> input = none;
+
+        Assert.Throws<ArgumentNullException>(() => input.ToResult<string, string>(null!));
+    }
+
+
+    // ── ToResult (Tier 2 lift) ──────────────────────────────────────────
+
+    [Fact]
+    public async Task ToResult_Task_WhenGivenSomeOption_ReturnsSuccess()
+    {
+        Task<Option<string>> input = Task.FromResult(Some("alpha"));
+
+        var result = await input.ToResult(() => "missing value");
+
+        Assert.Equal("alpha", result.ThrowIfError());
+    }
+
+
+    [Fact]
+    public async Task ToResult_Task_WhenGivenNoneOption_ReturnsErrorFromFactory()
+    {
+        Task<Option<string>> input = Task.FromResult<Option<string>>(none);
+
+        var result = await input.ToResult(() => "missing value");
+
+        Assert.Equal("missing value", result.ThrowIfSuccess());
+    }
+
+
+    [Fact]
+    public async Task ToResult_Task_WhenGivenSomeOption_DoesNotInvokeErrorFactory()
+    {
+        Task<Option<string>> input = Task.FromResult(Some("alpha"));
+        var invoked = false;
+
+        var result = await input.ToResult(() =>
+        {
+            invoked = true;
+            return "missing value";
+        });
+
+        Assert.Equal("alpha", result.ThrowIfError());
+        Assert.False(invoked);
+    }
+
+
+    [Fact]
+    public async Task ToResult_Task_WhenGivenNullTask_ThrowsArgumentNullException()
+    {
+        Task<Option<string>> input = null!;
+
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await input.ToResult(() => "missing value"));
     }
 }

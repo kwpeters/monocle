@@ -14,91 +14,6 @@ public static class ResultExt
     //------------------------------------------------------------------------------
 
     /// <summary>
-    /// Converts a nullable reference to a Result explicitly.
-    /// Returns Success(value) when value is non-null; otherwise returns
-    /// Error(errorFactory()).
-    /// </summary>
-    /// <typeparam name="TSuccess">The success value type.</typeparam>
-    /// <typeparam name="TError">The error value type.</typeparam>
-    /// <param name="value">The nullable input value.</param>
-    /// <param name="errorFactory">
-    /// Factory for the error value. This factory is invoked only when value is null.
-    /// </param>
-    public static Result<TSuccess, TError>
-    ToResult<TSuccess, TError>(
-        this TSuccess? value,
-        Func<TError> errorFactory
-    ) where TSuccess : class
-    {
-        ArgumentNullException.ThrowIfNull(errorFactory);
-
-        return value is null ?
-            Error(errorFactory()) :
-            Success(value);
-    }
-
-    /// <summary>
-    /// Converts an Option to a Result explicitly.
-    /// Returns Success(value) when the Option is Some; otherwise returns
-    /// Error(errorFactory()).
-    /// </summary>
-    /// <typeparam name="TSuccess">The success value type.</typeparam>
-    /// <typeparam name="TError">The error value type.</typeparam>
-    /// <param name="input">The Option input value.</param>
-    /// <param name="errorFactory">
-    /// Factory for the error value. This factory is invoked only when the Option is None.
-    /// </param>
-    public static Result<TSuccess, TError>
-    ToResult<TSuccess, TError>(
-        this Option<TSuccess> input,
-        Func<TError> errorFactory
-    )
-    {
-        ArgumentNullException.ThrowIfNull(input);
-        ArgumentNullException.ThrowIfNull(errorFactory);
-
-        return input.Match<TSuccess, Result<TSuccess, TError>>(
-            someFn: (value) => Success(value),
-            noneFn: () => Error(errorFactory())
-        );
-    }
-
-    /// <summary>
-    /// Converts a Result to an Option explicitly.
-    /// Returns Some(value) when the Result is success; otherwise returns none.
-    /// </summary>
-    /// <typeparam name="TSuccess">The success value type.</typeparam>
-    /// <typeparam name="TError">The error value type.</typeparam>
-    /// <param name="input">The Result input value.</param>
-    public static Option<TSuccess>
-    ToOption<TSuccess, TError>(this Result<TSuccess, TError> input)
-    {
-        ArgumentNullException.ThrowIfNull(input);
-
-        return input.Match<TSuccess, TError, Option<TSuccess>>(
-            successFn: (value) => Some(value),
-            errorFn: (_) => none
-        );
-    }
-
-    /// <summary>
-    /// Converts a Task-wrapped Result to an Option explicitly.
-    /// Returns Some(value) when the Result is success; otherwise returns none.
-    /// </summary>
-    /// <typeparam name="TSuccess">The success value type.</typeparam>
-    /// <typeparam name="TError">The error value type.</typeparam>
-    /// <param name="taskInput">A task that resolves to a Result.</param>
-    public static async Task<Option<TSuccess>>
-    ToOption<TSuccess, TError>(this Task<Result<TSuccess, TError>> taskInput)
-    {
-        ArgumentNullException.ThrowIfNull(taskInput);
-
-        var input = await taskInput.ConfigureAwait(false);
-        return input.ToOption();
-    }
-
-
-    /// <summary>
     /// Combines a sequence of Results into a single Result.  If every input
     /// Result is successful, returns a successful Result containing all of the
     /// success values.  Otherwise, returns an error Result containing every
@@ -219,6 +134,7 @@ public static class ResultExt
         return input.Bind(fn);
     }
 
+
     /// <summary>
     /// Monadic bind for a Task-wrapped Result with an asynchronous function.
     /// </summary>
@@ -320,6 +236,33 @@ public static class ResultExt
         return input.DefaultWith(defaultValueFunc);
     }
 
+
+    /// <summary>
+    /// Returns the success value of a Result or computes a default value using
+    /// the provided asynchronous function if the Result is an error.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="input">The input Result.</param>
+    /// <param name="defaultValueFunc">
+    /// An asynchronous function that takes the error value and returns a
+    /// default success value. This function is only invoked if the input
+    /// Result is an error.
+    /// </param>
+    /// <returns>
+    /// A Task containing the success value if the Result is successful, or the
+    /// computed default value if the Result is an error.
+    /// </returns>
+    public static Task<TSuccess>
+    DefaultWithAsync<TSuccess, TError>(
+        this Result<TSuccess, TError> input,
+        Func<TError, Task<TSuccess>> defaultValueFunc
+    ) =>
+        input.Match(
+            (s) => Task.FromResult(s),
+            (e) => defaultValueFunc(e)
+        );
+
     /// <summary>
     /// Returns the success value of a Task-wrapped Result or computes a default
     /// value using the provided asynchronous function if the Result is an
@@ -400,6 +343,7 @@ public static class ResultExt
         var input = await taskInput.ConfigureAwait(false);
         return input.Gate(gateFn);
     }
+
 
     /// <summary>
     /// Gates a Task-wrapped Result by applying an asynchronous validation
@@ -504,9 +448,71 @@ public static class ResultExt
     }
 
 
-    //--------------------------------------------------------------------------
-    // MapSuccess
-    //--------------------------------------------------------------------------
+    /// <summary>
+    /// Maps the error value of a Result to a new value using the provided
+    /// function.  If the input Result is successful, propagates the success
+    /// value without invoking the function. If the input Result is an error,
+    /// applies the function to the error value and wraps the result in a
+    /// successful Result.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TInError">The type of the error value in the input Result.</typeparam>
+    /// <typeparam name="TOutError">The type of the error value in the output Result.</typeparam>
+    /// <param name="input">The input Result to map.</param>
+    /// <param name="fn">
+    /// A function that transforms the error value. This function is only
+    /// invoked if the input Result is an error.
+    /// </param>
+    /// <returns>
+    /// A successful Result containing the transformed value if the input is
+    /// an error, or the original success if the input is successful.
+    /// </returns>
+    public static Result<TSuccess, TOutError>
+    MapError<TSuccess, TInError, TOutError>(
+        this Result<TSuccess, TInError> input,
+        Func<TInError, TOutError> fn
+    )
+    {
+        return input.Match<TSuccess, TInError, Result<TSuccess, TOutError>>(
+            (s) => Success(s),
+            (e) => Error(fn(e))
+        );
+    }
+
+    /// <summary>
+    /// Maps the error value of a Task-wrapped Result using a synchronous
+    /// function.
+    /// </summary>
+    public static async Task<Result<TSuccess, TOutError>>
+    MapError<TSuccess, TInError, TOutError>(
+        this Task<Result<TSuccess, TInError>> taskInput,
+        Func<TInError, TOutError> fn
+    )
+    {
+        var input = await taskInput.ConfigureAwait(false);
+        return input.MapError(fn);
+    }
+
+
+    /// <summary>
+    /// Maps the error value of a Task-wrapped Result using an asynchronous
+    /// function.
+    /// </summary>
+    public static async Task<Result<TSuccess, TOutError>>
+    MapErrorAsync<TSuccess, TInError, TOutError>(
+        this Task<Result<TSuccess, TInError>> taskInput,
+        Func<TInError, Task<TOutError>> fn
+    )
+    {
+        var input = await taskInput.ConfigureAwait(false);
+        Result<TSuccess, TOutError> result = input switch {
+            SuccessResult<TSuccess, TInError>(var s) => Success(s),
+            ErrorResult<TSuccess, TInError>(var e) => Error(await fn(e).ConfigureAwait(false)),
+            _ => throw new ArgumentException("Result must be SuccessResult or ErrorResult.")
+        };
+        return result;
+    }
+
 
     /// <summary>
     /// Maps the success value of a Result to a new value using the provided
@@ -557,6 +563,7 @@ public static class ResultExt
         return input.MapSuccess(fn);
     }
 
+
     /// <summary>
     /// Maps the success value of a Task-wrapped Result using an asynchronous
     /// function.
@@ -571,71 +578,6 @@ public static class ResultExt
         Result<TOutSuccess, TError> result = input switch {
             SuccessResult<TInSuccess, TError>(var s) => Success(await fn(s).ConfigureAwait(false)),
             ErrorResult<TInSuccess, TError>(var e) => Error(e),
-            _ => throw new ArgumentException("Result must be SuccessResult or ErrorResult.")
-        };
-        return result;
-    }
-
-
-    /// <summary>
-    /// Maps the error value of a Result to a new value using the provided
-    /// function.  If the input Result is successful, propagates the success
-    /// value without invoking the function. If the input Result is an error,
-    /// applies the function to the error value and wraps the result in a
-    /// successful Result.
-    /// </summary>
-    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
-    /// <typeparam name="TInError">The type of the error value in the input Result.</typeparam>
-    /// <typeparam name="TOutError">The type of the error value in the output Result.</typeparam>
-    /// <param name="input">The input Result to map.</param>
-    /// <param name="fn">
-    /// A function that transforms the error value. This function is only
-    /// invoked if the input Result is an error.
-    /// </param>
-    /// <returns>
-    /// A successful Result containing the transformed value if the input is
-    /// an error, or the original success if the input is successful.
-    /// </returns>
-    public static Result<TSuccess, TOutError>
-    MapError<TSuccess, TInError, TOutError>(
-        this Result<TSuccess, TInError> input,
-        Func<TInError, TOutError> fn
-    )
-    {
-        return input.Match<TSuccess, TInError, Result<TSuccess, TOutError>>(
-            (s) => Success(s),
-            (e) => Error(fn(e))
-        );
-    }
-
-    /// <summary>
-    /// Maps the error value of a Task-wrapped Result using a synchronous
-    /// function.
-    /// </summary>
-    public static async Task<Result<TSuccess, TOutError>>
-    MapError<TSuccess, TInError, TOutError>(
-        this Task<Result<TSuccess, TInError>> taskInput,
-        Func<TInError, TOutError> fn
-    )
-    {
-        var input = await taskInput.ConfigureAwait(false);
-        return input.MapError(fn);
-    }
-
-    /// <summary>
-    /// Maps the error value of a Task-wrapped Result using an asynchronous
-    /// function.
-    /// </summary>
-    public static async Task<Result<TSuccess, TOutError>>
-    MapErrorAsync<TSuccess, TInError, TOutError>(
-        this Task<Result<TSuccess, TInError>> taskInput,
-        Func<TInError, Task<TOutError>> fn
-    )
-    {
-        var input = await taskInput.ConfigureAwait(false);
-        Result<TSuccess, TOutError> result = input switch {
-            SuccessResult<TSuccess, TInError>(var s) => Success(s),
-            ErrorResult<TSuccess, TInError>(var e) => Error(await fn(e).ConfigureAwait(false)),
             _ => throw new ArgumentException("Result must be SuccessResult or ErrorResult.")
         };
         return result;
@@ -742,6 +684,7 @@ public static class ResultExt
         res.Match(successFn, errorFn);
     }
 
+
     /// <summary>
     /// Pattern matches on a Task-wrapped Result with asynchronous functions,
     /// returning a value.
@@ -823,6 +766,7 @@ public static class ResultExt
 
         return (successes, failures);
     }
+
 
     /// <summary>
     /// Partitions a sequence of Task Results into two separate collections: one
@@ -1006,5 +950,115 @@ public static class ResultExt
     {
         var res = await taskResult.ConfigureAwait(false);
         return res.ThrowIfSuccess(errMsg);
+    }
+
+
+    /// <summary>
+    /// Converts a Result to an Option explicitly.
+    /// Returns Some(value) when the Result is success; otherwise returns none.
+    /// </summary>
+    /// <typeparam name="TSuccess">The success value type.</typeparam>
+    /// <typeparam name="TError">The error value type.</typeparam>
+    /// <param name="input">The Result input value.</param>
+    public static Option<TSuccess>
+    ToOption<TSuccess, TError>(this Result<TSuccess, TError> input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+
+        return input.Match<TSuccess, TError, Option<TSuccess>>(
+            successFn: (value) => Some(value),
+            errorFn: (_) => none
+        );
+    }
+
+    /// <summary>
+    /// Converts a Task-wrapped Result to an Option explicitly.
+    /// Returns Some(value) when the Result is success; otherwise returns none.
+    /// </summary>
+    /// <typeparam name="TSuccess">The success value type.</typeparam>
+    /// <typeparam name="TError">The error value type.</typeparam>
+    /// <param name="taskInput">A task that resolves to a Result.</param>
+    public static async Task<Option<TSuccess>>
+    ToOption<TSuccess, TError>(this Task<Result<TSuccess, TError>> taskInput)
+    {
+        ArgumentNullException.ThrowIfNull(taskInput);
+
+        var input = await taskInput.ConfigureAwait(false);
+        return input.ToOption();
+    }
+
+
+    /// <summary>
+    /// Converts a nullable reference to a Result explicitly.
+    /// Returns Success(value) when value is non-null; otherwise returns
+    /// Error(errorFactory()).
+    /// </summary>
+    /// <typeparam name="TSuccess">The success value type.</typeparam>
+    /// <typeparam name="TError">The error value type.</typeparam>
+    /// <param name="value">The nullable input value.</param>
+    /// <param name="errorFactory">
+    /// Factory for the error value. This factory is invoked only when value is null.
+    /// </param>
+    public static Result<TSuccess, TError>
+    ToResult<TSuccess, TError>(
+        this TSuccess? value,
+        Func<TError> errorFactory
+    ) where TSuccess : class
+    {
+        ArgumentNullException.ThrowIfNull(errorFactory);
+
+        return value is null ?
+            Error(errorFactory()) :
+            Success(value);
+    }
+
+    /// <summary>
+    /// Converts an Option to a Result explicitly.
+    /// Returns Success(value) when the Option is Some; otherwise returns
+    /// Error(errorFactory()).
+    /// </summary>
+    /// <typeparam name="TSuccess">The success value type.</typeparam>
+    /// <typeparam name="TError">The error value type.</typeparam>
+    /// <param name="input">The Option input value.</param>
+    /// <param name="errorFactory">
+    /// Factory for the error value. This factory is invoked only when the Option is None.
+    /// </param>
+    public static Result<TSuccess, TError>
+    ToResult<TSuccess, TError>(
+        this Option<TSuccess> input,
+        Func<TError> errorFactory
+    )
+    {
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(errorFactory);
+
+        return input.Match<TSuccess, Result<TSuccess, TError>>(
+            someFn: (value) => Success(value),
+            noneFn: () => Error(errorFactory())
+        );
+    }
+
+    /// <summary>
+    /// Converts a Task-wrapped Option to a Result explicitly.
+    /// Returns Success(value) when the Option is Some; otherwise returns
+    /// Error(errorFactory()).
+    /// </summary>
+    /// <typeparam name="TSuccess">The success value type.</typeparam>
+    /// <typeparam name="TError">The error value type.</typeparam>
+    /// <param name="taskInput">A task that resolves to an Option.</param>
+    /// <param name="errorFactory">
+    /// Factory for the error value. This factory is invoked only when the Option is None.
+    /// </param>
+    public static async Task<Result<TSuccess, TError>>
+    ToResult<TSuccess, TError>(
+        this Task<Option<TSuccess>> taskInput,
+        Func<TError> errorFactory
+    )
+    {
+        ArgumentNullException.ThrowIfNull(taskInput);
+        ArgumentNullException.ThrowIfNull(errorFactory);
+
+        var input = await taskInput.ConfigureAwait(false);
+        return input.ToResult(errorFactory);
     }
 }
