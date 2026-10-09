@@ -1,5 +1,7 @@
 <Solution>
-  <Folder Name="/apps/" />
+  <Folder Name="/apps/">
+    <Project Path="apps/ExperimentalCli/ExperimentalCli.csproj" />
+  </Folder>
   <Folder Name="/libs/">
     <Project Path="libs/ExperimentalLib/ExperimentalLib.csproj" />
     <Project Path="libs/FnUtil.Tests/FnUtil.Tests.csproj" />
