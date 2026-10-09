@@ -7,7 +7,6 @@
 - **Explicit integer type sizes** (`Int32`, `UInt16`, `Byte`) in CIP/protocol code where bit widths matter. Standard `int`/`byte` elsewhere is fine.
 - **Braces always required** — no single-line `if` without braces.
 - **Private fields**: `_camelCase` with underscore prefix.
-- **P/Invoke function names**: `SCREAMING_SNAKE_CASE` matching the native API (e.g., `DTL_INIT_RSI_EX`).
 - **Physical quantities**: include the units.  For example, `timeoutMs`.
 - See [.editorconfig](../.editorconfig) for all formatting and style rules.
 
@@ -34,10 +33,10 @@ var result = condition ?
 When a method signature is too long for a single line, keep the return type (including `async` and other modifiers) on one line and start the method name on the next:
 
 ```csharp
-public static DisposableResult<DtlRuntime, DtlError>
+public static Result<int, string>
 Initialize(
-    uint maxDefines,
-    DtlInitFlags flags
+    uint paramA,
+    string paramB
 )
 ```
 
@@ -83,22 +82,29 @@ Members within a class or record must be declared in the following order. Use th
     //------------------------------------------------------------------------------
 ```
 
-
 ## Patterns
 
-### Error Handling & Functional Types (FnUtil)
+### Functional Programming
 
-- Use `Result<TSuccess, TError>` for all operations that can fail — return error values instead of throwing exceptions.
-- `Option<T>` — abstract record with internal `Some<T>(T Value)` and `None<T>` subtypes. Use `F.Some()` and `F.none` factories.
-- `Result<TSuccess, TError>` — discriminated union with `SuccessResult`/`ErrorResult` subtypes.
-- Extension methods: `Match()`, `GetOrElse()`, pipe operators, async helpers.
-- Use `ConfigureAwait(false)` on all `await` calls in library code (FnUtil, CipDotNet).
+- Always prefer use of the functional data types and patterns defined in the FnUtil library.
+- Never use null references.  Use Option<T> from FnUtil instead.
+- Reserve the throwing of exceptions for truly exception cases (cases that should never happen).
+- For operations that can fail and communicating the error reason is desirable,
+  prefer returning `Result<TSuccess, TError>` over throwing exceptions.  This allows
+  callers to handle errors without try/catch and preserves error information without
+  loss from exception types or messages.
+- For operations that can fail but communicating the error reason is not needed,
+  `Option<T>` is appropriate.  This allows callers to handle the presence or absence
+  of a value without try/catch and without using null references.
+
+### Asynchronous Code
+
+- Use `ConfigureAwait(false)` on all `await` calls in library code.
 
 ### P/Invoke
 
-- All native interop lives under `FtLinxDotNet/Native/`.
 - Use `LibraryImport` (source-generated) with `__stdcall` calling convention.
-- Pin callback delegates as instance fields on `DtlRuntime` to prevent GC collection.
+- Pin callback delegates as instance fields to prevent GC collection.
 - Structs use `[StructLayout(LayoutKind.Sequential, Pack = 1)]`.
 
 ### Concurrency
@@ -113,14 +119,3 @@ Members within a class or record must be declared in the following order. Use th
 dotnet build
 dotnet test
 ```
-
-- **x86 platform constraint**: `dtl_linxe.dll` is Win32 only. The FtLinxDotNet and CipClient projects target x86.
-- **Integration tests** are tagged with `[Trait("Category", "Integration")]` and require the native DLL in PATH.
-- **Unit tests** use NSubstitute to mock `IDtlRuntime` — no native DLL needed.
-
-## Conventions
-
-- Interfaces for testability: `IDtlRuntime`, `ICipConnection`.
-- Sealed classes with private constructors and static factory methods (e.g., `DtlRuntime.Initialize()`).
-- `#pragma warning disable CA2000` / `restore` around intentional ownership transfers in factory methods.
-- Namespaces: `FtLinxDotNet`, `FtLinxDotNet.Native`, `FtLinxDotNet.Tests`, `CipDotNet`, `CipDotNet.Tests`, `FnUtil`, `FnUtil.Tests`.
