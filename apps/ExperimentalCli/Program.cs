@@ -2,7 +2,7 @@ using ExperimentalLib;
 using FnUtil;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Creating data: validation happens once, at the boundary.  Every PersonClass
+// Creating data: validation happens once, at the boundary.  Every Person
 // that comes out of Create() is known to be valid.
 ////////////////////////////////////////////////////////////////////////////////
 

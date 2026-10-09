@@ -22,7 +22,7 @@ namespace ExperimentalLib;
 //
 // Data: an immutable record with no behavior.
 //
-public sealed record class PersonClass
+public sealed record class Person
 {
     public required string FirstName { get; init; }
     public required string LastName { get; init; }
@@ -42,37 +42,37 @@ public static class PersonOps
     //------------------------------------------------------------------------------
 
     /// <summary>
-    /// Validating factory ("smart constructor").  Produces a PersonClass only
+    /// Validating factory ("smart constructor").  Produces a Person only
     /// when all inputs are valid.
     /// </summary>
-    public static Result<PersonClass, string>
+    public static Result<Person, string>
     Create(string firstName, string lastName) =>
         NonBlank(firstName, nameof(firstName))
         .Bind((first) =>
             NonBlank(lastName, nameof(lastName))
-            .MapSuccess((last) => new PersonClass { FirstName = first, LastName = last }));
+            .MapSuccess((last) => new Person { FirstName = first, LastName = last }));
 
 
     public static string
-    FullName(this PersonClass person) => $"{person.FirstName} {person.LastName}";
+    FullName(this Person person) => $"{person.FirstName} {person.LastName}";
 
 
     public static string
-    Initials(this PersonClass person) => $"{person.FirstName[0]}{person.LastName[0]}";
+    Initials(this Person person) => $"{person.FirstName[0]}{person.LastName[0]}";
 
 
     /// <summary>
-    /// "Changes" the last name by returning a new PersonClass.  The original
+    /// "Changes" the last name by returning a new Person.  The original
     /// instance is left untouched.
     /// </summary>
-    public static Result<PersonClass, string>
-    WithLastName(this PersonClass person, string lastName) =>
+    public static Result<Person, string>
+    WithLastName(this Person person, string lastName) =>
         NonBlank(lastName, nameof(lastName))
         .MapSuccess((last) => person with { LastName = last });
 
 
-    public static Option<PersonClass>
-    FindByLastName(this IEnumerable<PersonClass> people, string lastName) =>
+    public static Option<Person>
+    FindByLastName(this IEnumerable<Person> people, string lastName) =>
         people.FirstOrDefault((p) => string.Equals(p.LastName, lastName, StringComparison.OrdinalIgnoreCase)) is { } found ?
             Some(found) :
             none;
