@@ -17,6 +17,7 @@ public abstract record Result<TSuccess, TError>
 #pragma warning disable CA2225      // Explicit conversion method not needed.
     public static implicit operator Result<TSuccess, TError>(ResultSuccessType<TSuccess> s) => new SuccessResult<TSuccess, TError>(s.Value);
 
+
     public static implicit operator Result<TSuccess, TError>(ResultErrorType<TError> e) => new ErrorResult<TSuccess, TError>(e.Error);
 #pragma warning restore CA2225
 
@@ -84,6 +85,7 @@ public static partial class F
         Result<TSuccess, TError> res = Success(value);
         return res;
     }
+
 
     public static ResultErrorType<TError>
     Error<TError>(TError error) => new(error);

@@ -14,7 +14,7 @@ public class PipeAsyncTests
         Task<int> ParseAsync(string str) => Task.FromResult(Convert.ToInt32(str, CultureInfo.InvariantCulture));
         Task<int> Times5Async(int x) => Task.FromResult(x * 5);
 
-        var res = await PipeAsync<string, int, int>(
+        int res = await PipeAsync<string, int, int>(
             "5",
             ParseAsync,
             Times5Async
@@ -31,7 +31,7 @@ public class PipeAsyncTests
         Task<int> Times5Async(int x) => Task.FromResult(x * 5);
         Task<int> Add3Async(int x) => Task.FromResult(x + 3);
 
-        var res = await PipeAsync<string, int, int, int>(
+        int res = await PipeAsync<string, int, int, int>(
             "5",
             ParseAsync,
             Times5Async,
@@ -50,7 +50,7 @@ public class PipeAsyncTests
         Task<int> Add3Async(int x) => Task.FromResult(x + 3);
         Task<string> ToStringAsync(int x) => Task.FromResult(x.ToString(CultureInfo.InvariantCulture));
 
-        var res = await PipeAsync<string, int, int, int, string>(
+        string res = await PipeAsync<string, int, int, int, string>(
             "5",
             ParseAsync,
             Times5Async,
@@ -71,7 +71,7 @@ public class PipeAsyncTests
         Task<string> ToStringAsync(int x) => Task.FromResult(x.ToString(CultureInfo.InvariantCulture));
         Task<string> AppendBangAsync(string s) => Task.FromResult(s + "!");
 
-        var res = await PipeAsync(
+        string res = await PipeAsync(
             "5",
             ParseAsync,
             Times5Async,
@@ -112,7 +112,7 @@ public class PipeAsyncTests
             return x.ToString(CultureInfo.InvariantCulture);
         }
 
-        var res = await PipeAsync(
+        string res = await PipeAsync(
             "7",
             ParseAsync,
             Times5Async,
@@ -137,7 +137,7 @@ public class PipeAsyncTests
         Task<int> F8(int x) => Task.FromResult(x - 20);
         Task<string> F9(int x) => Task.FromResult(x.ToString(CultureInfo.InvariantCulture));
 
-        var res = await PipeAsync(
+        string res = await PipeAsync(
             5,
             F1,
             F2,
@@ -170,7 +170,7 @@ public class PipeAsyncTests
         Task<string> DoubleToStringAsync(double d) => Task.FromResult($"{d:F2}");
         Task<int> StringToLengthAsync(string s) => Task.FromResult(s.Length);
 
-        var res = await PipeAsync<int, double, string, int>(
+        int res = await PipeAsync<int, double, string, int>(
             42,
             IntToDoubleAsync,
             DoubleToStringAsync,

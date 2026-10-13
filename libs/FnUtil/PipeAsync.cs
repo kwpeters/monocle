@@ -39,7 +39,7 @@ public static partial class F
         Func<T002, Task<T003>> f002003
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
         return await f002003(v002).ConfigureAwait(false);
     }
 
@@ -64,8 +64,8 @@ public static partial class F
         Func<T003, Task<T004>> f003004
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
         return await f003004(v003).ConfigureAwait(false);
     }
 
@@ -86,9 +86,9 @@ public static partial class F
         Func<T004, Task<T005>> f004005
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
         return await f004005(v004).ConfigureAwait(false);
     }
 
@@ -110,10 +110,10 @@ public static partial class F
         Func<T005, Task<T006>> f005006
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
         return await f005006(v005).ConfigureAwait(false);
     }
 
@@ -136,11 +136,11 @@ public static partial class F
         Func<T006, Task<T007>> f006007
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
-        var v006 = await f005006(v005).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
+        T006 v006 = await f005006(v005).ConfigureAwait(false);
         return await f006007(v006).ConfigureAwait(false);
     }
 
@@ -164,12 +164,12 @@ public static partial class F
         Func<T007, Task<T008>> f007008
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
-        var v006 = await f005006(v005).ConfigureAwait(false);
-        var v007 = await f006007(v006).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
+        T006 v006 = await f005006(v005).ConfigureAwait(false);
+        T007 v007 = await f006007(v006).ConfigureAwait(false);
         return await f007008(v007).ConfigureAwait(false);
     }
 
@@ -194,13 +194,13 @@ public static partial class F
         Func<T008, Task<T009>> f008009
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
-        var v006 = await f005006(v005).ConfigureAwait(false);
-        var v007 = await f006007(v006).ConfigureAwait(false);
-        var v008 = await f007008(v007).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
+        T006 v006 = await f005006(v005).ConfigureAwait(false);
+        T007 v007 = await f006007(v006).ConfigureAwait(false);
+        T008 v008 = await f007008(v007).ConfigureAwait(false);
         return await f008009(v008).ConfigureAwait(false);
     }
 
@@ -226,14 +226,14 @@ public static partial class F
         Func<T009, Task<T010>> f009010
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
-        var v006 = await f005006(v005).ConfigureAwait(false);
-        var v007 = await f006007(v006).ConfigureAwait(false);
-        var v008 = await f007008(v007).ConfigureAwait(false);
-        var v009 = await f008009(v008).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
+        T006 v006 = await f005006(v005).ConfigureAwait(false);
+        T007 v007 = await f006007(v006).ConfigureAwait(false);
+        T008 v008 = await f007008(v007).ConfigureAwait(false);
+        T009 v009 = await f008009(v008).ConfigureAwait(false);
         return await f009010(v009).ConfigureAwait(false);
     }
 
@@ -260,15 +260,15 @@ public static partial class F
         Func<T010, Task<T011>> f010011
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
-        var v006 = await f005006(v005).ConfigureAwait(false);
-        var v007 = await f006007(v006).ConfigureAwait(false);
-        var v008 = await f007008(v007).ConfigureAwait(false);
-        var v009 = await f008009(v008).ConfigureAwait(false);
-        var v010 = await f009010(v009).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
+        T006 v006 = await f005006(v005).ConfigureAwait(false);
+        T007 v007 = await f006007(v006).ConfigureAwait(false);
+        T008 v008 = await f007008(v007).ConfigureAwait(false);
+        T009 v009 = await f008009(v008).ConfigureAwait(false);
+        T010 v010 = await f009010(v009).ConfigureAwait(false);
         return await f010011(v010).ConfigureAwait(false);
     }
 
@@ -296,16 +296,16 @@ public static partial class F
         Func<T011, Task<T012>> f011012
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
-        var v006 = await f005006(v005).ConfigureAwait(false);
-        var v007 = await f006007(v006).ConfigureAwait(false);
-        var v008 = await f007008(v007).ConfigureAwait(false);
-        var v009 = await f008009(v008).ConfigureAwait(false);
-        var v010 = await f009010(v009).ConfigureAwait(false);
-        var v011 = await f010011(v010).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
+        T006 v006 = await f005006(v005).ConfigureAwait(false);
+        T007 v007 = await f006007(v006).ConfigureAwait(false);
+        T008 v008 = await f007008(v007).ConfigureAwait(false);
+        T009 v009 = await f008009(v008).ConfigureAwait(false);
+        T010 v010 = await f009010(v009).ConfigureAwait(false);
+        T011 v011 = await f010011(v010).ConfigureAwait(false);
         return await f011012(v011).ConfigureAwait(false);
     }
 
@@ -334,17 +334,17 @@ public static partial class F
         Func<T012, Task<T013>> f012013
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
-        var v006 = await f005006(v005).ConfigureAwait(false);
-        var v007 = await f006007(v006).ConfigureAwait(false);
-        var v008 = await f007008(v007).ConfigureAwait(false);
-        var v009 = await f008009(v008).ConfigureAwait(false);
-        var v010 = await f009010(v009).ConfigureAwait(false);
-        var v011 = await f010011(v010).ConfigureAwait(false);
-        var v012 = await f011012(v011).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
+        T006 v006 = await f005006(v005).ConfigureAwait(false);
+        T007 v007 = await f006007(v006).ConfigureAwait(false);
+        T008 v008 = await f007008(v007).ConfigureAwait(false);
+        T009 v009 = await f008009(v008).ConfigureAwait(false);
+        T010 v010 = await f009010(v009).ConfigureAwait(false);
+        T011 v011 = await f010011(v010).ConfigureAwait(false);
+        T012 v012 = await f011012(v011).ConfigureAwait(false);
         return await f012013(v012).ConfigureAwait(false);
     }
 
@@ -374,18 +374,18 @@ public static partial class F
         Func<T013, Task<T014>> f013014
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
-        var v006 = await f005006(v005).ConfigureAwait(false);
-        var v007 = await f006007(v006).ConfigureAwait(false);
-        var v008 = await f007008(v007).ConfigureAwait(false);
-        var v009 = await f008009(v008).ConfigureAwait(false);
-        var v010 = await f009010(v009).ConfigureAwait(false);
-        var v011 = await f010011(v010).ConfigureAwait(false);
-        var v012 = await f011012(v011).ConfigureAwait(false);
-        var v013 = await f012013(v012).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
+        T006 v006 = await f005006(v005).ConfigureAwait(false);
+        T007 v007 = await f006007(v006).ConfigureAwait(false);
+        T008 v008 = await f007008(v007).ConfigureAwait(false);
+        T009 v009 = await f008009(v008).ConfigureAwait(false);
+        T010 v010 = await f009010(v009).ConfigureAwait(false);
+        T011 v011 = await f010011(v010).ConfigureAwait(false);
+        T012 v012 = await f011012(v011).ConfigureAwait(false);
+        T013 v013 = await f012013(v012).ConfigureAwait(false);
         return await f013014(v013).ConfigureAwait(false);
     }
 
@@ -416,19 +416,19 @@ public static partial class F
         Func<T014, Task<T015>> f014015
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
-        var v006 = await f005006(v005).ConfigureAwait(false);
-        var v007 = await f006007(v006).ConfigureAwait(false);
-        var v008 = await f007008(v007).ConfigureAwait(false);
-        var v009 = await f008009(v008).ConfigureAwait(false);
-        var v010 = await f009010(v009).ConfigureAwait(false);
-        var v011 = await f010011(v010).ConfigureAwait(false);
-        var v012 = await f011012(v011).ConfigureAwait(false);
-        var v013 = await f012013(v012).ConfigureAwait(false);
-        var v014 = await f013014(v013).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
+        T006 v006 = await f005006(v005).ConfigureAwait(false);
+        T007 v007 = await f006007(v006).ConfigureAwait(false);
+        T008 v008 = await f007008(v007).ConfigureAwait(false);
+        T009 v009 = await f008009(v008).ConfigureAwait(false);
+        T010 v010 = await f009010(v009).ConfigureAwait(false);
+        T011 v011 = await f010011(v010).ConfigureAwait(false);
+        T012 v012 = await f011012(v011).ConfigureAwait(false);
+        T013 v013 = await f012013(v012).ConfigureAwait(false);
+        T014 v014 = await f013014(v013).ConfigureAwait(false);
         return await f014015(v014).ConfigureAwait(false);
     }
 
@@ -460,20 +460,20 @@ public static partial class F
         Func<T015, Task<T016>> f015016
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
-        var v006 = await f005006(v005).ConfigureAwait(false);
-        var v007 = await f006007(v006).ConfigureAwait(false);
-        var v008 = await f007008(v007).ConfigureAwait(false);
-        var v009 = await f008009(v008).ConfigureAwait(false);
-        var v010 = await f009010(v009).ConfigureAwait(false);
-        var v011 = await f010011(v010).ConfigureAwait(false);
-        var v012 = await f011012(v011).ConfigureAwait(false);
-        var v013 = await f012013(v012).ConfigureAwait(false);
-        var v014 = await f013014(v013).ConfigureAwait(false);
-        var v015 = await f014015(v014).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
+        T006 v006 = await f005006(v005).ConfigureAwait(false);
+        T007 v007 = await f006007(v006).ConfigureAwait(false);
+        T008 v008 = await f007008(v007).ConfigureAwait(false);
+        T009 v009 = await f008009(v008).ConfigureAwait(false);
+        T010 v010 = await f009010(v009).ConfigureAwait(false);
+        T011 v011 = await f010011(v010).ConfigureAwait(false);
+        T012 v012 = await f011012(v011).ConfigureAwait(false);
+        T013 v013 = await f012013(v012).ConfigureAwait(false);
+        T014 v014 = await f013014(v013).ConfigureAwait(false);
+        T015 v015 = await f014015(v014).ConfigureAwait(false);
         return await f015016(v015).ConfigureAwait(false);
     }
 
@@ -506,21 +506,21 @@ public static partial class F
         Func<T016, Task<T017>> f016017
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
-        var v006 = await f005006(v005).ConfigureAwait(false);
-        var v007 = await f006007(v006).ConfigureAwait(false);
-        var v008 = await f007008(v007).ConfigureAwait(false);
-        var v009 = await f008009(v008).ConfigureAwait(false);
-        var v010 = await f009010(v009).ConfigureAwait(false);
-        var v011 = await f010011(v010).ConfigureAwait(false);
-        var v012 = await f011012(v011).ConfigureAwait(false);
-        var v013 = await f012013(v012).ConfigureAwait(false);
-        var v014 = await f013014(v013).ConfigureAwait(false);
-        var v015 = await f014015(v014).ConfigureAwait(false);
-        var v016 = await f015016(v015).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
+        T006 v006 = await f005006(v005).ConfigureAwait(false);
+        T007 v007 = await f006007(v006).ConfigureAwait(false);
+        T008 v008 = await f007008(v007).ConfigureAwait(false);
+        T009 v009 = await f008009(v008).ConfigureAwait(false);
+        T010 v010 = await f009010(v009).ConfigureAwait(false);
+        T011 v011 = await f010011(v010).ConfigureAwait(false);
+        T012 v012 = await f011012(v011).ConfigureAwait(false);
+        T013 v013 = await f012013(v012).ConfigureAwait(false);
+        T014 v014 = await f013014(v013).ConfigureAwait(false);
+        T015 v015 = await f014015(v014).ConfigureAwait(false);
+        T016 v016 = await f015016(v015).ConfigureAwait(false);
         return await f016017(v016).ConfigureAwait(false);
     }
 
@@ -554,22 +554,22 @@ public static partial class F
         Func<T017, Task<T018>> f017018
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
-        var v006 = await f005006(v005).ConfigureAwait(false);
-        var v007 = await f006007(v006).ConfigureAwait(false);
-        var v008 = await f007008(v007).ConfigureAwait(false);
-        var v009 = await f008009(v008).ConfigureAwait(false);
-        var v010 = await f009010(v009).ConfigureAwait(false);
-        var v011 = await f010011(v010).ConfigureAwait(false);
-        var v012 = await f011012(v011).ConfigureAwait(false);
-        var v013 = await f012013(v012).ConfigureAwait(false);
-        var v014 = await f013014(v013).ConfigureAwait(false);
-        var v015 = await f014015(v014).ConfigureAwait(false);
-        var v016 = await f015016(v015).ConfigureAwait(false);
-        var v017 = await f016017(v016).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
+        T006 v006 = await f005006(v005).ConfigureAwait(false);
+        T007 v007 = await f006007(v006).ConfigureAwait(false);
+        T008 v008 = await f007008(v007).ConfigureAwait(false);
+        T009 v009 = await f008009(v008).ConfigureAwait(false);
+        T010 v010 = await f009010(v009).ConfigureAwait(false);
+        T011 v011 = await f010011(v010).ConfigureAwait(false);
+        T012 v012 = await f011012(v011).ConfigureAwait(false);
+        T013 v013 = await f012013(v012).ConfigureAwait(false);
+        T014 v014 = await f013014(v013).ConfigureAwait(false);
+        T015 v015 = await f014015(v014).ConfigureAwait(false);
+        T016 v016 = await f015016(v015).ConfigureAwait(false);
+        T017 v017 = await f016017(v016).ConfigureAwait(false);
         return await f017018(v017).ConfigureAwait(false);
     }
 
@@ -604,23 +604,23 @@ public static partial class F
         Func<T018, Task<T019>> f018019
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
-        var v006 = await f005006(v005).ConfigureAwait(false);
-        var v007 = await f006007(v006).ConfigureAwait(false);
-        var v008 = await f007008(v007).ConfigureAwait(false);
-        var v009 = await f008009(v008).ConfigureAwait(false);
-        var v010 = await f009010(v009).ConfigureAwait(false);
-        var v011 = await f010011(v010).ConfigureAwait(false);
-        var v012 = await f011012(v011).ConfigureAwait(false);
-        var v013 = await f012013(v012).ConfigureAwait(false);
-        var v014 = await f013014(v013).ConfigureAwait(false);
-        var v015 = await f014015(v014).ConfigureAwait(false);
-        var v016 = await f015016(v015).ConfigureAwait(false);
-        var v017 = await f016017(v016).ConfigureAwait(false);
-        var v018 = await f017018(v017).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
+        T006 v006 = await f005006(v005).ConfigureAwait(false);
+        T007 v007 = await f006007(v006).ConfigureAwait(false);
+        T008 v008 = await f007008(v007).ConfigureAwait(false);
+        T009 v009 = await f008009(v008).ConfigureAwait(false);
+        T010 v010 = await f009010(v009).ConfigureAwait(false);
+        T011 v011 = await f010011(v010).ConfigureAwait(false);
+        T012 v012 = await f011012(v011).ConfigureAwait(false);
+        T013 v013 = await f012013(v012).ConfigureAwait(false);
+        T014 v014 = await f013014(v013).ConfigureAwait(false);
+        T015 v015 = await f014015(v014).ConfigureAwait(false);
+        T016 v016 = await f015016(v015).ConfigureAwait(false);
+        T017 v017 = await f016017(v016).ConfigureAwait(false);
+        T018 v018 = await f017018(v017).ConfigureAwait(false);
         return await f018019(v018).ConfigureAwait(false);
     }
 
@@ -656,24 +656,24 @@ public static partial class F
         Func<T019, Task<T020>> f019020
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
-        var v006 = await f005006(v005).ConfigureAwait(false);
-        var v007 = await f006007(v006).ConfigureAwait(false);
-        var v008 = await f007008(v007).ConfigureAwait(false);
-        var v009 = await f008009(v008).ConfigureAwait(false);
-        var v010 = await f009010(v009).ConfigureAwait(false);
-        var v011 = await f010011(v010).ConfigureAwait(false);
-        var v012 = await f011012(v011).ConfigureAwait(false);
-        var v013 = await f012013(v012).ConfigureAwait(false);
-        var v014 = await f013014(v013).ConfigureAwait(false);
-        var v015 = await f014015(v014).ConfigureAwait(false);
-        var v016 = await f015016(v015).ConfigureAwait(false);
-        var v017 = await f016017(v016).ConfigureAwait(false);
-        var v018 = await f017018(v017).ConfigureAwait(false);
-        var v019 = await f018019(v018).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
+        T006 v006 = await f005006(v005).ConfigureAwait(false);
+        T007 v007 = await f006007(v006).ConfigureAwait(false);
+        T008 v008 = await f007008(v007).ConfigureAwait(false);
+        T009 v009 = await f008009(v008).ConfigureAwait(false);
+        T010 v010 = await f009010(v009).ConfigureAwait(false);
+        T011 v011 = await f010011(v010).ConfigureAwait(false);
+        T012 v012 = await f011012(v011).ConfigureAwait(false);
+        T013 v013 = await f012013(v012).ConfigureAwait(false);
+        T014 v014 = await f013014(v013).ConfigureAwait(false);
+        T015 v015 = await f014015(v014).ConfigureAwait(false);
+        T016 v016 = await f015016(v015).ConfigureAwait(false);
+        T017 v017 = await f016017(v016).ConfigureAwait(false);
+        T018 v018 = await f017018(v017).ConfigureAwait(false);
+        T019 v019 = await f018019(v018).ConfigureAwait(false);
         return await f019020(v019).ConfigureAwait(false);
     }
 
@@ -710,25 +710,25 @@ public static partial class F
         Func<T020, Task<T021>> f020021
     )
     {
-        var v002 = await f001002(v).ConfigureAwait(false);
-        var v003 = await f002003(v002).ConfigureAwait(false);
-        var v004 = await f003004(v003).ConfigureAwait(false);
-        var v005 = await f004005(v004).ConfigureAwait(false);
-        var v006 = await f005006(v005).ConfigureAwait(false);
-        var v007 = await f006007(v006).ConfigureAwait(false);
-        var v008 = await f007008(v007).ConfigureAwait(false);
-        var v009 = await f008009(v008).ConfigureAwait(false);
-        var v010 = await f009010(v009).ConfigureAwait(false);
-        var v011 = await f010011(v010).ConfigureAwait(false);
-        var v012 = await f011012(v011).ConfigureAwait(false);
-        var v013 = await f012013(v012).ConfigureAwait(false);
-        var v014 = await f013014(v013).ConfigureAwait(false);
-        var v015 = await f014015(v014).ConfigureAwait(false);
-        var v016 = await f015016(v015).ConfigureAwait(false);
-        var v017 = await f016017(v016).ConfigureAwait(false);
-        var v018 = await f017018(v017).ConfigureAwait(false);
-        var v019 = await f018019(v018).ConfigureAwait(false);
-        var v020 = await f019020(v019).ConfigureAwait(false);
+        T002 v002 = await f001002(v).ConfigureAwait(false);
+        T003 v003 = await f002003(v002).ConfigureAwait(false);
+        T004 v004 = await f003004(v003).ConfigureAwait(false);
+        T005 v005 = await f004005(v004).ConfigureAwait(false);
+        T006 v006 = await f005006(v005).ConfigureAwait(false);
+        T007 v007 = await f006007(v006).ConfigureAwait(false);
+        T008 v008 = await f007008(v007).ConfigureAwait(false);
+        T009 v009 = await f008009(v008).ConfigureAwait(false);
+        T010 v010 = await f009010(v009).ConfigureAwait(false);
+        T011 v011 = await f010011(v010).ConfigureAwait(false);
+        T012 v012 = await f011012(v011).ConfigureAwait(false);
+        T013 v013 = await f012013(v012).ConfigureAwait(false);
+        T014 v014 = await f013014(v013).ConfigureAwait(false);
+        T015 v015 = await f014015(v014).ConfigureAwait(false);
+        T016 v016 = await f015016(v015).ConfigureAwait(false);
+        T017 v017 = await f016017(v016).ConfigureAwait(false);
+        T018 v018 = await f017018(v017).ConfigureAwait(false);
+        T019 v019 = await f018019(v018).ConfigureAwait(false);
+        T020 v020 = await f019020(v019).ConfigureAwait(false);
         return await f020021(v020).ConfigureAwait(false);
     }
 }

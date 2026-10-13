@@ -18,7 +18,7 @@ public class TasksTests
             return "Anders would be ashamed.";
         }
 
-        var (boolVal, strVal) = await TaskUtil.All(Task1(), Task2());
+        (bool boolVal, string strVal) = await TaskUtil.All(Task1(), Task2());
         Assert.True(boolVal);
         Assert.Equal("Anders would be ashamed.", strVal);
     }
@@ -41,7 +41,7 @@ public class TasksTests
 
         try
         {
-            var (boolVal, strVal) = await TaskUtil.All(task1(), task2());
+            (bool boolVal, string strVal) = await TaskUtil.All(task1(), task2());
             Assert.Fail("Should never get here.");
         }
         catch (System.InvalidOperationException e)

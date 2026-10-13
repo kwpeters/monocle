@@ -13,7 +13,7 @@ using FnUtil;
     ("  ", "Nobody"),
 ];
 
-var (people, errors) = rawInputs
+(IEnumerable<Person> people, IEnumerable<string> errors) = rawInputs
     .Select((input) => PersonOps.Create(input.First, input.Last))
     .Partition();
 
@@ -50,7 +50,7 @@ Console.WriteLine(
 // chained with Bind, and the first failure short-circuits the rest.
 ////////////////////////////////////////////////////////////////////////////////
 
-var original = PersonOps.Create("Jane", "Doe").ThrowIfError();
+Person original = PersonOps.Create("Jane", "Doe").ThrowIfError();
 
 original
     .WithLastName("Smith")

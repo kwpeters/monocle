@@ -38,6 +38,7 @@ public sealed class DisposableResult<TSuccess, TError> : IDisposable
 
     public bool IsSuccess => _result.IsSuccess;
 
+
     public bool IsError => _result.IsError;
 
     //------------------------------------------------------------------------------
@@ -105,6 +106,7 @@ public sealed class DisposableResult<TSuccess, TError> : IDisposable
         return _result.Match(successFn, errorFn);
     }
 
+
     /// <summary>
     /// Pattern matches on the underlying result for side-effects only.
     /// </summary>
@@ -116,6 +118,7 @@ public sealed class DisposableResult<TSuccess, TError> : IDisposable
     {
         _result.Match(successAction, errorAction);
     }
+
 
     public void Dispose()
     {

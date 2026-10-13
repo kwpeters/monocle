@@ -38,6 +38,7 @@ public sealed class AsyncDisposableResult<TSuccess, TError> : IAsyncDisposable
 
     public bool IsSuccess => _result.IsSuccess;
 
+
     public bool IsError => _result.IsError;
 
     //------------------------------------------------------------------------------
@@ -92,6 +93,7 @@ public sealed class AsyncDisposableResult<TSuccess, TError> : IAsyncDisposable
         );
     }
 
+
     /// <summary>
     /// Pattern matches on the underlying result.
     /// </summary>
@@ -104,6 +106,7 @@ public sealed class AsyncDisposableResult<TSuccess, TError> : IAsyncDisposable
         return _result.Match(successFn, errorFn);
     }
 
+
     /// <summary>
     /// Pattern matches on the underlying result for side-effects only.
     /// </summary>
@@ -115,6 +118,7 @@ public sealed class AsyncDisposableResult<TSuccess, TError> : IAsyncDisposable
     {
         _result.Match(successAction, errorAction);
     }
+
 
     public async ValueTask DisposeAsync()
     {
@@ -151,6 +155,7 @@ public static class AsyncDisposableResult
         Result<TSuccess, TError> result = F.Success(value);
         return new AsyncDisposableResult<TSuccess, TError>(result);
     }
+
 
     public static AsyncDisposableResult<TSuccess, TError>
     Error<TSuccess, TError>(TError error)

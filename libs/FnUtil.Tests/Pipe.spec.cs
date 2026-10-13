@@ -12,7 +12,7 @@ public class PipeTests
         int Add3(int x) => x + 3;
         string ToString(int x) => x.ToString(CultureInfo.InvariantCulture);
 
-        var res = Pipe(
+        string res = Pipe(
             "5",
             Parse,
             Times5,

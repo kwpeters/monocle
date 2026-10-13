@@ -77,7 +77,7 @@ public static class IEnumerableExt
     {
         TResult acc = initialAcc;
         uint curIndex = 0;
-        foreach (var curItem in col)
+        foreach (T curItem in col)
         {
             acc = reduceFn(acc, curItem, curIndex, col);
             curIndex++;
@@ -103,7 +103,7 @@ public static class IEnumerableExt
         Action<T> fn
     )
     {
-        foreach (var cur in col)
+        foreach (T cur in col)
         {
             fn(cur);
         }

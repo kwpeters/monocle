@@ -12,11 +12,12 @@ public class UnitTests
         _ = unit;
     }
 
+
     [Fact]
     public void AllInstancesOfUnitAreEqual()
     {
-        var a = unit;
-        var b = unit;
+        Unit a = unit;
+        Unit b = unit;
 
         Assert.Equal(a, b);
     }

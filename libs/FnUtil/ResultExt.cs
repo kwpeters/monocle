@@ -37,11 +37,9 @@ public static class ResultExt
         this IEnumerable<Result<TSuccess, TError>> input
     )
     {
-        var (successes, errors) = input.Partition();
+        (IEnumerable<TSuccess> successes, IEnumerable<TError> errors) = input.Partition();
 
-        return errors.Any() ?
-            Error(errors) :
-            Success(successes);
+        return errors.Any() ? Error(errors) : Success(successes);
     }
 
 
@@ -88,6 +86,162 @@ public static class ResultExt
 
 
     /// <summary>
+    /// Combines a tuple of 2 Results, which may have different success types,
+    /// into a single Result containing a tuple of their success values.  If
+    /// any Result is an error, returns the first error in tuple order.
+    ///
+    /// Use this to combine a fixed number of independent Results, for
+    /// example <c>(r1, r2).AllOrFirstError()</c>.  To combine a sequence of
+    /// Results with the same success type, use the IEnumerable overload.
+    /// </summary>
+    public static Result<(T1, T2), TError>
+    AllOrFirstError<T1, T2, TError>(
+        this (
+            Result<T1, TError>,
+            Result<T2, TError>
+        ) input
+    ) =>
+        from v1 in input.Item1
+        from v2 in input.Item2
+        select (v1, v2);
+
+
+    /// <summary>
+    /// Combines a tuple of 3 Results, which may have different success types,
+    /// into a single Result containing a tuple of their success values.  If
+    /// any Result is an error, returns the first error in tuple order.
+    ///
+    /// Use this to combine a fixed number of independent Results, for
+    /// example <c>(r1, r2).AllOrFirstError()</c>.  To combine a sequence of
+    /// Results with the same success type, use the IEnumerable overload.
+    /// </summary>
+    public static Result<(T1, T2, T3), TError>
+    AllOrFirstError<T1, T2, T3, TError>(
+        this (
+            Result<T1, TError>,
+            Result<T2, TError>,
+            Result<T3, TError>
+        ) input
+    ) =>
+        from v1 in input.Item1
+        from v2 in input.Item2
+        from v3 in input.Item3
+        select (v1, v2, v3);
+
+
+    /// <summary>
+    /// Combines a tuple of 4 Results, which may have different success types,
+    /// into a single Result containing a tuple of their success values.  If
+    /// any Result is an error, returns the first error in tuple order.
+    ///
+    /// Use this to combine a fixed number of independent Results, for
+    /// example <c>(r1, r2).AllOrFirstError()</c>.  To combine a sequence of
+    /// Results with the same success type, use the IEnumerable overload.
+    /// </summary>
+    public static Result<(T1, T2, T3, T4), TError>
+    AllOrFirstError<T1, T2, T3, T4, TError>(
+        this (
+            Result<T1, TError>,
+            Result<T2, TError>,
+            Result<T3, TError>,
+            Result<T4, TError>
+        ) input
+    ) =>
+        from v1 in input.Item1
+        from v2 in input.Item2
+        from v3 in input.Item3
+        from v4 in input.Item4
+        select (v1, v2, v3, v4);
+
+
+    /// <summary>
+    /// Combines a tuple of 5 Results, which may have different success types,
+    /// into a single Result containing a tuple of their success values.  If
+    /// any Result is an error, returns the first error in tuple order.
+    ///
+    /// Use this to combine a fixed number of independent Results, for
+    /// example <c>(r1, r2).AllOrFirstError()</c>.  To combine a sequence of
+    /// Results with the same success type, use the IEnumerable overload.
+    /// </summary>
+    public static Result<(T1, T2, T3, T4, T5), TError>
+    AllOrFirstError<T1, T2, T3, T4, T5, TError>(
+        this (
+            Result<T1, TError>,
+            Result<T2, TError>,
+            Result<T3, TError>,
+            Result<T4, TError>,
+            Result<T5, TError>
+        ) input
+    ) =>
+        from v1 in input.Item1
+        from v2 in input.Item2
+        from v3 in input.Item3
+        from v4 in input.Item4
+        from v5 in input.Item5
+        select (v1, v2, v3, v4, v5);
+
+
+    /// <summary>
+    /// Combines a tuple of 6 Results, which may have different success types,
+    /// into a single Result containing a tuple of their success values.  If
+    /// any Result is an error, returns the first error in tuple order.
+    ///
+    /// Use this to combine a fixed number of independent Results, for
+    /// example <c>(r1, r2).AllOrFirstError()</c>.  To combine a sequence of
+    /// Results with the same success type, use the IEnumerable overload.
+    /// </summary>
+    public static Result<(T1, T2, T3, T4, T5, T6), TError>
+    AllOrFirstError<T1, T2, T3, T4, T5, T6, TError>(
+        this (
+            Result<T1, TError>,
+            Result<T2, TError>,
+            Result<T3, TError>,
+            Result<T4, TError>,
+            Result<T5, TError>,
+            Result<T6, TError>
+        ) input
+    ) =>
+        from v1 in input.Item1
+        from v2 in input.Item2
+        from v3 in input.Item3
+        from v4 in input.Item4
+        from v5 in input.Item5
+        from v6 in input.Item6
+        select (v1, v2, v3, v4, v5, v6);
+
+
+    /// <summary>
+    /// Combines a tuple of 7 Results, which may have different success types,
+    /// into a single Result containing a tuple of their success values.  If
+    /// any Result is an error, returns the first error in tuple order.
+    ///
+    /// Use this to combine a fixed number of independent Results, for
+    /// example <c>(r1, r2).AllOrFirstError()</c>.  To combine a sequence of
+    /// Results with the same success type, use the IEnumerable overload.
+    /// </summary>
+    public static Result<(T1, T2, T3, T4, T5, T6, T7), TError>
+    AllOrFirstError<T1, T2, T3, T4, T5, T6, T7, TError>(
+        this (
+            Result<T1, TError>,
+            Result<T2, TError>,
+            Result<T3, TError>,
+            Result<T4, TError>,
+            Result<T5, TError>,
+            Result<T6, TError>,
+            Result<T7, TError>
+        ) input
+    ) =>
+        from v1 in input.Item1
+        from v2 in input.Item2
+        from v3 in input.Item3
+        from v4 in input.Item4
+        from v5 in input.Item5
+        from v6 in input.Item6
+        from v7 in input.Item7
+        select (v1, v2, v3, v4, v5, v6, v7);
+
+
+    /// <summary>
     /// Monadic bind operation for Result.  If the input Result is successful,
     /// applies the provided function to the success value and returns its
     /// Result. If the input Result is an error, propagates the error without
@@ -121,6 +275,7 @@ public static class ResultExt
         );
     }
 
+
     /// <summary>
     /// Monadic bind for a Task-wrapped Result with a synchronous function.
     /// </summary>
@@ -130,10 +285,23 @@ public static class ResultExt
         Func<TInSuccess, Result<TOutSuccess, TError>> fn
     )
     {
-        var input = await taskInput.ConfigureAwait(false);
+        Result<TInSuccess, TError> input = await taskInput.ConfigureAwait(false);
         return input.Bind(fn);
     }
 
+
+    /// <summary>
+    /// Monadic bind for a Result with an asynchronous function.  If the input
+    /// Result is successful, awaits the function and returns its Result.  If
+    /// the input Result is an error, propagates the error without invoking
+    /// the function.
+    /// </summary>
+    public static Task<Result<TOutSuccess, TError>>
+    BindAsync<TInSuccess, TOutSuccess, TError>(
+        this Result<TInSuccess, TError> input,
+        Func<TInSuccess, Task<Result<TOutSuccess, TError>>> fn
+    ) =>
+        Task.FromResult(input).BindAsync(fn);
 
     /// <summary>
     /// Monadic bind for a Task-wrapped Result with an asynchronous function.
@@ -144,13 +312,84 @@ public static class ResultExt
         Func<TInSuccess, Task<Result<TOutSuccess, TError>>> fn
     )
     {
-        var input = await taskInput.ConfigureAwait(false);
+        Result<TInSuccess, TError> input = await taskInput.ConfigureAwait(false);
         Result<TOutSuccess, TError> result = input switch {
             SuccessResult<TInSuccess, TError>(var s) => await fn(s).ConfigureAwait(false),
             ErrorResult<TInSuccess, TError>(var e) => Error(e),
             _ => throw new ArgumentException("Result must be SuccessResult or ErrorResult.")
         };
         return result;
+    }
+
+
+    /// <summary>
+    /// If the input Result is an error, applies the provided function to the
+    /// error value and returns its Result.  If the input Result is successful,
+    /// returns the success without invoking the function.  This allows falling
+    /// back to an alternative when a previous operation failed.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TInError">The type of the error value in the input Result.</typeparam>
+    /// <typeparam name="TOutError">The type of the error value in the output Result.</typeparam>
+    /// <param name="input">The input Result.</param>
+    /// <param name="fn">
+    /// A function that takes the error value and returns a new Result.  This
+    /// function is only invoked if the input Result is an error.
+    /// </param>
+    /// <returns>
+    /// The original success if the input is successful, or the Result returned
+    /// by fn if the input is an error.
+    /// </returns>
+    public static Result<TSuccess, TOutError>
+    BindError<TSuccess, TInError, TOutError>(
+        this Result<TSuccess, TInError> input,
+        Func<TInError, Result<TSuccess, TOutError>> fn
+    ) =>
+        input.Match<TSuccess, TInError, Result<TSuccess, TOutError>>(
+            (s) => Success(s),
+            (e) => fn(e)
+        );
+
+
+    /// <summary>
+    /// BindError for a Task-wrapped Result with a synchronous function.
+    /// </summary>
+    public static async Task<Result<TSuccess, TOutError>>
+    BindError<TSuccess, TInError, TOutError>(
+        this Task<Result<TSuccess, TInError>> taskInput,
+        Func<TInError, Result<TSuccess, TOutError>> fn
+    )
+    {
+        Result<TSuccess, TInError> input = await taskInput.ConfigureAwait(false);
+        return input.BindError(fn);
+    }
+
+
+    /// <summary>
+    /// BindError for a Result with an asynchronous function.
+    /// </summary>
+    public static Task<Result<TSuccess, TOutError>>
+    BindErrorAsync<TSuccess, TInError, TOutError>(
+        this Result<TSuccess, TInError> input,
+        Func<TInError, Task<Result<TSuccess, TOutError>>> fn
+    ) =>
+        input.Match<TSuccess, TInError, Task<Result<TSuccess, TOutError>>>(
+            (s) => Task.FromResult<Result<TSuccess, TOutError>>(Success(s)),
+            (e) => fn(e)
+        );
+
+
+    /// <summary>
+    /// BindError for a Task-wrapped Result with an asynchronous function.
+    /// </summary>
+    public static async Task<Result<TSuccess, TOutError>>
+    BindErrorAsync<TSuccess, TInError, TOutError>(
+        this Task<Result<TSuccess, TInError>> taskInput,
+        Func<TInError, Task<Result<TSuccess, TOutError>>> fn
+    )
+    {
+        Result<TSuccess, TInError> input = await taskInput.ConfigureAwait(false);
+        return await input.BindErrorAsync(fn).ConfigureAwait(false);
     }
 
 
@@ -178,6 +417,7 @@ public static class ResultExt
         return val;
     }
 
+
     /// <summary>
     /// Returns the success value of a Task-wrapped Result or a default value
     /// if the Result is an error.
@@ -188,7 +428,7 @@ public static class ResultExt
         TSuccess defaultValue
     )
     {
-        var input = await taskInput.ConfigureAwait(false);
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
         return input.DefaultValue(defaultValue);
     }
 
@@ -222,6 +462,7 @@ public static class ResultExt
         return val;
     }
 
+
     /// <summary>
     /// Returns the success value of a Task-wrapped Result or computes a default
     /// value using the provided synchronous function if the Result is an error.
@@ -232,7 +473,7 @@ public static class ResultExt
         Func<TError, TSuccess> defaultValueFunc
     )
     {
-        var input = await taskInput.ConfigureAwait(false);
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
         return input.DefaultWith(defaultValueFunc);
     }
 
@@ -263,6 +504,7 @@ public static class ResultExt
             (e) => defaultValueFunc(e)
         );
 
+
     /// <summary>
     /// Returns the success value of a Task-wrapped Result or computes a default
     /// value using the provided asynchronous function if the Result is an
@@ -274,7 +516,7 @@ public static class ResultExt
         Func<TError, Task<TSuccess>> defaultValueFunc
     )
     {
-        var input = await taskInput.ConfigureAwait(false);
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
         TSuccess result = input switch {
             SuccessResult<TSuccess, TError>(var s) => s,
             ErrorResult<TSuccess, TError>(var e) => await defaultValueFunc(e).ConfigureAwait(false),
@@ -282,6 +524,50 @@ public static class ResultExt
         };
         return result;
     }
+
+
+    /// <summary>
+    /// Extracts the error values from all error Results in a sequence,
+    /// discarding the successful Results.  The sequence is evaluated lazily.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success values.</typeparam>
+    /// <typeparam name="TError">The type of the error values.</typeparam>
+    /// <param name="input">The sequence of Results.</param>
+    /// <returns>The error values, in input order.</returns>
+    public static IEnumerable<TError>
+    Errors<TSuccess, TError>(this IEnumerable<Result<TSuccess, TError>> input)
+    {
+        foreach (Result<TSuccess, TError> res in input)
+        {
+            if (res is ErrorResult<TSuccess, TError>(var e))
+            {
+                yield return e;
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// Invokes each function in sequence until one returns an error.  If every
+    /// function succeeds, returns a successful Result containing all of the
+    /// success values.  Otherwise, returns the first error; the remaining
+    /// functions are not invoked.
+    ///
+    /// To run a fixed number of operations with different success types, use
+    /// query syntax or the tuple overloads of AllOrFirstError instead.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success values.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="fns">The functions to invoke, in order.</param>
+    /// <returns>
+    /// A successful Result containing all success values, in order, if every
+    /// function succeeds.  Otherwise, the first error.
+    /// </returns>
+    public static Result<IEnumerable<TSuccess>, TError>
+    ExecuteWhileSuccessful<TSuccess, TError>(
+        this IEnumerable<Func<Result<TSuccess, TError>>> fns
+    ) =>
+        fns.Select((fn) => fn()).AllOrFirstError();
 
 
     /// <summary>
@@ -330,6 +616,7 @@ public static class ResultExt
         );
     }
 
+
     /// <summary>
     /// Gates a Task-wrapped Result by applying a synchronous validation
     /// function.
@@ -340,10 +627,20 @@ public static class ResultExt
         Func<TSuccess, Result<TFnSuccess, TError>> gateFn
     )
     {
-        var input = await taskInput.ConfigureAwait(false);
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
         return input.Gate(gateFn);
     }
 
+
+    /// <summary>
+    /// Gates a Result by applying an asynchronous validation function.
+    /// </summary>
+    public static Task<Result<TSuccess, TError>>
+    GateAsync<TSuccess, TError, TFnSuccess>(
+        this Result<TSuccess, TError> input,
+        Func<TSuccess, Task<Result<TFnSuccess, TError>>> gateFn
+    ) =>
+        Task.FromResult(input).GateAsync(gateFn);
 
     /// <summary>
     /// Gates a Task-wrapped Result by applying an asynchronous validation
@@ -355,12 +652,12 @@ public static class ResultExt
         Func<TSuccess, Task<Result<TFnSuccess, TError>>> gateFn
     )
     {
-        var input = await taskInput.ConfigureAwait(false);
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
         switch (input)
         {
             case SuccessResult<TSuccess, TError>(var s):
             {
-                var gateRes = await gateFn(s).ConfigureAwait(false);
+                Result<TFnSuccess, TError> gateRes = await gateFn(s).ConfigureAwait(false);
                 return gateRes.Match<TFnSuccess, TError, Result<TSuccess, TError>>(
                     (_) => Success(s),
                     (e) => Error(e)
@@ -393,6 +690,7 @@ public static class ResultExt
         );
     }
 
+
     /// <summary>
     /// Returns the error value from a Task-wrapped Result.
     /// </summary>
@@ -406,7 +704,7 @@ public static class ResultExt
     public static async Task<TError>
     GetError<TSuccess, TError>(this Task<Result<TSuccess, TError>> taskInput)
     {
-        var input = await taskInput.ConfigureAwait(false);
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
         return input.GetError();
     }
 
@@ -430,6 +728,7 @@ public static class ResultExt
         );
     }
 
+
     /// <summary>
     /// Returns the success value from a Task-wrapped Result.
     /// </summary>
@@ -443,7 +742,7 @@ public static class ResultExt
     public static async Task<TSuccess>
     GetValue<TSuccess, TError>(this Task<Result<TSuccess, TError>> taskInput)
     {
-        var input = await taskInput.ConfigureAwait(false);
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
         return input.GetValue();
     }
 
@@ -479,6 +778,7 @@ public static class ResultExt
         );
     }
 
+
     /// <summary>
     /// Maps the error value of a Task-wrapped Result using a synchronous
     /// function.
@@ -489,9 +789,20 @@ public static class ResultExt
         Func<TInError, TOutError> fn
     )
     {
-        var input = await taskInput.ConfigureAwait(false);
+        Result<TSuccess, TInError> input = await taskInput.ConfigureAwait(false);
         return input.MapError(fn);
     }
+
+
+    /// <summary>
+    /// Maps the error value of a Result using an asynchronous function.
+    /// </summary>
+    public static Task<Result<TSuccess, TOutError>>
+    MapErrorAsync<TSuccess, TInError, TOutError>(
+        this Result<TSuccess, TInError> input,
+        Func<TInError, Task<TOutError>> fn
+    ) =>
+        Task.FromResult(input).MapErrorAsync(fn);
 
 
     /// <summary>
@@ -504,7 +815,7 @@ public static class ResultExt
         Func<TInError, Task<TOutError>> fn
     )
     {
-        var input = await taskInput.ConfigureAwait(false);
+        Result<TSuccess, TInError> input = await taskInput.ConfigureAwait(false);
         Result<TSuccess, TOutError> result = input switch {
             SuccessResult<TSuccess, TInError>(var s) => Success(s),
             ErrorResult<TSuccess, TInError>(var e) => Error(await fn(e).ConfigureAwait(false)),
@@ -549,6 +860,7 @@ public static class ResultExt
         );
     }
 
+
     /// <summary>
     /// Maps the success value of a Task-wrapped Result using a synchronous
     /// function.
@@ -559,9 +871,20 @@ public static class ResultExt
         Func<TInSuccess, TOutSuccess> fn
     )
     {
-        var input = await taskInput.ConfigureAwait(false);
+        Result<TInSuccess, TError> input = await taskInput.ConfigureAwait(false);
         return input.MapSuccess(fn);
     }
+
+
+    /// <summary>
+    /// Maps the success value of a Result using an asynchronous function.
+    /// </summary>
+    public static Task<Result<TOutSuccess, TError>>
+    MapSuccessAsync<TInSuccess, TOutSuccess, TError>(
+        this Result<TInSuccess, TError> input,
+        Func<TInSuccess, Task<TOutSuccess>> fn
+    ) =>
+        Task.FromResult(input).MapSuccessAsync(fn);
 
 
     /// <summary>
@@ -574,7 +897,7 @@ public static class ResultExt
         Func<TInSuccess, Task<TOutSuccess>> fn
     )
     {
-        var input = await taskInput.ConfigureAwait(false);
+        Result<TInSuccess, TError> input = await taskInput.ConfigureAwait(false);
         Result<TOutSuccess, TError> result = input switch {
             SuccessResult<TInSuccess, TError>(var s) => Success(await fn(s).ConfigureAwait(false)),
             ErrorResult<TInSuccess, TError>(var e) => Error(e),
@@ -582,6 +905,27 @@ public static class ResultExt
         };
         return result;
     }
+
+
+    /// <summary>
+    /// Maps each item in a sequence using a function that may fail, stopping
+    /// at the first failure.  The remaining items are not mapped.
+    /// </summary>
+    /// <typeparam name="TIn">The type of the input items.</typeparam>
+    /// <typeparam name="TOut">The type of the mapped values.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="input">The items to map.</param>
+    /// <param name="fn">The mapping function.</param>
+    /// <returns>
+    /// A successful Result containing all mapped values, in input order, if
+    /// every mapping succeeds.  Otherwise, the first error.
+    /// </returns>
+    public static Result<IEnumerable<TOut>, TError>
+    MapWhileSuccessful<TIn, TOut, TError>(
+        this IEnumerable<TIn> input,
+        Func<TIn, Result<TOut, TError>> fn
+    ) =>
+        input.Select(fn).AllOrFirstError();
 
 
     /// <summary>
@@ -619,6 +963,7 @@ public static class ResultExt
         };
     }
 
+
     /// <summary>
     /// Pattern matches on a Result, executing one of two actions depending on
     /// whether the Result is successful or an error.  This overload is for
@@ -654,6 +999,7 @@ public static class ResultExt
         );
     }
 
+
     /// <summary>
     /// Pattern matches on a Task-wrapped Result with synchronous functions,
     /// returning a value.
@@ -665,9 +1011,10 @@ public static class ResultExt
         Func<TError, TResult> errorFn
     )
     {
-        var res = await taskRes.ConfigureAwait(false);
+        Result<TSuccess, TError> res = await taskRes.ConfigureAwait(false);
         return res.Match(successFn, errorFn);
     }
+
 
     /// <summary>
     /// Pattern matches on a Task-wrapped Result with synchronous actions
@@ -680,9 +1027,35 @@ public static class ResultExt
         Action<TError> errorFn
     )
     {
-        var res = await taskRes.ConfigureAwait(false);
+        Result<TSuccess, TError> res = await taskRes.ConfigureAwait(false);
         res.Match(successFn, errorFn);
     }
+
+
+    /// <summary>
+    /// Pattern matches on a Result with asynchronous functions, returning a
+    /// value.
+    /// </summary>
+    public static Task<TResult>
+    MatchAsync<TSuccess, TError, TResult>(
+        this Result<TSuccess, TError> res,
+        Func<TSuccess, Task<TResult>> successFn,
+        Func<TError, Task<TResult>> errorFn
+    ) =>
+        Task.FromResult(res).MatchAsync(successFn, errorFn);
+
+
+    /// <summary>
+    /// Pattern matches on a Result with asynchronous actions (side-effects
+    /// only).
+    /// </summary>
+    public static Task
+    MatchAsync<TSuccess, TError>(
+        this Result<TSuccess, TError> res,
+        Func<TSuccess, Task> successFn,
+        Func<TError, Task> errorFn
+    ) =>
+        Task.FromResult(res).MatchAsync(successFn, errorFn);
 
 
     /// <summary>
@@ -696,7 +1069,7 @@ public static class ResultExt
         Func<TError, Task<TResult>> errorFn
     )
     {
-        var res = await taskRes.ConfigureAwait(false);
+        Result<TSuccess, TError> res = await taskRes.ConfigureAwait(false);
         TResult result = res switch {
             SuccessResult<TSuccess, TError>(var s) => await successFn(s).ConfigureAwait(false),
             ErrorResult<TSuccess, TError>(var e) => await errorFn(e).ConfigureAwait(false),
@@ -704,6 +1077,7 @@ public static class ResultExt
         };
         return result;
     }
+
 
     /// <summary>
     /// Pattern matches on a Task-wrapped Result with asynchronous actions
@@ -716,7 +1090,7 @@ public static class ResultExt
         Func<TError, Task> errorFn
     )
     {
-        var res = await taskRes.ConfigureAwait(false);
+        Result<TSuccess, TError> res = await taskRes.ConfigureAwait(false);
         switch (res)
         {
             case SuccessResult<TSuccess, TError>(var s):
@@ -769,20 +1143,21 @@ public static class ResultExt
 
 
     /// <summary>
-    /// Partitions a sequence of Task Results into two separate collections: one
-    /// containing all success values and another containing all error values.
+    /// Partitions a sequence of Task-wrapped Results into two separate
+    /// collections: one containing all success values and another containing
+    /// all error values.  The tasks are awaited in order.
     /// </summary>
-    public static async Task<(IEnumerable<TS>, IEnumerable<TE>)>
-    PartitionAsync<TS, TE>(
-        this IEnumerable<Task<Result<TS, TE>>> input
+    public static async Task<(IEnumerable<TSuccess>, IEnumerable<TError>)>
+    Partition<TSuccess, TError>(
+        this IEnumerable<Task<Result<TSuccess, TError>>> input
     )
     {
-        List<TS> successes = [];
-        List<TE> failures = [];
+        List<TSuccess> successes = [];
+        List<TError> failures = [];
 
-        foreach (Task<Result<TS, TE>> taskResult in input)
+        foreach (Task<Result<TSuccess, TError>> taskResult in input)
         {
-            Result<TS, TE> res = await taskResult.ConfigureAwait(false);
+            Result<TSuccess, TError> res = await taskResult.ConfigureAwait(false);
             res.Match(
                 successes.Add,
                 failures.Add
@@ -790,6 +1165,60 @@ public static class ResultExt
         }
 
         return (successes, failures);
+    }
+
+
+    /// <summary>
+    /// Requires that a list contain at least one element.
+    /// </summary>
+    /// <typeparam name="T">The type of the list elements.</typeparam>
+    /// <typeparam name="TError">The error value type.</typeparam>
+    /// <param name="input">The list to check.</param>
+    /// <param name="errorFactory">
+    /// Factory for the error value.  This factory is invoked only when the
+    /// list is empty.
+    /// </param>
+    /// <returns>
+    /// A successful Result containing the list if it is not empty; otherwise
+    /// Error(errorFactory()).
+    /// </returns>
+    public static Result<IReadOnlyList<T>, TError>
+    RequireNonEmpty<T, TError>(
+        this IReadOnlyList<T> input,
+        Func<TError> errorFactory
+    ) =>
+        input.Count > 0 ? Success(input) : Error(errorFactory());
+
+
+    /// <summary>
+    /// Requires that a sequence contain exactly one element.  At most two
+    /// elements are enumerated.
+    /// </summary>
+    /// <typeparam name="T">The type of the sequence elements.</typeparam>
+    /// <typeparam name="TError">The error value type.</typeparam>
+    /// <param name="input">The sequence to check.</param>
+    /// <param name="errorFactory">
+    /// Factory for the error value.  This factory is invoked only when the
+    /// sequence does not contain exactly one element.
+    /// </param>
+    /// <returns>
+    /// A successful Result containing the single element if there is exactly
+    /// one; otherwise Error(errorFactory()).
+    /// </returns>
+    public static Result<T, TError>
+    RequireSingle<T, TError>(
+        this IEnumerable<T> input,
+        Func<TError> errorFactory
+    )
+    {
+        using IEnumerator<T> enumerator = input.GetEnumerator();
+        if (!enumerator.MoveNext())
+        {
+            return Error(errorFactory());
+        }
+
+        T first = enumerator.Current;
+        return enumerator.MoveNext() ? Error(errorFactory()) : Success(first);
     }
 
 
@@ -874,6 +1303,237 @@ public static class ResultExt
 
 
     /// <summary>
+    /// Extracts the success values from all successful Results in a sequence,
+    /// discarding the error Results.  The sequence is evaluated lazily.
+    ///
+    /// This is the Result counterpart of Option's Somes.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success values.</typeparam>
+    /// <typeparam name="TError">The type of the error values.</typeparam>
+    /// <param name="input">The sequence of Results.</param>
+    /// <returns>The success values, in input order.</returns>
+    public static IEnumerable<TSuccess>
+    Successes<TSuccess, TError>(this IEnumerable<Result<TSuccess, TError>> input)
+    {
+        foreach (Result<TSuccess, TError> res in input)
+        {
+            if (res is SuccessResult<TSuccess, TError>(var s))
+            {
+                yield return s;
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// Performs a side-effect (for example, logging) using the Result and
+    /// returns the Result unchanged.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="input">The input Result.</param>
+    /// <param name="fn">The action to invoke with the Result.</param>
+    /// <returns>The input Result.</returns>
+    public static Result<TSuccess, TError>
+    Tap<TSuccess, TError>(
+        this Result<TSuccess, TError> input,
+        Action<Result<TSuccess, TError>> fn
+    )
+    {
+        fn(input);
+        return input;
+    }
+
+
+    /// <summary>
+    /// Tap for a Task-wrapped Result with a synchronous action.
+    /// </summary>
+    public static async Task<Result<TSuccess, TError>>
+    Tap<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskInput,
+        Action<Result<TSuccess, TError>> fn
+    )
+    {
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
+        return input.Tap(fn);
+    }
+
+
+    /// <summary>
+    /// Tap for a Result with an asynchronous action.
+    /// </summary>
+    public static async Task<Result<TSuccess, TError>>
+    TapAsync<TSuccess, TError>(
+        this Result<TSuccess, TError> input,
+        Func<Result<TSuccess, TError>, Task> fn
+    )
+    {
+        await fn(input).ConfigureAwait(false);
+        return input;
+    }
+
+
+    /// <summary>
+    /// Tap for a Task-wrapped Result with an asynchronous action.
+    /// </summary>
+    public static async Task<Result<TSuccess, TError>>
+    TapAsync<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskInput,
+        Func<Result<TSuccess, TError>, Task> fn
+    )
+    {
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
+        return await input.TapAsync(fn).ConfigureAwait(false);
+    }
+
+
+    /// <summary>
+    /// If the Result is an error, performs a side-effect (for example,
+    /// logging) using the error value.  Returns the Result unchanged.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="input">The input Result.</param>
+    /// <param name="fn">
+    /// The action to invoke with the error value.  Only invoked if the input
+    /// Result is an error.
+    /// </param>
+    /// <returns>The input Result.</returns>
+    public static Result<TSuccess, TError>
+    TapError<TSuccess, TError>(
+        this Result<TSuccess, TError> input,
+        Action<TError> fn
+    )
+    {
+        if (input is ErrorResult<TSuccess, TError>(var e))
+        {
+            fn(e);
+        }
+
+        return input;
+    }
+
+
+    /// <summary>
+    /// TapError for a Task-wrapped Result with a synchronous action.
+    /// </summary>
+    public static async Task<Result<TSuccess, TError>>
+    TapError<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskInput,
+        Action<TError> fn
+    )
+    {
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
+        return input.TapError(fn);
+    }
+
+
+    /// <summary>
+    /// TapError for a Result with an asynchronous action.
+    /// </summary>
+    public static async Task<Result<TSuccess, TError>>
+    TapErrorAsync<TSuccess, TError>(
+        this Result<TSuccess, TError> input,
+        Func<TError, Task> fn
+    )
+    {
+        if (input is ErrorResult<TSuccess, TError>(var e))
+        {
+            await fn(e).ConfigureAwait(false);
+        }
+
+        return input;
+    }
+
+
+    /// <summary>
+    /// TapError for a Task-wrapped Result with an asynchronous action.
+    /// </summary>
+    public static async Task<Result<TSuccess, TError>>
+    TapErrorAsync<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskInput,
+        Func<TError, Task> fn
+    )
+    {
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
+        return await input.TapErrorAsync(fn).ConfigureAwait(false);
+    }
+
+
+    /// <summary>
+    /// If the Result is successful, performs a side-effect (for example,
+    /// logging) using the success value.  Returns the Result unchanged.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="input">The input Result.</param>
+    /// <param name="fn">
+    /// The action to invoke with the success value.  Only invoked if the input
+    /// Result is successful.
+    /// </param>
+    /// <returns>The input Result.</returns>
+    public static Result<TSuccess, TError>
+    TapSuccess<TSuccess, TError>(
+        this Result<TSuccess, TError> input,
+        Action<TSuccess> fn
+    )
+    {
+        if (input is SuccessResult<TSuccess, TError>(var s))
+        {
+            fn(s);
+        }
+
+        return input;
+    }
+
+
+    /// <summary>
+    /// TapSuccess for a Task-wrapped Result with a synchronous action.
+    /// </summary>
+    public static async Task<Result<TSuccess, TError>>
+    TapSuccess<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskInput,
+        Action<TSuccess> fn
+    )
+    {
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
+        return input.TapSuccess(fn);
+    }
+
+
+    /// <summary>
+    /// TapSuccess for a Result with an asynchronous action.
+    /// </summary>
+    public static async Task<Result<TSuccess, TError>>
+    TapSuccessAsync<TSuccess, TError>(
+        this Result<TSuccess, TError> input,
+        Func<TSuccess, Task> fn
+    )
+    {
+        if (input is SuccessResult<TSuccess, TError>(var s))
+        {
+            await fn(s).ConfigureAwait(false);
+        }
+
+        return input;
+    }
+
+
+    /// <summary>
+    /// TapSuccess for a Task-wrapped Result with an asynchronous action.
+    /// </summary>
+    public static async Task<Result<TSuccess, TError>>
+    TapSuccessAsync<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskInput,
+        Func<TSuccess, Task> fn
+    )
+    {
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
+        return await input.TapSuccessAsync(fn).ConfigureAwait(false);
+    }
+
+
+    /// <summary>
     /// Throws an InvalidOperationException if the Result is an error, otherwise returns the success value.
     /// </summary>
     /// <typeparam name="TSuccess">The type of the success value.</typeparam>
@@ -899,6 +1559,33 @@ public static class ResultExt
         );
     }
 
+
+    /// <summary>
+    /// Throws an InvalidOperationException if the Result is an error, otherwise
+    /// returns the success value.  The exception message is produced from the
+    /// error value by the specified function.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="res">The Result to assert.</param>
+    /// <param name="errMsgFn">
+    /// A function that produces the exception message from the error value.
+    /// Only invoked if the Result is an error.
+    /// </param>
+    /// <returns>The success value if the Result is successful.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the Result is an error instead of a success.
+    /// </exception>
+    public static TSuccess
+    ThrowIfError<TSuccess, TError>(
+        this Result<TSuccess, TError> res,
+        Func<TError, string> errMsgFn
+    ) =>
+        res.Match(
+            (s) => s,
+            (e) => throw new InvalidOperationException(errMsgFn(e))
+        );
+
     /// <summary>
     /// Throws an InvalidOperationException if the Task-wrapped Result is an error, otherwise returns the success value.
     /// </summary>
@@ -908,8 +1595,24 @@ public static class ResultExt
         string? errMsg = null
     )
     {
-        var res = await taskResult.ConfigureAwait(false);
+        Result<TSuccess, TError> res = await taskResult.ConfigureAwait(false);
         return res.ThrowIfError(errMsg);
+    }
+
+
+    /// <summary>
+    /// Throws an InvalidOperationException if the Task-wrapped Result is an
+    /// error, otherwise returns the success value.  The exception message is
+    /// produced from the error value by the specified function.
+    /// </summary>
+    public static async Task<TSuccess>
+    ThrowIfError<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskResult,
+        Func<TError, string> errMsgFn
+    )
+    {
+        Result<TSuccess, TError> res = await taskResult.ConfigureAwait(false);
+        return res.ThrowIfError(errMsgFn);
     }
 
 
@@ -939,6 +1642,33 @@ public static class ResultExt
         );
     }
 
+
+    /// <summary>
+    /// Throws an InvalidOperationException if the Result is a success,
+    /// otherwise returns the error value.  The exception message is produced
+    /// from the success value by the specified function.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="res">The Result to assert.</param>
+    /// <param name="errMsgFn">
+    /// A function that produces the exception message from the success value.
+    /// Only invoked if the Result is a success.
+    /// </param>
+    /// <returns>The error value if the Result is an error.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the Result is a success instead of an error.
+    /// </exception>
+    public static TError
+    ThrowIfSuccess<TSuccess, TError>(
+        this Result<TSuccess, TError> res,
+        Func<TSuccess, string> errMsgFn
+    ) =>
+        res.Match(
+            (s) => throw new InvalidOperationException(errMsgFn(s)),
+            (e) => e
+        );
+
     /// <summary>
     /// Throws an InvalidOperationException if the Task-wrapped Result is a success, otherwise returns the error value.
     /// </summary>
@@ -948,8 +1678,24 @@ public static class ResultExt
         string? errMsg = null
     )
     {
-        var res = await taskResult.ConfigureAwait(false);
+        Result<TSuccess, TError> res = await taskResult.ConfigureAwait(false);
         return res.ThrowIfSuccess(errMsg);
+    }
+
+
+    /// <summary>
+    /// Throws an InvalidOperationException if the Task-wrapped Result is a
+    /// success, otherwise returns the error value.  The exception message is
+    /// produced from the success value by the specified function.
+    /// </summary>
+    public static async Task<TError>
+    ThrowIfSuccess<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskResult,
+        Func<TSuccess, string> errMsgFn
+    )
+    {
+        Result<TSuccess, TError> res = await taskResult.ConfigureAwait(false);
+        return res.ThrowIfSuccess(errMsgFn);
     }
 
 
@@ -971,6 +1717,7 @@ public static class ResultExt
         );
     }
 
+
     /// <summary>
     /// Converts a Task-wrapped Result to an Option explicitly.
     /// Returns Some(value) when the Result is success; otherwise returns none.
@@ -983,7 +1730,7 @@ public static class ResultExt
     {
         ArgumentNullException.ThrowIfNull(taskInput);
 
-        var input = await taskInput.ConfigureAwait(false);
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
         return input.ToOption();
     }
 
@@ -1007,10 +1754,9 @@ public static class ResultExt
     {
         ArgumentNullException.ThrowIfNull(errorFactory);
 
-        return value is null ?
-            Error(errorFactory()) :
-            Success(value);
+        return value is null ? Error(errorFactory()) : Success(value);
     }
+
 
     /// <summary>
     /// Converts an Option to a Result explicitly.
@@ -1038,6 +1784,47 @@ public static class ResultExt
         );
     }
 
+
+    /// <summary>
+    /// Converts a nullable value type to a Result explicitly.
+    /// Returns Success(value) when value has a value; otherwise returns
+    /// Error(errorFactory()).
+    /// </summary>
+    /// <typeparam name="TSuccess">The success value type.</typeparam>
+    /// <typeparam name="TError">The error value type.</typeparam>
+    /// <param name="value">The nullable input value.</param>
+    /// <param name="errorFactory">
+    /// Factory for the error value. This factory is invoked only when value is null.
+    /// </param>
+    public static Result<TSuccess, TError>
+    ToResult<TSuccess, TError>(
+        this TSuccess? value,
+        Func<TError> errorFactory
+    ) where TSuccess : struct
+    {
+        ArgumentNullException.ThrowIfNull(errorFactory);
+
+        return value.HasValue ? Success(value.Value) : Error(errorFactory());
+    }
+
+
+    /// <summary>
+    /// Converts a bool to a Result.  Returns Success(successValue) when the
+    /// condition is true; otherwise returns Error(errorValue).
+    /// </summary>
+    /// <typeparam name="TSuccess">The success value type.</typeparam>
+    /// <typeparam name="TError">The error value type.</typeparam>
+    /// <param name="condition">The condition.</param>
+    /// <param name="successValue">The value to wrap when the condition is true.</param>
+    /// <param name="errorValue">The error to wrap when the condition is false.</param>
+    public static Result<TSuccess, TError>
+    ToResult<TSuccess, TError>(
+        this bool condition,
+        TSuccess successValue,
+        TError errorValue
+    ) =>
+        condition ? Success(successValue) : Error(errorValue);
+
     /// <summary>
     /// Converts a Task-wrapped Option to a Result explicitly.
     /// Returns Success(value) when the Option is Some; otherwise returns
@@ -1058,7 +1845,7 @@ public static class ResultExt
         ArgumentNullException.ThrowIfNull(taskInput);
         ArgumentNullException.ThrowIfNull(errorFactory);
 
-        var input = await taskInput.ConfigureAwait(false);
+        Option<TSuccess> input = await taskInput.ConfigureAwait(false);
         return input.ToResult(errorFactory);
     }
 }

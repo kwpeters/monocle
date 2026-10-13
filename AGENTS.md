@@ -4,8 +4,10 @@
 
 - **.NET 10**, nullable reference types enabled, implicit usings enabled.
 - **File-scoped namespaces** — enforced as error in `.editorconfig`.
+- **Explicit types instead of `var`**, unless the type is apparent from the right-hand side (e.g. `var items = new List<string>()`) — enforced as error (IDE0008). This includes `foreach` loops and deconstructions (`(int a, string b) = ...`). Write the non-nullable type (`Option<int>`, `T`), not the nullable type that `var` would infer (`Option<int>?`, `T?`). Use `?` only where the value really can be null, such as the `out` value of `Dictionary.TryGetValue()`.
 - **Explicit integer type sizes** (`Int32`, `UInt16`, `Byte`) in CIP/protocol code where bit widths matter. Standard `int`/`byte` elsewhere is fine.
 - **Braces always required** — no single-line `if` without braces.
+- **Two blank lines between members** (methods, properties, fields with attributes, test methods). Use one blank line only within a member's body.
 - **Private fields**: `_camelCase` with underscore prefix.
 - **Physical quantities**: include the units.  For example, `timeoutMs`.
 - See [.editorconfig](.editorconfig) for all formatting and style rules.
@@ -20,7 +22,13 @@
 
 ### Ternary Formatting
 
-When a ternary spans multiple lines, the `?` and `:` should appear at the end of the line, not the beginning of the next line. For example:
+Keep a ternary on a single line when it fits within 100 columns:
+
+```csharp
+return input.Count > 0 ? Success(input) : Error(errorFactory());
+```
+
+When a ternary spans multiple lines, the `?` and `:` should appear at the end of the line (not the beginning of the next line). For example:
 
 ```csharp
 var result = condition ?

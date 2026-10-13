@@ -10,6 +10,7 @@ public class ResultSuccessTypeTests
         Assert.Equal(42, s.Value);
     }
 
+
     [Fact]
     public void Equality_SameValue_AreEqual()
     {
@@ -17,6 +18,7 @@ public class ResultSuccessTypeTests
         var b = new ResultSuccessType<int>(42);
         Assert.Equal(a, b);
     }
+
 
     [Fact]
     public void Equality_DifferentValues_AreNotEqual()
@@ -37,6 +39,7 @@ public class ResultErrorTypeTests
         Assert.Equal("oops", e.Error);
     }
 
+
     [Fact]
     public void Equality_SameError_AreEqual()
     {
@@ -44,6 +47,7 @@ public class ResultErrorTypeTests
         var b = new ResultErrorType<string>("oops");
         Assert.Equal(a, b);
     }
+
 
     [Fact]
     public void Equality_DifferentErrors_AreNotEqual()
@@ -83,31 +87,27 @@ public class ResultTests
     [Fact]
     public void IsSuccessful_WhenWrappingASuccessResult_ReturnsTrue()
     {
-        Result<int, string> res = Success(5);
-        Assert.True(res.IsSuccess);
+        Assert.True(SuccessE<int, string>(5).IsSuccess);
     }
 
 
     [Fact]
     public void IsSuccessful_WhenWrappingAnErrorResult_ReturnsFalse()
     {
-        Result<int, string> res = Error("Error message");
-        Assert.False(res.IsSuccess);
+        Assert.False(ErrorE<int, string>("Error message").IsSuccess);
     }
 
 
     [Fact]
     public void IsError_WhenWrappingASuccessResult_ReturnsFalse()
     {
-        Result<int, string> res = Success(5);
-        Assert.False(res.IsError);
+        Assert.False(SuccessE<int, string>(5).IsError);
     }
 
 
     [Fact]
     public void IsError_WhenWrappingAnErrorResult_ReturnsTrue()
     {
-        Result<int, string> res = Error("Error message");
-        Assert.True(res.IsError);
+        Assert.True(ErrorE<int, string>("Error message").IsError);
     }
 }

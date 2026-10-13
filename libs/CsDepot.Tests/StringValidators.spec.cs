@@ -16,7 +16,7 @@ public class StringValidatorsTests
     [Fact]
     public void NonBlank_WhenGivenText_ReturnsSuccessWithSameValue()
     {
-        var result = StringValidators.NonBlank("Doe", "lastName");
+        Result<string, string> result = StringValidators.NonBlank("Doe", "lastName");
 
         Assert.Equal("Doe", result.ThrowIfError());
     }
@@ -25,7 +25,7 @@ public class StringValidatorsTests
     [Fact]
     public void NonBlank_WhenGivenTextWithSurroundingWhitespace_DoesNotTrim()
     {
-        var result = StringValidators.NonBlank("  Doe  ", "lastName");
+        Result<string, string> result = StringValidators.NonBlank("  Doe  ", "lastName");
 
         Assert.Equal("  Doe  ", result.ThrowIfError());
     }
@@ -38,7 +38,7 @@ public class StringValidatorsTests
     [InlineData("\u00A0")]  // No-break space
     public void NonBlank_WhenGivenBlankValue_ReturnsError(string value)
     {
-        var result = StringValidators.NonBlank(value, "lastName");
+        Result<string, string> result = StringValidators.NonBlank(value, "lastName");
 
         Assert.Equal("lastName must not be blank.", result.ThrowIfSuccess());
     }
@@ -52,7 +52,7 @@ public class StringValidatorsTests
     [Fact]
     public void MaxLengthInTextElements_WhenAtLimit_ReturnsSuccessWithSameValue()
     {
-        var result = StringValidators.MaxLengthInTextElements("abc", 3, "lastName");
+        Result<string, string> result = StringValidators.MaxLengthInTextElements("abc", 3, "lastName");
 
         Assert.Equal("abc", result.ThrowIfError());
     }
@@ -61,7 +61,7 @@ public class StringValidatorsTests
     [Fact]
     public void MaxLengthInTextElements_WhenOverLimit_ReturnsError()
     {
-        var result = StringValidators.MaxLengthInTextElements("abcd", 3, "lastName");
+        Result<string, string> result = StringValidators.MaxLengthInTextElements("abcd", 3, "lastName");
 
         Assert.Equal("lastName must not exceed 3 characters.", result.ThrowIfSuccess());
     }
@@ -70,7 +70,7 @@ public class StringValidatorsTests
     [Fact]
     public void MaxLengthInTextElements_WhenGivenEmptyStringAndZeroLimit_ReturnsSuccess()
     {
-        var result = StringValidators.MaxLengthInTextElements("", 0, "lastName");
+        Result<string, string> result = StringValidators.MaxLengthInTextElements("", 0, "lastName");
 
         Assert.Equal("", result.ThrowIfError());
     }
@@ -82,7 +82,7 @@ public class StringValidatorsTests
     [InlineData("\U0001F468\u200D\U0001F469\u200D\U0001F467")]  // Family emoji joined by zero-width joiners: 8 UTF-16 code units
     public void MaxLengthInTextElements_WhenGivenSinglePerceivedCharacter_CountsItAsOne(string value)
     {
-        var result = StringValidators.MaxLengthInTextElements(value, 1, "lastName");
+        Result<string, string> result = StringValidators.MaxLengthInTextElements(value, 1, "lastName");
 
         Assert.True(result.IsSuccess);
     }
@@ -104,7 +104,7 @@ public class StringValidatorsTests
     [Fact]
     public void MaxLengthInCodeUnits_WhenAtLimit_ReturnsSuccessWithSameValue()
     {
-        var result = StringValidators.MaxLengthInCodeUnits("abc", 3, "lastName");
+        Result<string, string> result = StringValidators.MaxLengthInCodeUnits("abc", 3, "lastName");
 
         Assert.Equal("abc", result.ThrowIfError());
     }
@@ -113,7 +113,7 @@ public class StringValidatorsTests
     [Fact]
     public void MaxLengthInCodeUnits_WhenOverLimit_ReturnsError()
     {
-        var result = StringValidators.MaxLengthInCodeUnits("abcd", 3, "lastName");
+        Result<string, string> result = StringValidators.MaxLengthInCodeUnits("abcd", 3, "lastName");
 
         Assert.Equal("lastName must not exceed 3 UTF-16 code units.", result.ThrowIfSuccess());
     }

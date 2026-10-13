@@ -127,6 +127,13 @@ public static partial class F
 
     public static Option<T>
     Some<T>(T value) => new Some<T>(value);
+
+    // Provides a way of creating a None Option by explicitly defining the
+    // Some value type.  This is useful where the type cannot be inferred from the
+    // context, such as Task.FromResult(NoneE<int>()).  The appended "E" stands
+    // for "explicit."
+    public static Option<T>
+    NoneE<T>() => new None<T>();
 }
 
 

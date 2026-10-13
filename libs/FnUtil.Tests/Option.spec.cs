@@ -18,10 +18,27 @@ public class OptionTests
 
 
     [Fact]
+    public async Task NoneE_ReturnsNoneOptionOfSpecifiedType()
+    {
+        // No type argument or cast is needed on Task.FromResult().
+        Task<Option<int>> task = Task.FromResult(NoneE<int>());
+        Assert.True((await task).IsNone);
+    }
+
+
+    [Fact]
+    public void NoneE_EqualsImplicitlyConvertedNone()
+    {
+        Option<int> converted = none;
+        Assert.Equal(converted, NoneE<int>());
+    }
+
+
+    [Fact]
     public void None_AllInstancesAreEqual()
     {
-        var opt1 = none;
-        var opt2 = none;
+        None opt1 = none;
+        None opt2 = none;
         Assert.True(opt1 == opt2);
     }
 
@@ -47,32 +64,28 @@ public class OptionTests
     [Fact]
     public void IsSome_WhenWrappingASome_ReturnsTrue()
     {
-        Option<int> opt = Some(3);
-        Assert.True(opt.IsSome);
+        Assert.True(Some(3).IsSome);
     }
 
 
     [Fact]
     public void IsSome_WhenWrappingANone_ReturnsFalse()
     {
-        Option<int> opt = none;
-        Assert.False(opt.IsSome);
+        Assert.False(NoneE<int>().IsSome);
     }
 
 
     [Fact]
     public void IsNone_WhenWrappingASome_ReturnsFalse()
     {
-        Option<int> opt = Some(3);
-        Assert.False(opt.IsNone);
+        Assert.False(Some(3).IsNone);
     }
 
 
     [Fact]
     public void IsNone_WhenWrappingANone_ReturnsTrue()
     {
-        Option<int> opt = none;
-        Assert.True(opt.IsNone);
+        Assert.True(NoneE<int>().IsNone);
     }
 
 

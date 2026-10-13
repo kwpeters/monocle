@@ -4,26 +4,29 @@ public class ActionExtTests
 {
     // ToFunc (Action → Func<Unit>)
 
+
     [Fact]
     public void ToFunc_Action_WhenCalled_InvokesTheAction()
     {
-        var called = false;
+        bool called = false;
         Action action = () => called = true;
         var func = action.ToFunc();
         func();
         Assert.True(called);
     }
 
+
     [Fact]
     public void ToFunc_Action_ReturnsUnit()
     {
         Action action = () => { };
         var func = action.ToFunc();
-        var result = func();
+        Unit result = func();
         Assert.Equal(unit, result);
     }
 
     // ToFunc<T1> (Action<T1> → Func<T1, Unit>)
+
 
     [Fact]
     public void ToFunc_ActionT1_WhenCalled_InvokesTheActionWithArgument()
@@ -35,16 +38,18 @@ public class ActionExtTests
         Assert.Equal(42, captured);
     }
 
+
     [Fact]
     public void ToFunc_ActionT1_ReturnsUnit()
     {
         Action<int> action = (_) => { };
         var func = action.ToFunc();
-        var result = func(1);
+        Unit result = func(1);
         Assert.Equal(unit, result);
     }
 
     // ToFunc<T1, T2> (Action<T1, T2> → Func<T1, T2, Unit>)
+
 
     [Fact]
     public void ToFunc_ActionT1T2_WhenCalled_InvokesTheActionWithBothArguments()
@@ -58,12 +63,13 @@ public class ActionExtTests
         Assert.Equal("hello", capturedB);
     }
 
+
     [Fact]
     public void ToFunc_ActionT1T2_ReturnsUnit()
     {
         Action<int, string> action = (_, _) => { };
         var func = action.ToFunc();
-        var result = func(1, "x");
+        Unit result = func(1, "x");
         Assert.Equal(unit, result);
     }
 }
@@ -76,15 +82,16 @@ public class FEffectTests
     [Fact]
     public void Effect_InvokesTheAction()
     {
-        var called = false;
+        bool called = false;
         Effect(() => called = true);
         Assert.True(called);
     }
 
+
     [Fact]
     public void Effect_ReturnsUnit()
     {
-        var result = Effect(() => { });
+        Unit result = Effect(() => { });
         Assert.Equal(unit, result);
     }
 }

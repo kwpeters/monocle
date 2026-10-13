@@ -57,12 +57,13 @@ dotnet_style_prefer_simplified_interpolation = true:warning
 # C# Code Style Rules
 
 # var preferences
-# Allow developers to choose between var and explicit types based on readability.
-# Using explicit types can improve code clarity for complex types or when the type
-# is not immediately obvious from context.
-csharp_style_var_for_built_in_types = false:suggestion
+# Use explicit types unless the type is apparent from the right-hand side (for
+# example, "var items = new List<string>()").  Explicit types make the type
+# visible to readers and, in tests, act as compile-time checks of API return
+# types.  Enforced in the build (IDE0008).
+csharp_style_var_for_built_in_types = false:warning
 csharp_style_var_when_type_is_apparent = true:suggestion
-csharp_style_var_elsewhere = false:suggestion
+csharp_style_var_elsewhere = false:warning
 
 # Expression-bodied members
 csharp_style_expression_bodied_methods = when_on_single_line:suggestion
