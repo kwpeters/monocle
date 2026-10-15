@@ -1848,4 +1848,315 @@ public static class ResultExt
         Option<TSuccess> input = await taskInput.ConfigureAwait(false);
         return input.ToResult(errorFactory);
     }
+
+
+    /// <summary>
+    /// Checks if the result is successful and the success value equals the given value.
+    /// Returns false for an error result.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="input">The result to check.</param>
+    /// <param name="value">The value to compare against the success value.</param>
+    /// <returns>True if the result is successful and contains the given value; false otherwise.</returns>
+    /// <example>
+    /// <code>
+    /// Result&lt;int, string&gt; success = Success(42);
+    /// bool isTrue = success.Contains(42);  // true
+    ///
+    /// Result&lt;int, string&gt; error = Error("failed");
+    /// bool isFalse = error.Contains(42);  // false
+    /// </code>
+    /// </example>
+    public static bool
+    Contains<TSuccess, TError>(
+        this Result<TSuccess, TError> input,
+        TSuccess value
+    ) where TSuccess : IEquatable<TSuccess>
+    {
+        return input.Match(
+            (s) => s.Equals(value),
+            (e) => false
+        );
+    }
+
+
+    /// <summary>
+    /// Checks if a Task-wrapped result is successful and the success value equals the given value.
+    /// Returns false for an error result.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="taskInput">The task wrapping a result to check.</param>
+    /// <param name="value">The value to compare against the success value.</param>
+    /// <returns>A task that completes with true if the result is successful and contains the given value; false otherwise.</returns>
+    /// <example>
+    /// <code>
+    /// Result&lt;int, string&gt; successResult = Success(42);
+    /// Task&lt;Result&lt;int, string&gt;&gt; taskResult = Task.FromResult(successResult);
+    /// bool isTrue = await taskResult.Contains(42);  // true
+    /// </code>
+    /// </example>
+    public static async Task<bool>
+    Contains<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskInput,
+        TSuccess value
+    ) where TSuccess : IEquatable<TSuccess>
+    {
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
+        return input.Contains(value);
+    }
+
+
+    /// <summary>
+    /// Checks if the result is successful and the success value satisfies the predicate.
+    /// Returns false for an error result.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="input">The result to check.</param>
+    /// <param name="predicate">The predicate to apply to the success value.</param>
+    /// <returns>True if the result is successful and the predicate returns true; false otherwise.</returns>
+    /// <example>
+    /// <code>
+    /// Result&lt;int, string&gt; success = Success(42);
+    /// bool isTrue = success.Exists(x =&gt; x &gt; 40);  // true
+    ///
+    /// Result&lt;int, string&gt; error = Error("failed");
+    /// bool isFalse = error.Exists(x =&gt; x &gt; 40);  // false
+    /// </code>
+    /// </example>
+    public static bool
+    Exists<TSuccess, TError>(
+        this Result<TSuccess, TError> input,
+        Func<TSuccess, bool> predicate
+    )
+    {
+        return input.Match(
+            (s) => predicate(s),
+            (e) => false
+        );
+    }
+
+
+    /// <summary>
+    /// Checks if a Task-wrapped result is successful and the success value satisfies the predicate.
+    /// Returns false for an error result.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="taskInput">The task wrapping a result to check.</param>
+    /// <param name="predicate">The predicate to apply to the success value.</param>
+    /// <returns>A task that completes with true if the result is successful and the predicate returns true; false otherwise.</returns>
+    /// <example>
+    /// <code>
+    /// Result&lt;int, string&gt; successResult = Success(42);
+    /// Task&lt;Result&lt;int, string&gt;&gt; taskResult = Task.FromResult(successResult);
+    /// bool isTrue = await taskResult.Exists(x =&gt; x &gt; 40);  // true
+    /// </code>
+    /// </example>
+    public static async Task<bool>
+    Exists<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskInput,
+        Func<TSuccess, bool> predicate
+    )
+    {
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
+        return input.Exists(predicate);
+    }
+
+
+    /// <summary>
+    /// Checks if a result is successful and applies an asynchronous predicate to the success value.
+    /// Returns false for an error result.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="input">The result to check.</param>
+    /// <param name="predicate">The asynchronous predicate to apply to the success value.</param>
+    /// <returns>A task that completes with true if the result is successful and the predicate returns true; false otherwise.</returns>
+    /// <example>
+    /// <code>
+    /// Result&lt;int, string&gt; success = Success(42);
+    /// bool isTrue = await success.ExistsAsync(async x =&gt;
+    /// {
+    ///     await Task.Delay(1);
+    ///     return x &gt; 40;
+    /// });  // true
+    /// </code>
+    /// </example>
+    public static async Task<bool>
+    ExistsAsync<TSuccess, TError>(
+        this Result<TSuccess, TError> input,
+        Func<TSuccess, Task<bool>> predicate
+    )
+    {
+        return await input.Match(
+            async (s) => await predicate(s).ConfigureAwait(false),
+            (e) => Task.FromResult(false)
+        ).ConfigureAwait(false);
+    }
+
+
+    /// <summary>
+    /// Checks if a Task-wrapped result is successful and applies an asynchronous predicate to the success value.
+    /// Returns false for an error result.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <param name="taskInput">The task wrapping a result to check.</param>
+    /// <param name="predicate">The asynchronous predicate to apply to the success value.</param>
+    /// <returns>A task that completes with true if the result is successful and the predicate returns true; false otherwise.</returns>
+    /// <example>
+    /// <code>
+    /// Result&lt;int, string&gt; successResult = Success(42);
+    /// Task&lt;Result&lt;int, string&gt;&gt; taskResult = Task.FromResult(successResult);
+    /// bool isTrue = await taskResult.ExistsAsync(async x =&gt;
+    /// {
+    ///     await Task.Delay(1);
+    ///     return x &gt; 40;
+    /// });  // true
+    /// </code>
+    /// </example>
+    public static async Task<bool>
+    ExistsAsync<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskInput,
+        Func<TSuccess, Task<bool>> predicate
+    )
+    {
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
+        return await input.ExistsAsync(predicate).ConfigureAwait(false);
+    }
+
+
+    /// <summary>
+    /// Folds the success value into an accumulator state. Returns the initial state unchanged for an error result.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <typeparam name="TState">The type of the accumulator state.</typeparam>
+    /// <param name="input">The result to fold.</param>
+    /// <param name="foldFn">A function that combines the accumulator state with the success value.</param>
+    /// <param name="initialState">The initial state value.</param>
+    /// <returns>The folded state if successful; the initial state if an error.</returns>
+    /// <example>
+    /// <code>
+    /// Result&lt;int, string&gt; success = Success(5);
+    /// int result = success.Fold((state, value) =&gt; state + value, 10);  // 15
+    ///
+    /// Result&lt;int, string&gt; error = Error("failed");
+    /// int resultError = error.Fold((state, value) =&gt; state + value, 10);  // 10
+    /// </code>
+    /// </example>
+    public static TState
+    Fold<TSuccess, TError, TState>(
+        this Result<TSuccess, TError> input,
+        Func<TState, TSuccess, TState> foldFn,
+        TState initialState
+    )
+    {
+        return input.Match(
+            (s) => foldFn(initialState, s),
+            (e) => initialState
+        );
+    }
+
+
+    /// <summary>
+    /// Folds a Task-wrapped result's success value into an accumulator state.
+    /// Returns the initial state unchanged for an error result.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <typeparam name="TState">The type of the accumulator state.</typeparam>
+    /// <param name="taskInput">The task wrapping a result to fold.</param>
+    /// <param name="foldFn">A function that combines the accumulator state with the success value.</param>
+    /// <param name="initialState">The initial state value.</param>
+    /// <returns>A task that completes with the folded state if successful; the initial state if an error.</returns>
+    /// <example>
+    /// <code>
+    /// Result&lt;int, string&gt; successResult = Success(5);
+    /// Task&lt;Result&lt;int, string&gt;&gt; taskResult = Task.FromResult(successResult);
+    /// int foldedState = await taskResult.Fold((state, value) =&gt; state + value, 10);  // 15
+    /// </code>
+    /// </example>
+    public static async Task<TState>
+    Fold<TSuccess, TError, TState>(
+        this Task<Result<TSuccess, TError>> taskInput,
+        Func<TState, TSuccess, TState> foldFn,
+        TState initialState
+    )
+    {
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
+        return input.Fold(foldFn, initialState);
+    }
+
+
+    /// <summary>
+    /// Folds the success value into an accumulator state using an asynchronous folder function.
+    /// Returns the initial state unchanged for an error result.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <typeparam name="TState">The type of the accumulator state.</typeparam>
+    /// <param name="input">The result to fold.</param>
+    /// <param name="foldFn">An asynchronous function that combines the accumulator state with the success value.</param>
+    /// <param name="initialState">The initial state value.</param>
+    /// <returns>A task that completes with the folded state if successful; the initial state if an error.</returns>
+    /// <example>
+    /// <code>
+    /// Result&lt;int, string&gt; success = Success(5);
+    /// int result = await success.FoldAsync(async (state, value) =&gt;
+    /// {
+    ///     await Task.Delay(1);
+    ///     return state + value;
+    /// }, 10);  // 15
+    /// </code>
+    /// </example>
+    public static async Task<TState>
+    FoldAsync<TSuccess, TError, TState>(
+        this Result<TSuccess, TError> input,
+        Func<TState, TSuccess, Task<TState>> foldFn,
+        TState initialState
+    )
+    {
+        return await input.Match(
+            async (s) => await foldFn(initialState, s).ConfigureAwait(false),
+            (e) => Task.FromResult(initialState)
+        ).ConfigureAwait(false);
+    }
+
+
+    /// <summary>
+    /// Folds a Task-wrapped result's success value into an accumulator state using an asynchronous folder function.
+    /// Returns the initial state unchanged for an error result.
+    /// </summary>
+    /// <typeparam name="TSuccess">The type of the success value.</typeparam>
+    /// <typeparam name="TError">The type of the error value.</typeparam>
+    /// <typeparam name="TState">The type of the accumulator state.</typeparam>
+    /// <param name="taskInput">The task wrapping a result to fold.</param>
+    /// <param name="foldFn">An asynchronous function that combines the accumulator state with the success value.</param>
+    /// <param name="initialState">The initial state value.</param>
+    /// <returns>A task that completes with the folded state if successful; the initial state if an error.</returns>
+    /// <example>
+    /// <code>
+    /// Result&lt;int, string&gt; successResult = Success(5);
+    /// Task&lt;Result&lt;int, string&gt;&gt; taskResult = Task.FromResult(successResult);
+    /// int result = await taskResult.FoldAsync(async (state, value) =&gt;
+    /// {
+    ///     await Task.Delay(1);
+    ///     return state + value;
+    /// }, 10);  // 15
+    /// </code>
+    /// </example>
+    public static async Task<TState>
+    FoldAsync<TSuccess, TError, TState>(
+        this Task<Result<TSuccess, TError>> taskInput,
+        Func<TState, TSuccess, Task<TState>> foldFn,
+        TState initialState
+    )
+    {
+        Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
+        return await input.FoldAsync(foldFn, initialState).ConfigureAwait(false);
+    }
 }

@@ -2827,4 +2827,365 @@ public class ResultExtTests
 
         await Assert.ThrowsAsync<ArgumentNullException>(async () => await input.ToResult(() => "missing value"));
     }
+
+    //
+    // ══════════════════════════════════════════════════════════════════════
+    // ── Contains ─────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void Contains_WhenSuccessAndValueMatches_ReturnsTrue()
+    {
+        Result<int, string> input = Success(42);
+
+        bool result = input.Contains(42);
+
+        Assert.True(result);
+    }
+
+
+    [Fact]
+    public void Contains_WhenSuccessAndValueDoesNotMatch_ReturnsFalse()
+    {
+        Result<int, string> input = Success(42);
+
+        bool result = input.Contains(99);
+
+        Assert.False(result);
+    }
+
+
+    [Fact]
+    public void Contains_WhenError_ReturnsFalse()
+    {
+        Result<int, string> input = Error("failed");
+
+        bool result = input.Contains(42);
+
+        Assert.False(result);
+    }
+
+
+    [Fact]
+    public async Task Contains_Task_WhenSuccessAndValueMatches_ReturnsTrue()
+    {
+        Result<int, string> successResult = Success(42);
+        Task<Result<int, string>> input = Task.FromResult(successResult);
+
+        bool result = await input.Contains(42);
+
+        Assert.True(result);
+    }
+
+
+    [Fact]
+    public async Task Contains_Task_WhenError_ReturnsFalse()
+    {
+        Result<int, string> errorResult = Error("failed");
+        Task<Result<int, string>> input = Task.FromResult(errorResult);
+
+        bool result = await input.Contains(42);
+
+        Assert.False(result);
+    }
+
+    //
+    // ══════════════════════════════════════════════════════════════════════
+    // ── Exists ───────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void Exists_WhenSuccessAndPredicateMatches_ReturnsTrue()
+    {
+        Result<int, string> input = Success(42);
+
+        bool result = input.Exists((x) => x > 40);
+
+        Assert.True(result);
+    }
+
+
+    [Fact]
+    public void Exists_WhenSuccessAndPredicateDoesNotMatch_ReturnsFalse()
+    {
+        Result<int, string> input = Success(42);
+
+        bool result = input.Exists((x) => x > 50);
+
+        Assert.False(result);
+    }
+
+
+    [Fact]
+    public void Exists_WhenError_ReturnsFalse()
+    {
+        Result<int, string> input = Error("failed");
+
+        bool result = input.Exists((x) => x > 40);
+
+        Assert.False(result);
+    }
+
+
+    [Fact]
+    public async Task ExistsAsync_WhenSuccessAndAsyncPredicateMatches_ReturnsTrue()
+    {
+        Result<int, string> input = Success(42);
+
+        bool result = await input.ExistsAsync(async (x) =>
+        {
+            await Task.Delay(1);
+            return x > 40;
+        });
+
+        Assert.True(result);
+    }
+
+
+    [Fact]
+    public async Task ExistsAsync_WhenSuccessAndAsyncPredicateDoesNotMatch_ReturnsFalse()
+    {
+        Result<int, string> input = Success(42);
+
+        bool result = await input.ExistsAsync(async (x) =>
+        {
+            await Task.Delay(1);
+            return x > 50;
+        });
+
+        Assert.False(result);
+    }
+
+
+    [Fact]
+    public async Task ExistsAsync_WhenError_ReturnsFalse()
+    {
+        Result<int, string> input = Error("failed");
+
+        bool result = await input.ExistsAsync(async (x) =>
+        {
+            await Task.Delay(1);
+            return x > 40;
+        });
+
+        Assert.False(result);
+    }
+
+
+    [Fact]
+    public async Task Exists_Task_WhenSuccessAndPredicateMatches_ReturnsTrue()
+    {
+        Result<int, string> successResult = Success(42);
+        Task<Result<int, string>> input = Task.FromResult(successResult);
+
+        bool result = await input.Exists((x) => x > 40);
+
+        Assert.True(result);
+    }
+
+
+    [Fact]
+    public async Task Exists_Task_WhenError_ReturnsFalse()
+    {
+        Result<int, string> errorResult = Error("failed");
+        Task<Result<int, string>> input = Task.FromResult(errorResult);
+
+        bool result = await input.Exists((x) => x > 40);
+
+        Assert.False(result);
+    }
+
+
+    [Fact]
+    public async Task ExistsAsync_Task_WhenSuccessAndAsyncPredicate_ReturnsTrue()
+    {
+        Result<int, string> successResult = Success(42);
+        Task<Result<int, string>> input = Task.FromResult(successResult);
+
+        bool result = await input.ExistsAsync(async (x) =>
+        {
+            await Task.Delay(1);
+            return x > 40;
+        });
+
+        Assert.True(result);
+    }
+
+
+    [Fact]
+    public async Task ExistsAsync_Task_WhenErrorAndAsyncPredicate_ReturnsFalse()
+    {
+        Result<int, string> errorResult = Error("failed");
+        Task<Result<int, string>> input = Task.FromResult(errorResult);
+
+        bool result = await input.ExistsAsync(async (x) =>
+        {
+            await Task.Delay(1);
+            return x > 40;
+        });
+
+        Assert.False(result);
+    }
+
+    //
+    // ══════════════════════════════════════════════════════════════════════
+    // ── Fold ─────────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void Fold_WhenSuccess_FoldsValueIntoState()
+    {
+        Result<int, string> input = Success(5);
+
+        int result = input.Fold((state, value) => state + value, 10);
+
+        Assert.Equal(15, result);
+    }
+
+
+    [Fact]
+    public void Fold_WhenError_ReturnsInitialState()
+    {
+        Result<int, string> input = Error("failed");
+
+        int result = input.Fold((state, value) => state + value, 10);
+
+        Assert.Equal(10, result);
+    }
+
+
+    [Fact]
+    public void Fold_WhenSuccessWithComplexAccumulation_WorksCorrectly()
+    {
+        Result<string, string> input = Success("hello");
+
+        string result = input.Fold((state, value) => state + " " + value, "start");
+
+        Assert.Equal("start hello", result);
+    }
+
+
+    [Fact]
+    public async Task Fold_Task_WhenSuccess_FoldsValueIntoState()
+    {
+        Result<int, string> successResult = Success(5);
+        Task<Result<int, string>> input = Task.FromResult(successResult);
+
+        int result = await input.Fold((state, value) => state + value, 10);
+
+        Assert.Equal(15, result);
+    }
+
+
+    [Fact]
+    public async Task Fold_Task_WhenError_ReturnsInitialState()
+    {
+        Result<int, string> errorResult = Error("failed");
+        Task<Result<int, string>> input = Task.FromResult(errorResult);
+
+        int result = await input.Fold((state, value) => state + value, 10);
+
+        Assert.Equal(10, result);
+    }
+
+
+    [Fact]
+    public async Task FoldAsync_WhenSuccessAndAsyncFolder_FoldsValueIntoState()
+    {
+        Result<int, string> input = Success(5);
+
+        int result = await input.FoldAsync(async (state, value) =>
+        {
+            await Task.Delay(1);
+            return state + value;
+        }, 10);
+
+        Assert.Equal(15, result);
+    }
+
+
+    [Fact]
+    public async Task FoldAsync_WhenErrorAndAsyncFolder_ReturnsInitialState()
+    {
+        Result<int, string> input = Error("failed");
+
+        int result = await input.FoldAsync(async (state, value) =>
+        {
+            await Task.Delay(1);
+            return state + value;
+        }, 10);
+
+        Assert.Equal(10, result);
+    }
+
+
+    [Fact]
+    public async Task FoldAsync_Task_WhenSuccessAndAsyncFolder_FoldsValueIntoState()
+    {
+        Result<int, string> successResult = Success(5);
+        Task<Result<int, string>> input = Task.FromResult(successResult);
+
+        int result = await input.FoldAsync(async (state, value) =>
+        {
+            await Task.Delay(1);
+            return state + value;
+        }, 10);
+
+        Assert.Equal(15, result);
+    }
+
+
+    [Fact]
+    public async Task FoldAsync_Task_WhenErrorAndAsyncFolder_ReturnsInitialState()
+    {
+        Result<int, string> errorResult = Error("failed");
+        Task<Result<int, string>> input = Task.FromResult(errorResult);
+
+        int result = await input.FoldAsync(async (state, value) =>
+        {
+            await Task.Delay(1);
+            return state + value;
+        }, 10);
+
+        Assert.Equal(10, result);
+    }
+
+
+    [Fact]
+    public async Task ExistsAsync_WhenErrorAndAsyncPredicate_DoesNotInvokePredicate()
+    {
+        Result<int, string> input = Error("failed");
+        bool predicateInvoked = false;
+
+        bool result = await input.ExistsAsync(async (x) =>
+        {
+            predicateInvoked = true;
+            await Task.Delay(1);
+            return x > 40;
+        });
+
+        Assert.False(result);
+        Assert.False(predicateInvoked);
+    }
+
+
+    [Fact]
+    public async Task FoldAsync_WhenErrorAndAsyncFolder_DoesNotInvokeFolder()
+    {
+        Result<int, string> input = Error("failed");
+        bool folderInvoked = false;
+
+        int result = await input.FoldAsync(async (state, value) =>
+        {
+            folderInvoked = true;
+            await Task.Delay(1);
+            return state + value;
+        }, 10);
+
+        Assert.Equal(10, result);
+        Assert.False(folderInvoked);
+    }
 }
