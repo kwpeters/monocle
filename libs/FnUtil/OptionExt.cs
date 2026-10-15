@@ -385,6 +385,62 @@ public static class OptionExt
 
 
     /// <summary>
+    /// Checks if the option is Some and the contained value equals the given value.
+    /// Returns false for None.
+    /// </summary>
+    /// <typeparam name="T">The type of the contained value.</typeparam>
+    /// <param name="input">The option to check.</param>
+    /// <param name="value">The value to compare against the contained value.</param>
+    /// <returns>True if the option is Some and contains the given value; false otherwise.</returns>
+    /// <example>
+    /// <code>
+    /// Option&lt;int&gt; some = Some(42);
+    /// bool isTrue = some.Contains(42);  // true
+    ///
+    /// Option&lt;int&gt; noneValue = none;
+    /// bool isFalse = noneValue.Contains(42);  // false
+    /// </code>
+    /// </example>
+    public static bool
+    Contains<T>(
+        this Option<T> input,
+        T value
+    ) where T : IEquatable<T>
+    {
+        return input.Match(
+            (t) => t.Equals(value),
+            () => false
+        );
+    }
+
+
+    /// <summary>
+    /// Checks if a Task-wrapped option is Some and the contained value equals the given value.
+    /// Returns false for None.
+    /// </summary>
+    /// <typeparam name="T">The type of the contained value.</typeparam>
+    /// <param name="taskInput">The task wrapping an option to check.</param>
+    /// <param name="value">The value to compare against the contained value.</param>
+    /// <returns>A task that completes with true if the option is Some and contains the given value; false otherwise.</returns>
+    /// <example>
+    /// <code>
+    /// Option&lt;int&gt; someValue = Some(42);
+    /// Task&lt;Option&lt;int&gt;&gt; taskOption = Task.FromResult(someValue);
+    /// bool isTrue = await taskOption.Contains(42);  // true
+    /// </code>
+    /// </example>
+    public static async Task<bool>
+    Contains<T>(
+        this Task<Option<T>> taskInput,
+        T value
+    ) where T : IEquatable<T>
+    {
+        Option<T> input = await taskInput.ConfigureAwait(false);
+        return input.Contains(value);
+    }
+
+
+    /// <summary>
     /// Returns the contained value if Some, or the provided default value if None.
     /// </summary>
     /// <typeparam name="T">The type of value contained in the Option.</typeparam>
@@ -473,6 +529,249 @@ public static class OptionExt
             _ => throw new ArgumentException("Option must be None or Some.")
         };
         return result;
+    }
+
+
+    /// <summary>
+    /// Checks if the option is Some and the contained value satisfies the predicate.
+    /// Returns false for None.
+    /// </summary>
+    /// <typeparam name="T">The type of the contained value.</typeparam>
+    /// <param name="input">The option to check.</param>
+    /// <param name="predicate">The predicate to apply to the contained value.</param>
+    /// <returns>True if the option is Some and the predicate returns true; false otherwise.</returns>
+    /// <example>
+    /// <code>
+    /// Option&lt;int&gt; some = Some(42);
+    /// bool isTrue = some.Exists(x =&gt; x &gt; 40);  // true
+    ///
+    /// Option&lt;int&gt; noneValue = none;
+    /// bool isFalse = noneValue.Exists(x =&gt; x &gt; 40);  // false
+    /// </code>
+    /// </example>
+    public static bool
+    Exists<T>(
+        this Option<T> input,
+        Func<T, bool> predicate
+    )
+    {
+        return input.Match(
+            (t) => predicate(t),
+            () => false
+        );
+    }
+
+
+    /// <summary>
+    /// Checks if a Task-wrapped option is Some and the contained value satisfies the predicate.
+    /// Returns false for None.
+    /// </summary>
+    /// <typeparam name="T">The type of the contained value.</typeparam>
+    /// <param name="taskInput">The task wrapping an option to check.</param>
+    /// <param name="predicate">The predicate to apply to the contained value.</param>
+    /// <returns>A task that completes with true if the option is Some and the predicate returns true; false otherwise.</returns>
+    /// <example>
+    /// <code>
+    /// Option&lt;int&gt; someValue = Some(42);
+    /// Task&lt;Option&lt;int&gt;&gt; taskOption = Task.FromResult(someValue);
+    /// bool isTrue = await taskOption.Exists(x =&gt; x &gt; 40);  // true
+    /// </code>
+    /// </example>
+    public static async Task<bool>
+    Exists<T>(
+        this Task<Option<T>> taskInput,
+        Func<T, bool> predicate
+    )
+    {
+        Option<T> input = await taskInput.ConfigureAwait(false);
+        return input.Exists(predicate);
+    }
+
+
+    /// <summary>
+    /// Checks if the option is Some and applies an asynchronous predicate to the contained value.
+    /// Returns false for None.
+    /// </summary>
+    /// <typeparam name="T">The type of the contained value.</typeparam>
+    /// <param name="input">The option to check.</param>
+    /// <param name="predicate">The asynchronous predicate to apply to the contained value.</param>
+    /// <returns>A task that completes with true if the option is Some and the predicate returns true; false otherwise.</returns>
+    /// <example>
+    /// <code>
+    /// Option&lt;int&gt; some = Some(42);
+    /// bool isTrue = await some.ExistsAsync(async x =&gt;
+    /// {
+    ///     await Task.Delay(1);
+    ///     return x &gt; 40;
+    /// });  // true
+    /// </code>
+    /// </example>
+    public static async Task<bool>
+    ExistsAsync<T>(
+        this Option<T> input,
+        Func<T, Task<bool>> predicate
+    )
+    {
+        return await input.Match(
+            async (t) => await predicate(t).ConfigureAwait(false),
+            () => Task.FromResult(false)
+        ).ConfigureAwait(false);
+    }
+
+
+    /// <summary>
+    /// Checks if a Task-wrapped option is Some and applies an asynchronous predicate to the contained value.
+    /// Returns false for None.
+    /// </summary>
+    /// <typeparam name="T">The type of the contained value.</typeparam>
+    /// <param name="taskInput">The task wrapping an option to check.</param>
+    /// <param name="predicate">The asynchronous predicate to apply to the contained value.</param>
+    /// <returns>A task that completes with true if the option is Some and the predicate returns true; false otherwise.</returns>
+    /// <example>
+    /// <code>
+    /// Task&lt;Option&lt;int&gt;&gt; taskOption = Task.FromResult(Some(42));
+    /// bool isTrue = await taskOption.ExistsAsync(async x =&gt;
+    /// {
+    ///     await Task.Delay(1);
+    ///     return x &gt; 40;
+    /// });  // true
+    /// </code>
+    /// </example>
+    public static async Task<bool>
+    ExistsAsync<T>(
+        this Task<Option<T>> taskInput,
+        Func<T, Task<bool>> predicate
+    )
+    {
+        Option<T> input = await taskInput.ConfigureAwait(false);
+        return await input.ExistsAsync(predicate).ConfigureAwait(false);
+    }
+
+
+    /// <summary>
+    /// Folds the contained value into an accumulator state. Returns the initial state unchanged for None.
+    /// </summary>
+    /// <typeparam name="T">The type of the contained value.</typeparam>
+    /// <typeparam name="TState">The type of the accumulator state.</typeparam>
+    /// <param name="input">The option to fold.</param>
+    /// <param name="foldFn">A function that combines the accumulator state with the contained value.</param>
+    /// <param name="initialState">The initial state value.</param>
+    /// <returns>The folded state if the option is Some; the initial state if None.</returns>
+    /// <example>
+    /// <code>
+    /// Option&lt;int&gt; some = Some(5);
+    /// int result = some.Fold((state, value) =&gt; state + value, 10);  // 15
+    ///
+    /// Option&lt;int&gt; noneValue = none;
+    /// int resultNone = noneValue.Fold((state, value) =&gt; state + value, 10);  // 10
+    /// </code>
+    /// </example>
+    public static TState
+    Fold<T, TState>(
+        this Option<T> input,
+        Func<TState, T, TState> foldFn,
+        TState initialState
+    )
+    {
+        return input.Match(
+            (t) => foldFn(initialState, t),
+            () => initialState
+        );
+    }
+
+
+    /// <summary>
+    /// Folds a Task-wrapped option's contained value into an accumulator state.
+    /// Returns the initial state unchanged for None.
+    /// </summary>
+    /// <typeparam name="T">The type of the contained value.</typeparam>
+    /// <typeparam name="TState">The type of the accumulator state.</typeparam>
+    /// <param name="taskInput">The task wrapping an option to fold.</param>
+    /// <param name="foldFn">A function that combines the accumulator state with the contained value.</param>
+    /// <param name="initialState">The initial state value.</param>
+    /// <returns>A task that completes with the folded state if the option is Some; the initial state if None.</returns>
+    /// <example>
+    /// <code>
+    /// Option&lt;int&gt; someValue = Some(5);
+    /// Task&lt;Option&lt;int&gt;&gt; taskOption = Task.FromResult(someValue);
+    /// int foldedState = await taskOption.Fold((state, value) =&gt; state + value, 10);  // 15
+    /// </code>
+    /// </example>
+    public static async Task<TState>
+    Fold<T, TState>(
+        this Task<Option<T>> taskInput,
+        Func<TState, T, TState> foldFn,
+        TState initialState
+    )
+    {
+        Option<T> input = await taskInput.ConfigureAwait(false);
+        return input.Fold(foldFn, initialState);
+    }
+
+
+    /// <summary>
+    /// Folds the contained value into an accumulator state using an asynchronous folder function.
+    /// Returns the initial state unchanged for None.
+    /// </summary>
+    /// <typeparam name="T">The type of the contained value.</typeparam>
+    /// <typeparam name="TState">The type of the accumulator state.</typeparam>
+    /// <param name="input">The option to fold.</param>
+    /// <param name="foldFn">An asynchronous function that combines the accumulator state with the contained value.</param>
+    /// <param name="initialState">The initial state value.</param>
+    /// <returns>A task that completes with the folded state if the option is Some; the initial state if None.</returns>
+    /// <example>
+    /// <code>
+    /// Option&lt;int&gt; some = Some(5);
+    /// int result = await some.FoldAsync(async (state, value) =&gt;
+    /// {
+    ///     await Task.Delay(1);
+    ///     return state + value;
+    /// }, 10);  // 15
+    /// </code>
+    /// </example>
+    public static async Task<TState>
+    FoldAsync<T, TState>(
+        this Option<T> input,
+        Func<TState, T, Task<TState>> foldFn,
+        TState initialState
+    )
+    {
+        return await input.Match(
+            async (t) => await foldFn(initialState, t).ConfigureAwait(false),
+            () => Task.FromResult(initialState)
+        ).ConfigureAwait(false);
+    }
+
+
+    /// <summary>
+    /// Folds a Task-wrapped option's contained value into an accumulator state using an asynchronous folder function.
+    /// Returns the initial state unchanged for None.
+    /// </summary>
+    /// <typeparam name="T">The type of the contained value.</typeparam>
+    /// <typeparam name="TState">The type of the accumulator state.</typeparam>
+    /// <param name="taskInput">The task wrapping an option to fold.</param>
+    /// <param name="foldFn">An asynchronous function that combines the accumulator state with the contained value.</param>
+    /// <param name="initialState">The initial state value.</param>
+    /// <returns>A task that completes with the folded state if the option is Some; the initial state if None.</returns>
+    /// <example>
+    /// <code>
+    /// Task&lt;Option&lt;int&gt;&gt; taskOption = Task.FromResult(Some(5));
+    /// int result = await taskOption.FoldAsync(async (state, value) =&gt;
+    /// {
+    ///     await Task.Delay(1);
+    ///     return state + value;
+    /// }, 10);  // 15
+    /// </code>
+    /// </example>
+    public static async Task<TState>
+    FoldAsync<T, TState>(
+        this Task<Option<T>> taskInput,
+        Func<TState, T, Task<TState>> foldFn,
+        TState initialState
+    )
+    {
+        Option<T> input = await taskInput.ConfigureAwait(false);
+        return await input.FoldAsync(foldFn, initialState).ConfigureAwait(false);
     }
 
 
@@ -1280,303 +1579,4 @@ public static class OptionExt
         T value
     ) =>
         condition ? Some(value) : none;
-
-
-    /// <summary>
-    /// Checks if the option is Some and the contained value equals the given value.
-    /// Returns false for None.
-    /// </summary>
-    /// <typeparam name="T">The type of the contained value.</typeparam>
-    /// <param name="input">The option to check.</param>
-    /// <param name="value">The value to compare against the contained value.</param>
-    /// <returns>True if the option is Some and contains the given value; false otherwise.</returns>
-    /// <example>
-    /// <code>
-    /// Option&lt;int&gt; some = Some(42);
-    /// bool isTrue = some.Contains(42);  // true
-    ///
-    /// Option&lt;int&gt; noneValue = none;
-    /// bool isFalse = noneValue.Contains(42);  // false
-    /// </code>
-    /// </example>
-    public static bool
-    Contains<T>(
-        this Option<T> input,
-        T value
-    ) where T : IEquatable<T>
-    {
-        return input.Match(
-            (t) => t.Equals(value),
-            () => false
-        );
-    }
-
-
-    /// <summary>
-    /// Checks if a Task-wrapped option is Some and the contained value equals the given value.
-    /// Returns false for None.
-    /// </summary>
-    /// <typeparam name="T">The type of the contained value.</typeparam>
-    /// <param name="taskInput">The task wrapping an option to check.</param>
-    /// <param name="value">The value to compare against the contained value.</param>
-    /// <returns>A task that completes with true if the option is Some and contains the given value; false otherwise.</returns>
-    /// <example>
-    /// <code>
-    /// Option&lt;int&gt; someValue = Some(42);
-    /// Task&lt;Option&lt;int&gt;&gt; taskOption = Task.FromResult(someValue);
-    /// bool isTrue = await taskOption.Contains(42);  // true
-    /// </code>
-    /// </example>
-    public static async Task<bool>
-    Contains<T>(
-        this Task<Option<T>> taskInput,
-        T value
-    ) where T : IEquatable<T>
-    {
-        Option<T> input = await taskInput.ConfigureAwait(false);
-        return input.Contains(value);
-    }
-
-
-    /// <summary>
-    /// Checks if the option is Some and the contained value satisfies the predicate.
-    /// Returns false for None.
-    /// </summary>
-    /// <typeparam name="T">The type of the contained value.</typeparam>
-    /// <param name="input">The option to check.</param>
-    /// <param name="predicate">The predicate to apply to the contained value.</param>
-    /// <returns>True if the option is Some and the predicate returns true; false otherwise.</returns>
-    /// <example>
-    /// <code>
-    /// Option&lt;int&gt; some = Some(42);
-    /// bool isTrue = some.Exists(x =&gt; x &gt; 40);  // true
-    ///
-    /// Option&lt;int&gt; noneValue = none;
-    /// bool isFalse = noneValue.Exists(x =&gt; x &gt; 40);  // false
-    /// </code>
-    /// </example>
-    public static bool
-    Exists<T>(
-        this Option<T> input,
-        Func<T, bool> predicate
-    )
-    {
-        return input.Match(
-            (t) => predicate(t),
-            () => false
-        );
-    }
-
-
-    /// <summary>
-    /// Checks if a Task-wrapped option is Some and the contained value satisfies the predicate.
-    /// Returns false for None.
-    /// </summary>
-    /// <typeparam name="T">The type of the contained value.</typeparam>
-    /// <param name="taskInput">The task wrapping an option to check.</param>
-    /// <param name="predicate">The predicate to apply to the contained value.</param>
-    /// <returns>A task that completes with true if the option is Some and the predicate returns true; false otherwise.</returns>
-    /// <example>
-    /// <code>
-    /// Option&lt;int&gt; someValue = Some(42);
-    /// Task&lt;Option&lt;int&gt;&gt; taskOption = Task.FromResult(someValue);
-    /// bool isTrue = await taskOption.Exists(x =&gt; x &gt; 40);  // true
-    /// </code>
-    /// </example>
-    public static async Task<bool>
-    Exists<T>(
-        this Task<Option<T>> taskInput,
-        Func<T, bool> predicate
-    )
-    {
-        Option<T> input = await taskInput.ConfigureAwait(false);
-        return input.Exists(predicate);
-    }
-
-
-    /// <summary>
-    /// Checks if the option is Some and applies an asynchronous predicate to the contained value.
-    /// Returns false for None.
-    /// </summary>
-    /// <typeparam name="T">The type of the contained value.</typeparam>
-    /// <param name="input">The option to check.</param>
-    /// <param name="predicate">The asynchronous predicate to apply to the contained value.</param>
-    /// <returns>A task that completes with true if the option is Some and the predicate returns true; false otherwise.</returns>
-    /// <example>
-    /// <code>
-    /// Option&lt;int&gt; some = Some(42);
-    /// bool isTrue = await some.ExistsAsync(async x =&gt;
-    /// {
-    ///     await Task.Delay(1);
-    ///     return x &gt; 40;
-    /// });  // true
-    /// </code>
-    /// </example>
-    public static async Task<bool>
-    ExistsAsync<T>(
-        this Option<T> input,
-        Func<T, Task<bool>> predicate
-    )
-    {
-        return await input.Match(
-            async (t) => await predicate(t).ConfigureAwait(false),
-            () => Task.FromResult(false)
-        ).ConfigureAwait(false);
-    }
-
-
-    /// <summary>
-    /// Checks if a Task-wrapped option is Some and applies an asynchronous predicate to the contained value.
-    /// Returns false for None.
-    /// </summary>
-    /// <typeparam name="T">The type of the contained value.</typeparam>
-    /// <param name="taskInput">The task wrapping an option to check.</param>
-    /// <param name="predicate">The asynchronous predicate to apply to the contained value.</param>
-    /// <returns>A task that completes with true if the option is Some and the predicate returns true; false otherwise.</returns>
-    /// <example>
-    /// <code>
-    /// Task&lt;Option&lt;int&gt;&gt; taskOption = Task.FromResult(Some(42));
-    /// bool isTrue = await taskOption.ExistsAsync(async x =&gt;
-    /// {
-    ///     await Task.Delay(1);
-    ///     return x &gt; 40;
-    /// });  // true
-    /// </code>
-    /// </example>
-    public static async Task<bool>
-    ExistsAsync<T>(
-        this Task<Option<T>> taskInput,
-        Func<T, Task<bool>> predicate
-    )
-    {
-        Option<T> input = await taskInput.ConfigureAwait(false);
-        return await input.ExistsAsync(predicate).ConfigureAwait(false);
-    }
-
-
-    /// <summary>
-    /// Folds the contained value into an accumulator state. Returns the initial state unchanged for None.
-    /// </summary>
-    /// <typeparam name="T">The type of the contained value.</typeparam>
-    /// <typeparam name="TState">The type of the accumulator state.</typeparam>
-    /// <param name="input">The option to fold.</param>
-    /// <param name="foldFn">A function that combines the accumulator state with the contained value.</param>
-    /// <param name="initialState">The initial state value.</param>
-    /// <returns>The folded state if the option is Some; the initial state if None.</returns>
-    /// <example>
-    /// <code>
-    /// Option&lt;int&gt; some = Some(5);
-    /// int result = some.Fold((state, value) =&gt; state + value, 10);  // 15
-    ///
-    /// Option&lt;int&gt; noneValue = none;
-    /// int resultNone = noneValue.Fold((state, value) =&gt; state + value, 10);  // 10
-    /// </code>
-    /// </example>
-    public static TState
-    Fold<T, TState>(
-        this Option<T> input,
-        Func<TState, T, TState> foldFn,
-        TState initialState
-    )
-    {
-        return input.Match(
-            (t) => foldFn(initialState, t),
-            () => initialState
-        );
-    }
-
-
-    /// <summary>
-    /// Folds a Task-wrapped option's contained value into an accumulator state.
-    /// Returns the initial state unchanged for None.
-    /// </summary>
-    /// <typeparam name="T">The type of the contained value.</typeparam>
-    /// <typeparam name="TState">The type of the accumulator state.</typeparam>
-    /// <param name="taskInput">The task wrapping an option to fold.</param>
-    /// <param name="foldFn">A function that combines the accumulator state with the contained value.</param>
-    /// <param name="initialState">The initial state value.</param>
-    /// <returns>A task that completes with the folded state if the option is Some; the initial state if None.</returns>
-    /// <example>
-    /// <code>
-    /// Option&lt;int&gt; someValue = Some(5);
-    /// Task&lt;Option&lt;int&gt;&gt; taskOption = Task.FromResult(someValue);
-    /// int foldedState = await taskOption.Fold((state, value) =&gt; state + value, 10);  // 15
-    /// </code>
-    /// </example>
-    public static async Task<TState>
-    Fold<T, TState>(
-        this Task<Option<T>> taskInput,
-        Func<TState, T, TState> foldFn,
-        TState initialState
-    )
-    {
-        Option<T> input = await taskInput.ConfigureAwait(false);
-        return input.Fold(foldFn, initialState);
-    }
-
-
-    /// <summary>
-    /// Folds the contained value into an accumulator state using an asynchronous folder function.
-    /// Returns the initial state unchanged for None.
-    /// </summary>
-    /// <typeparam name="T">The type of the contained value.</typeparam>
-    /// <typeparam name="TState">The type of the accumulator state.</typeparam>
-    /// <param name="input">The option to fold.</param>
-    /// <param name="foldFn">An asynchronous function that combines the accumulator state with the contained value.</param>
-    /// <param name="initialState">The initial state value.</param>
-    /// <returns>A task that completes with the folded state if the option is Some; the initial state if None.</returns>
-    /// <example>
-    /// <code>
-    /// Option&lt;int&gt; some = Some(5);
-    /// int result = await some.FoldAsync(async (state, value) =&gt;
-    /// {
-    ///     await Task.Delay(1);
-    ///     return state + value;
-    /// }, 10);  // 15
-    /// </code>
-    /// </example>
-    public static async Task<TState>
-    FoldAsync<T, TState>(
-        this Option<T> input,
-        Func<TState, T, Task<TState>> foldFn,
-        TState initialState
-    )
-    {
-        return await input.Match(
-            async (t) => await foldFn(initialState, t).ConfigureAwait(false),
-            () => Task.FromResult(initialState)
-        ).ConfigureAwait(false);
-    }
-
-
-    /// <summary>
-    /// Folds a Task-wrapped option's contained value into an accumulator state using an asynchronous folder function.
-    /// Returns the initial state unchanged for None.
-    /// </summary>
-    /// <typeparam name="T">The type of the contained value.</typeparam>
-    /// <typeparam name="TState">The type of the accumulator state.</typeparam>
-    /// <param name="taskInput">The task wrapping an option to fold.</param>
-    /// <param name="foldFn">An asynchronous function that combines the accumulator state with the contained value.</param>
-    /// <param name="initialState">The initial state value.</param>
-    /// <returns>A task that completes with the folded state if the option is Some; the initial state if None.</returns>
-    /// <example>
-    /// <code>
-    /// Task&lt;Option&lt;int&gt;&gt; taskOption = Task.FromResult(Some(5));
-    /// int result = await taskOption.FoldAsync(async (state, value) =&gt;
-    /// {
-    ///     await Task.Delay(1);
-    ///     return state + value;
-    /// }, 10);  // 15
-    /// </code>
-    /// </example>
-    public static async Task<TState>
-    FoldAsync<T, TState>(
-        this Task<Option<T>> taskInput,
-        Func<TState, T, Task<TState>> foldFn,
-        TState initialState
-    )
-    {
-        Option<T> input = await taskInput.ConfigureAwait(false);
-        return await input.FoldAsync(foldFn, initialState).ConfigureAwait(false);
-    }
 }

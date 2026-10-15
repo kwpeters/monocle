@@ -439,6 +439,69 @@ public class OptionExtTests
 
     //
     // ══════════════════════════════════════════════════════════════════════
+    // ── Contains ──────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void Contains_WhenSomeAndValueMatches_ReturnsTrue()
+    {
+        Option<int> input = Some(42);
+
+        bool result = input.Contains(42);
+
+        Assert.True(result);
+    }
+
+
+    [Fact]
+    public void Contains_WhenSomeAndValueDoesNotMatch_ReturnsFalse()
+    {
+        Option<int> input = Some(42);
+
+        bool result = input.Contains(99);
+
+        Assert.False(result);
+    }
+
+
+    [Fact]
+    public void Contains_WhenNone_ReturnsFalse()
+    {
+        Option<int> input = none;
+
+        bool result = input.Contains(42);
+
+        Assert.False(result);
+    }
+
+
+    // ── Contains (Tier 2 lift) ────────────────────────────────────────────
+
+    [Fact]
+    public async Task Contains_Task_WhenSomeAndValueMatches_ReturnsTrue()
+    {
+        Task<Option<int>> input = Task.FromResult(Some(42));
+
+        bool result = await input.Contains(42);
+
+        Assert.True(result);
+    }
+
+
+    [Fact]
+    public async Task Contains_Task_WhenNone_ReturnsFalse()
+    {
+        Option<int> noneValue = none;
+        Task<Option<int>> input = Task.FromResult(noneValue);
+
+        bool result = await input.Contains(42);
+
+        Assert.False(result);
+    }
+
+    //
+    // ══════════════════════════════════════════════════════════════════════
     // ── DefaultValue ──────────────────────────────────────────────────────
     // ══════════════════════════════════════════════════════════════════════
     //
@@ -593,6 +656,313 @@ public class OptionExtTests
                 return "fallback";
             });
         Assert.Equal("fallback", val);
+    }
+
+    //
+    // ══════════════════════════════════════════════════════════════════════
+    // ── Exists ────────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void Exists_WhenSomeAndPredicateMatches_ReturnsTrue()
+    {
+        Option<int> input = Some(42);
+
+        bool result = input.Exists((x) => x > 40);
+
+        Assert.True(result);
+    }
+
+
+    [Fact]
+    public void Exists_WhenSomeAndPredicateDoesNotMatch_ReturnsFalse()
+    {
+        Option<int> input = Some(42);
+
+        bool result = input.Exists((x) => x > 50);
+
+        Assert.False(result);
+    }
+
+
+    [Fact]
+    public void Exists_WhenNone_ReturnsFalse()
+    {
+        Option<int> input = none;
+
+        bool result = input.Exists((x) => x > 40);
+
+        Assert.False(result);
+    }
+
+
+    // ── Exists (Tier 2 lift — sync callback) ──────────────────────────────
+
+    [Fact]
+    public async Task Exists_Task_WhenSomeAndPredicateMatches_ReturnsTrue()
+    {
+        Task<Option<int>> input = Task.FromResult(Some(42));
+
+        bool result = await input.Exists((x) => x > 40);
+
+        Assert.True(result);
+    }
+
+
+    [Fact]
+    public async Task Exists_Task_WhenNone_ReturnsFalse()
+    {
+        Option<int> noneValue = none;
+        Task<Option<int>> input = Task.FromResult(noneValue);
+
+        bool result = await input.Exists((x) => x > 40);
+
+        Assert.False(result);
+    }
+
+
+    // ── ExistsAsync (non-Task input — async callback) ─────────────────────
+
+    [Fact]
+    public async Task ExistsAsync_WhenSomeAndAsyncPredicateMatches_ReturnsTrue()
+    {
+        Option<int> input = Some(42);
+
+        bool result = await input.ExistsAsync(async (x) =>
+        {
+            await Task.Delay(1);
+            return x > 40;
+        });
+
+        Assert.True(result);
+    }
+
+
+    [Fact]
+    public async Task ExistsAsync_WhenSomeAndAsyncPredicateDoesNotMatch_ReturnsFalse()
+    {
+        Option<int> input = Some(42);
+
+        bool result = await input.ExistsAsync(async (x) =>
+        {
+            await Task.Delay(1);
+            return x > 50;
+        });
+
+        Assert.False(result);
+    }
+
+
+    [Fact]
+    public async Task ExistsAsync_WhenNone_ReturnsFalse()
+    {
+        Option<int> input = none;
+
+        bool result = await input.ExistsAsync(async (x) =>
+        {
+            await Task.Delay(1);
+            return x > 40;
+        });
+
+        Assert.False(result);
+    }
+
+
+    [Fact]
+    public async Task ExistsAsync_WhenNoneAndAsyncPredicate_DoesNotInvokePredicate()
+    {
+        Option<int> input = none;
+        bool predicateInvoked = false;
+
+        bool result = await input.ExistsAsync(async (x) =>
+        {
+            predicateInvoked = true;
+            await Task.Delay(1);
+            return x > 40;
+        });
+
+        Assert.False(result);
+        Assert.False(predicateInvoked);
+    }
+
+
+    // ── ExistsAsync (Tier 3 — async callback) ─────────────────────────────
+
+    [Fact]
+    public async Task ExistsAsync_Task_WhenSomeAndAsyncPredicate_ReturnsTrue()
+    {
+        Task<Option<int>> input = Task.FromResult(Some(42));
+
+        bool result = await input.ExistsAsync(async (x) =>
+        {
+            await Task.Delay(1);
+            return x > 40;
+        });
+
+        Assert.True(result);
+    }
+
+
+    [Fact]
+    public async Task ExistsAsync_Task_WhenNoneAndAsyncPredicate_ReturnsFalse()
+    {
+        Option<int> noneOption = none;
+        Task<Option<int>> input = Task.FromResult(noneOption);
+
+        bool result = await input.ExistsAsync(async (x) =>
+        {
+            await Task.Delay(1);
+            return x > 40;
+        });
+
+        Assert.False(result);
+    }
+
+    //
+    // ══════════════════════════════════════════════════════════════════════
+    // ── Fold ──────────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════
+    //
+
+    [Fact]
+    public void Fold_WhenSome_FoldsValueIntoState()
+    {
+        Option<int> input = Some(5);
+
+        int result = input.Fold((state, value) => state + value, 10);
+
+        Assert.Equal(15, result);
+    }
+
+
+    [Fact]
+    public void Fold_WhenNone_ReturnsInitialState()
+    {
+        Option<int> input = none;
+
+        int result = input.Fold((state, value) => state + value, 10);
+
+        Assert.Equal(10, result);
+    }
+
+
+    [Fact]
+    public void Fold_WhenSomeWithComplexAccumulation_WorksCorrectly()
+    {
+        Option<string> input = Some("hello");
+
+        string result = input.Fold((state, value) => state + " " + value, "start");
+
+        Assert.Equal("start hello", result);
+    }
+
+
+    // ── Fold (Tier 2 lift — sync callback) ────────────────────────────────
+
+    [Fact]
+    public async Task Fold_Task_WhenSome_FoldsValueIntoState()
+    {
+        Task<Option<int>> input = Task.FromResult(Some(5));
+
+        int result = await input.Fold((state, value) => state + value, 10);
+
+        Assert.Equal(15, result);
+    }
+
+
+    [Fact]
+    public async Task Fold_Task_WhenNone_ReturnsInitialState()
+    {
+        Option<int> noneOption = none;
+        Task<Option<int>> input = Task.FromResult(noneOption);
+
+        int result = await input.Fold((state, value) => state + value, 10);
+
+        Assert.Equal(10, result);
+    }
+
+
+    // ── FoldAsync (non-Task input — async callback) ───────────────────────
+
+    [Fact]
+    public async Task FoldAsync_WhenSomeAndAsyncFolder_FoldsValueIntoState()
+    {
+        Option<int> input = Some(5);
+
+        int result = await input.FoldAsync(async (state, value) =>
+        {
+            await Task.Delay(1);
+            return state + value;
+        }, 10);
+
+        Assert.Equal(15, result);
+    }
+
+
+    [Fact]
+    public async Task FoldAsync_WhenNoneAndAsyncFolder_ReturnsInitialState()
+    {
+        Option<int> input = none;
+
+        int result = await input.FoldAsync(async (state, value) =>
+        {
+            await Task.Delay(1);
+            return state + value;
+        }, 10);
+
+        Assert.Equal(10, result);
+    }
+
+
+    [Fact]
+    public async Task FoldAsync_WhenNoneAndAsyncFolder_DoesNotInvokeFolder()
+    {
+        Option<int> input = none;
+        bool folderInvoked = false;
+
+        int result = await input.FoldAsync(async (state, value) =>
+        {
+            folderInvoked = true;
+            await Task.Delay(1);
+            return state + value;
+        }, 10);
+
+        Assert.Equal(10, result);
+        Assert.False(folderInvoked);
+    }
+
+
+    // ── FoldAsync (Tier 3 — async callback) ───────────────────────────────
+
+    [Fact]
+    public async Task FoldAsync_Task_WhenSomeAndAsyncFolder_FoldsValueIntoState()
+    {
+        Task<Option<int>> input = Task.FromResult(Some(5));
+
+        int result = await input.FoldAsync(async (state, value) =>
+        {
+            await Task.Delay(1);
+            return state + value;
+        }, 10);
+
+        Assert.Equal(15, result);
+    }
+
+
+    [Fact]
+    public async Task FoldAsync_Task_WhenNoneAndAsyncFolder_ReturnsInitialState()
+    {
+        Option<int> noneOption = none;
+        Task<Option<int>> input = Task.FromResult(noneOption);
+
+        int result = await input.FoldAsync(async (state, value) =>
+        {
+            await Task.Delay(1);
+            return state + value;
+        }, 10);
+
+        Assert.Equal(10, result);
     }
 
     //
@@ -1835,350 +2205,5 @@ public class OptionExtTests
     {
         bool isAdmin = false;
         Assert.True(isAdmin.ToOption("admin").IsNone);
-    }
-
-
-    // ── Contains ──────────────────────────────────────────────────────────
-
-    [Fact]
-    public void Contains_WhenSomeAndValueMatches_ReturnsTrue()
-    {
-        Option<int> input = Some(42);
-
-        bool result = input.Contains(42);
-
-        Assert.True(result);
-    }
-
-
-    [Fact]
-    public void Contains_WhenSomeAndValueDoesNotMatch_ReturnsFalse()
-    {
-        Option<int> input = Some(42);
-
-        bool result = input.Contains(99);
-
-        Assert.False(result);
-    }
-
-
-    [Fact]
-    public void Contains_WhenNone_ReturnsFalse()
-    {
-        Option<int> input = none;
-
-        bool result = input.Contains(42);
-
-        Assert.False(result);
-    }
-
-
-    [Fact]
-    public async Task Contains_Task_WhenSomeAndValueMatches_ReturnsTrue()
-    {
-        Task<Option<int>> input = Task.FromResult(Some(42));
-
-        bool result = await input.Contains(42);
-
-        Assert.True(result);
-    }
-
-
-    [Fact]
-    public async Task Contains_Task_WhenNone_ReturnsFalse()
-    {
-        Option<int> noneValue = none;
-        Task<Option<int>> input = Task.FromResult(noneValue);
-
-        bool result = await input.Contains(42);
-
-        Assert.False(result);
-    }
-
-    // ── Exists ────────────────────────────────────────────────────────────
-
-    [Fact]
-    public void Exists_WhenSomeAndPredicateMatches_ReturnsTrue()
-    {
-        Option<int> input = Some(42);
-
-        bool result = input.Exists((x) => x > 40);
-
-        Assert.True(result);
-    }
-
-
-    [Fact]
-    public void Exists_WhenSomeAndPredicateDoesNotMatch_ReturnsFalse()
-    {
-        Option<int> input = Some(42);
-
-        bool result = input.Exists((x) => x > 50);
-
-        Assert.False(result);
-    }
-
-
-    [Fact]
-    public void Exists_WhenNone_ReturnsFalse()
-    {
-        Option<int> input = none;
-
-        bool result = input.Exists((x) => x > 40);
-
-        Assert.False(result);
-    }
-
-
-    [Fact]
-    public async Task ExistsAsync_WhenSomeAndAsyncPredicateMatches_ReturnsTrue()
-    {
-        Option<int> input = Some(42);
-
-        bool result = await input.ExistsAsync(async (x) =>
-        {
-            await Task.Delay(1);
-            return x > 40;
-        });
-
-        Assert.True(result);
-    }
-
-
-    [Fact]
-    public async Task ExistsAsync_WhenSomeAndAsyncPredicateDoesNotMatch_ReturnsFalse()
-    {
-        Option<int> input = Some(42);
-
-        bool result = await input.ExistsAsync(async (x) =>
-        {
-            await Task.Delay(1);
-            return x > 50;
-        });
-
-        Assert.False(result);
-    }
-
-
-    [Fact]
-    public async Task ExistsAsync_WhenNone_ReturnsFalse()
-    {
-        Option<int> input = none;
-
-        bool result = await input.ExistsAsync(async (x) =>
-        {
-            await Task.Delay(1);
-            return x > 40;
-        });
-
-        Assert.False(result);
-    }
-
-
-    [Fact]
-    public async Task Exists_Task_WhenSomeAndPredicateMatches_ReturnsTrue()
-    {
-        Task<Option<int>> input = Task.FromResult(Some(42));
-
-        bool result = await input.Exists((x) => x > 40);
-
-        Assert.True(result);
-    }
-
-
-    [Fact]
-    public async Task Exists_Task_WhenNone_ReturnsFalse()
-    {
-        Option<int> noneValue = none;
-        Task<Option<int>> input = Task.FromResult(noneValue);
-
-        bool result = await input.Exists((x) => x > 40);
-
-        Assert.False(result);
-    }
-
-
-    [Fact]
-    public async Task ExistsAsync_Task_WhenSomeAndAsyncPredicate_ReturnsTrue()
-    {
-        Task<Option<int>> input = Task.FromResult(Some(42));
-
-        bool result = await input.ExistsAsync(async (x) =>
-        {
-            await Task.Delay(1);
-            return x > 40;
-        });
-
-        Assert.True(result);
-    }
-
-
-    [Fact]
-    public async Task ExistsAsync_Task_WhenNoneAndAsyncPredicate_ReturnsFalse()
-    {
-        Option<int> noneOption = none;
-        Task<Option<int>> input = Task.FromResult(noneOption);
-
-        bool result = await input.ExistsAsync(async (x) =>
-        {
-            await Task.Delay(1);
-            return x > 40;
-        });
-
-        Assert.False(result);
-    }
-
-    // ── Fold ──────────────────────────────────────────────────────────────
-
-    [Fact]
-    public void Fold_WhenSome_FoldsValueIntoState()
-    {
-        Option<int> input = Some(5);
-
-        int result = input.Fold((state, value) => state + value, 10);
-
-        Assert.Equal(15, result);
-    }
-
-
-    [Fact]
-    public void Fold_WhenNone_ReturnsInitialState()
-    {
-        Option<int> input = none;
-
-        int result = input.Fold((state, value) => state + value, 10);
-
-        Assert.Equal(10, result);
-    }
-
-
-    [Fact]
-    public void Fold_WhenSomeWithComplexAccumulation_WorksCorrectly()
-    {
-        Option<string> input = Some("hello");
-
-        string result = input.Fold((state, value) => state + " " + value, "start");
-
-        Assert.Equal("start hello", result);
-    }
-
-
-    [Fact]
-    public async Task Fold_Task_WhenSome_FoldsValueIntoState()
-    {
-        Task<Option<int>> input = Task.FromResult(Some(5));
-
-        int result = await input.Fold((state, value) => state + value, 10);
-
-        Assert.Equal(15, result);
-    }
-
-
-    [Fact]
-    public async Task Fold_Task_WhenNone_ReturnsInitialState()
-    {
-        Option<int> noneOption = none;
-        Task<Option<int>> input = Task.FromResult(noneOption);
-
-        int result = await input.Fold((state, value) => state + value, 10);
-
-        Assert.Equal(10, result);
-    }
-
-
-    [Fact]
-    public async Task FoldAsync_WhenSomeAndAsyncFolder_FoldsValueIntoState()
-    {
-        Option<int> input = Some(5);
-
-        int result = await input.FoldAsync(async (state, value) =>
-        {
-            await Task.Delay(1);
-            return state + value;
-        }, 10);
-
-        Assert.Equal(15, result);
-    }
-
-
-    [Fact]
-    public async Task FoldAsync_WhenNoneAndAsyncFolder_ReturnsInitialState()
-    {
-        Option<int> input = none;
-
-        int result = await input.FoldAsync(async (state, value) =>
-        {
-            await Task.Delay(1);
-            return state + value;
-        }, 10);
-
-        Assert.Equal(10, result);
-    }
-
-
-    [Fact]
-    public async Task FoldAsync_Task_WhenSomeAndAsyncFolder_FoldsValueIntoState()
-    {
-        Task<Option<int>> input = Task.FromResult(Some(5));
-
-        int result = await input.FoldAsync(async (state, value) =>
-        {
-            await Task.Delay(1);
-            return state + value;
-        }, 10);
-
-        Assert.Equal(15, result);
-    }
-
-
-    [Fact]
-    public async Task FoldAsync_Task_WhenNoneAndAsyncFolder_ReturnsInitialState()
-    {
-        Option<int> noneOption = none;
-        Task<Option<int>> input = Task.FromResult(noneOption);
-
-        int result = await input.FoldAsync(async (state, value) =>
-        {
-            await Task.Delay(1);
-            return state + value;
-        }, 10);
-
-        Assert.Equal(10, result);
-    }
-
-
-    [Fact]
-    public async Task ExistsAsync_WhenNoneAndAsyncPredicate_DoesNotInvokePredicate()
-    {
-        Option<int> input = none;
-        bool predicateInvoked = false;
-
-        bool result = await input.ExistsAsync(async (x) =>
-        {
-            predicateInvoked = true;
-            await Task.Delay(1);
-            return x > 40;
-        });
-
-        Assert.False(result);
-        Assert.False(predicateInvoked);
-    }
-
-
-    [Fact]
-    public async Task FoldAsync_WhenNoneAndAsyncFolder_DoesNotInvokeFolder()
-    {
-        Option<int> input = none;
-        bool folderInvoked = false;
-
-        int result = await input.FoldAsync(async (state, value) =>
-        {
-            folderInvoked = true;
-            await Task.Delay(1);
-            return state + value;
-        }, 10);
-
-        Assert.Equal(10, result);
-        Assert.False(folderInvoked);
     }
 }
