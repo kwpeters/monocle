@@ -32,6 +32,7 @@ public sealed class AsyncDisposableResult<TSuccess, TError> : IAsyncDisposable
 
     internal AsyncDisposableResult(Result<TSuccess, TError> result) => _result = result;
 
+
     //------------------------------------------------------------------------------
     // Properties
     //------------------------------------------------------------------------------

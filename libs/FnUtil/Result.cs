@@ -26,7 +26,8 @@ public abstract record Result<TSuccess, TError>
     //------------------------------------------------------------------------------
 
     public abstract bool IsSuccess { get; }
-    public bool IsError => !this.IsSuccess;
+
+    public bool IsError => !IsSuccess;
 }
 
 /// <summary>

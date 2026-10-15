@@ -31,6 +31,7 @@ public abstract record Option<T>
     //------------------------------------------------------------------------------
 
     public abstract bool IsSome { get; }
+
     public bool IsNone => !IsSome;
 }
 
@@ -89,6 +90,7 @@ internal sealed record Some<T> : Option<T>
     //------------------------------------------------------------------------------
 
     public T Value { get; }
+
 
     //------------------------------------------------------------------------------
     // Properties
