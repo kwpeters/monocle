@@ -159,6 +159,11 @@ public static class PersonOps
 ### Asynchronous Code
 
 - Use `ConfigureAwait(false)` on all `await` calls in library code.
+- **Method naming for async operations:** The `Async` suffix is used only when a **callback/function parameter is async**, not merely because the input or output is a `Task`. For example:
+  - `Exists(Task<Result>, Func<T, bool>)` — no Async suffix; Task input but sync predicate
+  - `ExistsAsync(Task<Result>, Func<T, Task<bool>>)` — Async suffix; async predicate
+  - `FoldAsync(Result, Func<S, T, Task<S>>)` — Async suffix; async folder function
+  - `Fold(Task<Result>, Func<S, T, S>)` — no Async suffix; Task input but sync folder
 
 ### P/Invoke
 
