@@ -18,7 +18,7 @@
 
 ### Lambdas
 
-- The parameters of a lambda should always be wrapped in parenthesis.
+- Lambda parameters should be wrapped in parentheses when there are multiple parameters. Single-parameter lambdas may omit parentheses.
 
 ### Ternary Formatting
 
