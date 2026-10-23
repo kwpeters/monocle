@@ -1,20 +1,25 @@
 # Coding Guidelines
 
+## Guides
+
+The rules below apply to all code. These guides add detailed rules for specific
+kinds of work. Read a guide only when the task calls for it.
+
+| Read | When you are |
+| --- | --- |
+| [docs/csharp_data_modeling.md](docs/csharp_data_modeling.md) | Adding or changing a union, a type serialized to JSON, or union tests, or deciding how to model a new type |
+| [docs/csharp_pinvoke.md](docs/csharp_pinvoke.md) | Calling native code, wrapping a callback-based native library, or tracking native requests and connections |
+
 ## Code Style
 
 - **.NET 10**, nullable reference types enabled, implicit usings enabled.
 - **File-scoped namespaces** — enforced as error in `.editorconfig`.
 - **Explicit types instead of `var`**, unless the type is apparent from the right-hand side (e.g. `var items = new List<string>()`) — enforced as error (IDE0008). This includes `foreach` loops and deconstructions (`(int a, string b) = ...`). Write the non-nullable type (`Option<int>`, `T`), not the nullable type that `var` would infer (`Option<int>?`, `T?`). Use `?` only where the value really can be null, such as the `out` value of `Dictionary.TryGetValue()`.
-- **Explicit integer type sizes** (`Int32`, `UInt16`, `Byte`) in CIP/protocol code where bit widths matter. Standard `int`/`byte` elsewhere is fine.
-- **Braces always required** — no single-line `if` without braces.
+- **Braces are required** on `if` statements and loops. The sole exception is a body that contains only a `return` statement, which may go on the same line (`if (done) return;`) or the next line.
 - **Two blank lines between members** (methods, properties, fields with attributes, test methods). Use one blank line only within a member's body.
 - **Private fields**: `_camelCase` with underscore prefix.
 - **Physical quantities**: include the units.  For example, `timeoutMs`.
 - See [.editorconfig](.editorconfig) for all formatting and style rules.
-
-### If Statements and Loops
-
-- If statements and loops must use braces. The sole exception is when the body contains only a `return` statement.
 
 ### Lambdas
 
@@ -31,14 +36,14 @@ return input.Count > 0 ? Success(input) : Error(errorFactory());
 When a ternary spans multiple lines, the `?` and `:` should appear at the end of the line (not the beginning of the next line). For example:
 
 ```csharp
-var result = condition ?
+string result = condition ?
     valueIfTrue :
     valueIfFalse;
 ```
 
-### Multi-line Method Signatures
+### Method Signatures
 
-When a method signature is too long for a single line, keep the return type (including `async` and other modifiers) on one line and start the method name on the next:
+Keep a method signature on a single line when it fits within 100 columns. When it does not, keep the return type (including `async` and other modifiers) on one line and start the method name on the next:
 
 ```csharp
 public static Result<int, string>
@@ -50,43 +55,13 @@ Initialize(
 
 ### Class and Record Member Ordering
 
-Members within a class or record must be declared in the following order. Use the following separator comments to delineate the sections of a class or record.  If a class or record only contains one of these sections (as is often the case in unit test files), the separator comment is not required. Omit sections that are not needed.
+Declare members in this order, omitting sections that are not needed: Constants, Static fields, Static properties, Static methods, Instance fields, Constructors, Properties, Instance methods, Nested types.
+
+Start each section with a separator comment naming it. The separators may be omitted when a class or record has only one section (as is often the case in unit test files).
 
 ```csharp
     //------------------------------------------------------------------------------
-    // Constants
-    //------------------------------------------------------------------------------
-
-    //------------------------------------------------------------------------------
-    // Static fields
-    //------------------------------------------------------------------------------
-
-    //------------------------------------------------------------------------------
-    // Static properties
-    //------------------------------------------------------------------------------
-
-    //------------------------------------------------------------------------------
     // Static methods
-    //------------------------------------------------------------------------------
-
-    //------------------------------------------------------------------------------
-    // Instance fields
-    //------------------------------------------------------------------------------
-
-    //------------------------------------------------------------------------------
-    // Constructors
-    //------------------------------------------------------------------------------
-
-    //------------------------------------------------------------------------------
-    // Properties
-    //------------------------------------------------------------------------------
-
-    //------------------------------------------------------------------------------
-    // Instance methods
-    //------------------------------------------------------------------------------
-
-    //------------------------------------------------------------------------------
-    // Nested types
     //------------------------------------------------------------------------------
 ```
 
@@ -95,7 +70,7 @@ Members within a class or record must be declared in the following order. Use th
 ### Functional Programming
 
 - Always prefer use of the functional data types and patterns defined in the FnUtil library.
-- Never use null references.  Use Option<T> from FnUtil instead.
+- Never use null references.  Use `Option<T>` from FnUtil instead.
 - Reserve the throwing of exceptions for truly exception cases (cases that should never happen).
 - For operations that can fail and communicating the error reason is desirable,
   prefer returning `Result<TSuccess, TError>` over throwing exceptions.  This allows
@@ -107,54 +82,12 @@ Members within a class or record must be declared in the following order. Use th
 
 ### Data and Operations
 
-Keep data and behavior separate. Data is defined as immutable records, and
-operations on that data are pure functions in a companion static class.
-[Person.cs](libs/ExperimentalLib/Person.cs) is the reference example.
+Keep data and behavior separate. [Person.cs](libs/ExperimentalLib/Person.cs) is the reference example, and [docs/csharp_data_modeling.md](docs/csharp_data_modeling.md) has the full rules.
 
-- **Data types** are `sealed record class` types using nominal syntax with
-  `required` `{ get; init; }` properties. Records hold data only; they contain no
-  methods beyond compiler-generated members.
-  - Do not use `record struct`, because `default(T)` bypasses `required` and yields
-    null reference-type fields.
-  - Positional syntax (`record Foo(int A, string B)`) is acceptable only for small
-    value-like types whose parameters have distinct types, so that argument-order
-    mistakes cannot compile.
-- **Operations** live in a static class named `<Type>Ops` (e.g. `PersonOps`),
-  declared in the same file as the record.
-  - Operations are pure functions and never mutate their inputs. "Modifying"
-    operations return a new instance using a `with` expression.
-  - Declare operations as extension methods on the record so they can be called
-    either as functions (`PersonOps.FullName(p)`) or fluently (`p.FullName()`).
-  - When a type has invariants, provide a validating factory named `Create` that
-    returns `Result<T, TError>`, and create instances through it.
-  - Operations that can fail return `Result<TSuccess, TError>`. Lookups that may
-    find nothing return `Option<T>`. Compose them with FnUtil's `Bind`,
-    `MapSuccess`, `Map` and `Match`.
-- Stateful components that must own resources (native handles, connections,
-  channels) are the exception. Keep them small, and keep their domain logic in
-  records and `<Type>Ops` functions.
-
-```csharp
-public sealed record class Person
-{
-    public required string FirstName { get; init; }
-    public required string LastName { get; init; }
-}
-
-public static class PersonOps
-{
-    public static Result<Person, string>
-    Create(string firstName, string lastName) => ...;
-
-    public static string
-    FullName(this Person person) => $"{person.FirstName} {person.LastName}";
-
-    public static Result<Person, string>
-    WithLastName(this Person person, string lastName) =>
-        NonBlank(lastName, nameof(lastName))
-        .MapSuccess((last) => person with { LastName = last });
-}
-```
+- Data types are `sealed record class` types with `required` `{ get; init; }` properties. They hold data only, with no methods. Never use `record struct`.
+- Use nominal syntax. Positional syntax is only for single-value wrappers and small types whose parameters have distinct types.
+- Operations are pure extension methods in a static `<Type>Ext` class declared in the same file as the record. "Modifying" operations return a copy made with `with`.
+- A type with invariants has a validating `Create` factory that returns `Result<T, TError>`.
 
 ### Asynchronous Code
 
@@ -168,18 +101,6 @@ public static class PersonOps
 ### Unit Tests
 
 - Order the unit tests in a spec file to match the order of the methods under test in the implementation file.
-
-### P/Invoke
-
-- Use `LibraryImport` (source-generated) with `__stdcall` calling convention.
-- Pin callback delegates as instance fields to prevent GC collection.
-- Structs use `[StructLayout(LayoutKind.Sequential, Pack = 1)]`.
-
-### Concurrency
-
-- `ConcurrentDictionary` for tracking pending async requests and open connections.
-- `Channel<T>` for streaming packets on connected CIP sessions.
-- `TaskCompletionSource` for converting native callbacks into `Task<T>`.
 
 ## Build and Test
 

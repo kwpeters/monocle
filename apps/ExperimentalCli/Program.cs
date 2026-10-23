@@ -14,7 +14,7 @@ using FnUtil;
 ];
 
 (IEnumerable<Person> people, IEnumerable<string> errors) = rawInputs
-    .Select((input) => PersonOps.Create(input.First, input.Last))
+    .Select((input) => PersonExt.Create(input.First, input.Last))
     .Partition();
 
 foreach (string error in errors)
@@ -50,7 +50,7 @@ Console.WriteLine(
 // chained with Bind, and the first failure short-circuits the rest.
 ////////////////////////////////////////////////////////////////////////////////
 
-Person original = PersonOps.Create("Jane", "Doe").ThrowIfError();
+Person original = PersonExt.Create("Jane", "Doe").ThrowIfError();
 
 original
     .WithLastName("Smith")
@@ -59,7 +59,7 @@ original
         (error) => Console.WriteLine($"Rename failed: {error}")
     );
 
-PersonOps.Create("Jane", "Doe")
+PersonExt.Create("Jane", "Doe")
     .Bind((person) => person.WithLastName(""))
     .Bind((person) => person.WithLastName("Smith"))
     .Match(

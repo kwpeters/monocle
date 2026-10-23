@@ -1552,7 +1552,7 @@ public static class OptionExt
     /// null becomes None, otherwise Some(value).
     /// </summary>
     public static Option<T>
-    ToOption<T>(this T value)
+    ToOption<T>(this T? value)
     {
         return value is null ? none : Some(value);
     }
