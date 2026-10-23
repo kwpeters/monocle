@@ -63,7 +63,9 @@ Model it on `libs/ExampleLib/Drawing/Shape.cs`.
 4. Put behavior that spans the cases in `<Union>Ext` in the same file. Write each
    operation as a `switch` expression with a positional pattern for the case and a
    property pattern for the payload, ending with
-   `_ => throw new UnreachableException()`.
+   `_ => throw new UnreachableException()`. That is the only discard arm allowed:
+   list every case explicitly, and never handle cases with a `_` arm or a
+   `default:` label that has real behavior.
 5. If `<Library>.Tests` has no `UnionRegistration.spec.cs`, copy
    `libs/ExampleLib.Tests/UnionRegistration.spec.cs`, fix its namespace, and
    set `_targetAssembly` to a type from the library.
@@ -83,7 +85,8 @@ Model it on `libs/ExampleLib/Drawing/Shape.cs`.
 3. Find every `switch` on the union. The compiler does not flag missing arms, and
    switches can live outside `<Union>Ext`, so search the whole repo for the union's
    case names (for example, `grep -rn "<Union>\.[A-Za-z]*Case" --include=*.cs`).
-   Add an arm to each.
+   Add an explicit arm to each, before the `UnreachableException` arm. If a
+   switch handles cases with any other discard arm, replace it with explicit arms.
 4. In the union's spec file, add a sample to `Samples()` and a test for each new
    arm.
 

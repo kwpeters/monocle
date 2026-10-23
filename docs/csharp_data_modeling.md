@@ -76,11 +76,13 @@ Shape.CircleCase updated = circleCase with { Value = circleCase.Value with { Rad
 
 Behavior that spans a union's cases is an operation in the union's `<Union>Ext` class, written as a `switch` expression (see `ShapeExt.Describe` in [Shape.cs](../libs/ExampleLib/Drawing/Shape.cs)). Use a positional pattern for the case and a property pattern for the payload. Every such `switch` ends with a discard arm that throws `UnreachableException` (in `System.Diagnostics`).
 
+That is the only discard arm allowed. List every case explicitly; never handle cases with a `_` arm or a `default:` label that has real behavior. A fallback arm hides cases added later, and it will keep hiding them once C# 15's `closed` modifier makes the compiler check exhaustiveness. Migrating to `closed` then means deleting the `UnreachableException` arms.
+
 The compiler cannot check exhaustiveness over an abstract record, so adding a case does **not** break existing `switch` expressions. When you add a case, search for every `switch` on that union and update it. Each such `switch` has a unit test that exercises every case.
 
 ### 4.4 Ad hoc unions
 
-For an operation that returns a value or an error, use FnUtil's `Result<TSuccess, TError>`. For a value that may be absent, use `Option<T>`. For other one-off combinations that are never serialized, use **OneOf** or **Dunet**. Do not use OneOf or Dunet at serialization boundaries; they have no built-in discriminated JSON support.
+For an operation that returns a value or an error, use FnUtil's `Result<TSuccess, TError>`. For a value that may be absent, use `Option<T>`. Model any other combination as a union following this section. Do not add union libraries such as OneOf or Dunet; C# 15's `union` keyword will replace them, and they would only need to be migrated away from.
 
 ## 5. Serialization
 
