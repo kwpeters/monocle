@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CsDepot\CsDepot.csproj" />
-    <ProjectReference Include="..\ExperimentalLib\ExperimentalLib.csproj" />
+    <ProjectReference Include="..\ExampleLib\ExampleLib.csproj" />
   </ItemGroup>
 
 </Project>

@@ -3,7 +3,7 @@ using CsDepot;
 using FnUtil;
 using static FnUtil.F;
 
-namespace ExperimentalLib;
+namespace ExampleLib;
 
 //
 // Problems with record struct

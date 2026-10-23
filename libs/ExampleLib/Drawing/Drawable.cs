@@ -4,7 +4,7 @@
 
 using System.Text.Json.Serialization;
 
-namespace ExperimentalLib.Drawing;
+namespace ExampleLib.Drawing;
 
 
 //

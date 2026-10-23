@@ -20,7 +20,7 @@ workflow A for it first.
 
 ## A. New record type
 
-Model it on `libs/ExperimentalLib/Person.cs`.
+Model it on `libs/ExampleLib/Person.cs`.
 
 1. Create `<Type>.cs` in the library folder that matches its namespace.
 2. Declare `public sealed record class <Type>` with `required` `{ get; init; }`
@@ -44,13 +44,13 @@ Model it on `libs/ExperimentalLib/Person.cs`.
    - for `Create`, one test for success and one for each kind of failure.
 
 If the library has no test project, create one by copying
-`libs/ExperimentalLib.Tests/ExperimentalLib.Tests.csproj`, `.editorconfig` and
+`libs/ExampleLib.Tests/ExampleLib.Tests.csproj`, `.editorconfig` and
 `GlobalUsings.cs`. Point its project references at the library, and add it to
 `monocle.slnx`.
 
 ## B. New union
 
-Model it on `libs/ExperimentalLib/Drawing/Shape.cs`.
+Model it on `libs/ExampleLib/Drawing/Shape.cs`.
 
 1. Create `<Union>.cs` and declare `public abstract record class <Union>` with a
    `private <Union>() { }` constructor.
@@ -65,10 +65,10 @@ Model it on `libs/ExperimentalLib/Drawing/Shape.cs`.
    property pattern for the payload, ending with
    `_ => throw new UnreachableException()`.
 5. If `<Library>.Tests` has no `UnionRegistration.spec.cs`, copy
-   `libs/ExperimentalLib.Tests/UnionRegistration.spec.cs`, fix its namespace, and
+   `libs/ExampleLib.Tests/UnionRegistration.spec.cs`, fix its namespace, and
    set `_targetAssembly` to a type from the library.
 6. Add `<Library>.Tests/<folder>/<Union>.spec.cs`, modeled on
-   `libs/ExperimentalLib.Tests/Drawing/Shape.spec.cs`:
+   `libs/ExampleLib.Tests/Drawing/Shape.spec.cs`:
    - `Samples()` with one instance of every case;
    - a round-trip test over the samples, using `CsDepot.JsonOptions.Default`;
    - a malformed-input test for a missing `value`, a null `value`, and an unknown

@@ -6,13 +6,13 @@ The general coding guidelines in [AGENTS.md](../AGENTS.md) apply to all code, in
 
 | Example | Shows |
 | --- | --- |
-| [Person.cs](../libs/ExperimentalLib/Person.cs) | A record with a `PersonExt` class, including a validating `Create` factory |
-| [Circle.cs](../libs/ExperimentalLib/Drawing/Circle.cs), [Rect.cs](../libs/ExperimentalLib/Drawing/Rect.cs), [Label.cs](../libs/ExperimentalLib/Drawing/Label.cs) | Domain types |
-| [Shape.cs](../libs/ExperimentalLib/Drawing/Shape.cs), [Drawable.cs](../libs/ExperimentalLib/Drawing/Drawable.cs) | Two unions sharing `Circle`; `ShapeExt` matching over a union |
+| [Person.cs](../libs/ExampleLib/Person.cs) | A record with a `PersonExt` class, including a validating `Create` factory |
+| [Circle.cs](../libs/ExampleLib/Drawing/Circle.cs), [Rect.cs](../libs/ExampleLib/Drawing/Rect.cs), [Label.cs](../libs/ExampleLib/Drawing/Label.cs) | Domain types |
+| [Shape.cs](../libs/ExampleLib/Drawing/Shape.cs), [Drawable.cs](../libs/ExampleLib/Drawing/Drawable.cs) | Two unions sharing `Circle`; `ShapeExt` matching over a union |
 | [JsonOptions.cs](../libs/CsDepot/JsonOptions.cs) | The shared serializer options |
 | [UnionConventions.cs](../libs/CsDepot/UnionConventions.cs) | The union convention checks run by every assembly that defines unions |
-| [UnionRegistration.spec.cs](../libs/ExperimentalLib.Tests/UnionRegistration.spec.cs) | The per-assembly registration test |
-| [Shape.spec.cs](../libs/ExperimentalLib.Tests/Drawing/Shape.spec.cs) | The per-union serialization and matching tests |
+| [UnionRegistration.spec.cs](../libs/ExampleLib.Tests/UnionRegistration.spec.cs) | The per-assembly registration test |
+| [Shape.spec.cs](../libs/ExampleLib.Tests/Drawing/Shape.spec.cs) | The per-union serialization and matching tests |
 
 ## 1. Project settings
 
@@ -22,7 +22,7 @@ The general coding guidelines in [AGENTS.md](../AGENTS.md) apply to all code, in
 
 ## 2. Data and operations
 
-Keep data and behavior separate. Data is defined as immutable records, and operations on that data are pure functions in a companion static class. See [Person.cs](../libs/ExperimentalLib/Person.cs).
+Keep data and behavior separate. Data is defined as immutable records, and operations on that data are pure functions in a companion static class. See [Person.cs](../libs/ExampleLib/Person.cs).
 
 - **Data types** are `sealed record class` types using nominal syntax with `required` `{ get; init; }` properties. Records hold data only; they contain no methods beyond compiler-generated members.
   - Do not use `record struct`, because `default(T)` bypasses `required` and yields null reference-type fields.
@@ -51,7 +51,7 @@ Reasons for nominal as the default: call sites are self-documenting, adding or r
 
 ## 4. Unions
 
-A union is a closed set of cases. In C# it is an abstract record with a private constructor and nested sealed case records. This replaces TypeScript's `A | B | C`. See [Shape.cs](../libs/ExperimentalLib/Drawing/Shape.cs).
+A union is a closed set of cases. In C# it is an abstract record with a private constructor and nested sealed case records. This replaces TypeScript's `A | B | C`. See [Shape.cs](../libs/ExampleLib/Drawing/Shape.cs).
 
 ### 4.1 Structure rules
 
@@ -74,7 +74,7 @@ Shape.CircleCase updated = circleCase with { Value = circleCase.Value with { Rad
 
 ### 4.3 Matching
 
-Behavior that spans a union's cases is an operation in the union's `<Union>Ext` class, written as a `switch` expression (see `ShapeExt.Describe` in [Shape.cs](../libs/ExperimentalLib/Drawing/Shape.cs)). Use a positional pattern for the case and a property pattern for the payload. Every such `switch` ends with a discard arm that throws `UnreachableException` (in `System.Diagnostics`).
+Behavior that spans a union's cases is an operation in the union's `<Union>Ext` class, written as a `switch` expression (see `ShapeExt.Describe` in [Shape.cs](../libs/ExampleLib/Drawing/Shape.cs)). Use a positional pattern for the case and a property pattern for the payload. Every such `switch` ends with a discard arm that throws `UnreachableException` (in `System.Diagnostics`).
 
 The compiler cannot check exhaustiveness over an abstract record, so adding a case does **not** break existing `switch` expressions. When you add a case, search for every `switch` on that union and update it. Each such `switch` has a unit test that exercises every case.
 
@@ -123,7 +123,7 @@ These tests are **mandatory**. `[JsonDerivedType]` is only metadata: the compile
 
 ### 6.1 Registration test (one per assembly that defines unions)
 
-Every assembly that defines one or more unions has a `UnionRegistrationTests` class in its test project. Copy [UnionRegistration.spec.cs](../libs/ExperimentalLib.Tests/UnionRegistration.spec.cs) and set `_targetAssembly` to any type from the assembly under test. Add it in the same change that gives an assembly its first union.
+Every assembly that defines one or more unions has a `UnionRegistrationTests` class in its test project. Copy [UnionRegistration.spec.cs](../libs/ExampleLib.Tests/UnionRegistration.spec.cs) and set `_targetAssembly` to any type from the assembly under test. Add it in the same change that gives an assembly its first union.
 
 The test calls [UnionConventions](../libs/CsDepot/UnionConventions.cs), which finds unions by structure (a top-level abstract class with nested types derived from it), not by attribute, so a union missing `[JsonPolymorphic]` is still found. It reports:
 
@@ -142,7 +142,7 @@ Limits:
 
 ### 6.2 Serialization and matching tests (one per union)
 
-Each union has a spec file like [Shape.spec.cs](../libs/ExperimentalLib.Tests/Drawing/Shape.spec.cs), using `JsonOptions.Default`:
+Each union has a spec file like [Shape.spec.cs](../libs/ExampleLib.Tests/Drawing/Shape.spec.cs), using `JsonOptions.Default`:
 
 - A `Samples()` member with one instance of every case. Add a sample whenever a case is added.
 - A round-trip test over the samples.

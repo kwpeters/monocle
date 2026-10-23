@@ -82,7 +82,7 @@ Start each section with a separator comment naming it. The separators may be omi
 
 ### Data and Operations
 
-Keep data and behavior separate. [Person.cs](libs/ExperimentalLib/Person.cs) is the reference example, and [docs/csharp_data_modeling.md](docs/csharp_data_modeling.md) has the full rules.
+Keep data and behavior separate. [Person.cs](libs/ExampleLib/Person.cs) is the reference example, and [docs/csharp_data_modeling.md](docs/csharp_data_modeling.md) has the full rules.
 
 - Data types are `sealed record class` types with `required` `{ get; init; }` properties. They hold data only, with no methods. Never use `record struct`.
 - Use nominal syntax. Positional syntax is only for single-value wrappers and small types whose parameters have distinct types.

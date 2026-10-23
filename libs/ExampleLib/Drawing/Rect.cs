@@ -2,7 +2,7 @@
 // At least a portion of the code below was created using AI tool Claude Code.
 //
 
-namespace ExperimentalLib.Drawing;
+namespace ExampleLib.Drawing;
 
 
 public sealed record class Rect

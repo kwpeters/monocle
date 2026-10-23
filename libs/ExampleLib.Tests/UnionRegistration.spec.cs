@@ -4,9 +4,9 @@
 
 using System.Reflection;
 using CsDepot;
-using ExperimentalLib.Drawing;
+using ExampleLib.Drawing;
 
-namespace ExperimentalLib.Tests;
+namespace ExampleLib.Tests;
 
 
 //

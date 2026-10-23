@@ -4,9 +4,9 @@
 
 using System.Text.Json;
 using CsDepot;
-using ExperimentalLib.Drawing;
+using ExampleLib.Drawing;
 
-namespace ExperimentalLib.Tests.Drawing;
+namespace ExampleLib.Tests.Drawing;
 
 
 public class ShapeTests

@@ -5,8 +5,8 @@
   <Folder Name="/libs/">
     <Project Path="libs/CsDepot.Tests/CsDepot.Tests.csproj" />
     <Project Path="libs/CsDepot/CsDepot.csproj" />
-    <Project Path="libs/ExperimentalLib.Tests/ExperimentalLib.Tests.csproj" />
-    <Project Path="libs/ExperimentalLib/ExperimentalLib.csproj" />
+    <Project Path="libs/ExampleLib.Tests/ExampleLib.Tests.csproj" />
+    <Project Path="libs/ExampleLib/ExampleLib.csproj" />
     <Project Path="libs/FnUtil.Tests/FnUtil.Tests.csproj" />
     <Project Path="libs/FnUtil/FnUtil.csproj" />
   </Folder>
