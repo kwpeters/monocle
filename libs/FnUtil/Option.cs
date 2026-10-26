@@ -27,6 +27,14 @@ public abstract record Option<T>
 #pragma warning restore CA2225
 
     //------------------------------------------------------------------------------
+    // Constructors
+    //------------------------------------------------------------------------------
+
+    // Only None<T> and Some<T>, which are declared in this assembly, may derive
+    // from Option<T>.  The rest of FnUtil relies on those being the only cases.
+    private protected Option() { }
+
+    //------------------------------------------------------------------------------
     // Properties
     //------------------------------------------------------------------------------
 

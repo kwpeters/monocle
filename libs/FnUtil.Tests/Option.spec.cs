@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace FnUtil.Tests;
 
 
@@ -58,6 +60,19 @@ public class OptionTests
         Option<string> opt1 = Some("foo");
         Option<string> opt2 = Some("foo");
         Assert.True(opt1 == opt2);
+    }
+
+
+    // Keeps the set of cases closed: other assemblies cannot derive from Option.
+    [Fact]
+    public void Constructor_IsAccessibleOnlyToDerivedTypesInFnUtil()
+    {
+        bool isPrivateProtected = typeof(Option<int>)
+            .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, Type.EmptyTypes)
+            .ToOption()
+            .Exists((constructor) => constructor.IsFamilyAndAssembly);
+
+        Assert.True(isPrivateProtected);
     }
 
 

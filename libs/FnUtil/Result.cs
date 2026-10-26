@@ -22,6 +22,14 @@ public abstract record Result<TSuccess, TError>
 #pragma warning restore CA2225
 
     //------------------------------------------------------------------------------
+    // Constructors
+    //------------------------------------------------------------------------------
+
+    // Only SuccessResult and ErrorResult, which are declared in this assembly, may
+    // derive from Result.  The rest of FnUtil relies on those being the only cases.
+    private protected Result() { }
+
+    //------------------------------------------------------------------------------
     // Properties
     //------------------------------------------------------------------------------
 

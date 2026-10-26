@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace FnUtil.Tests;
 
 
@@ -83,6 +85,19 @@ public class ErrorResultTests
 
 public class ResultTests
 {
+
+    // Keeps the set of cases closed: other assemblies cannot derive from Result.
+    [Fact]
+    public void Constructor_IsAccessibleOnlyToDerivedTypesInFnUtil()
+    {
+        bool isPrivateProtected = typeof(Result<int, string>)
+            .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, Type.EmptyTypes)
+            .ToOption()
+            .Exists((constructor) => constructor.IsFamilyAndAssembly);
+
+        Assert.True(isPrivateProtected);
+    }
+
 
     [Fact]
     public void IsSuccessful_WhenWrappingASuccessResult_ReturnsTrue()
