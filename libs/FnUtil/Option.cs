@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 // CA1716: Option, None, and Some conflict with Visual Basic keywords, but these are
 // well-established functional programming type names. The benefit of using standard
 // FP nomenclature outweighs the unlikely scenario of VB.NET consumers.
@@ -15,7 +12,7 @@ namespace FnUtil;
 /// </summary>
 /// <typeparam name="T">The type of the value when this Option is a Some
 /// Option</typeparam>
-public abstract record Option<T>
+public abstract record class Option<T>
 {
     //------------------------------------------------------------------------------
     // Static methods
@@ -39,6 +36,7 @@ public abstract record Option<T>
 
     public abstract bool IsSome { get; }
 
+
     public bool IsNone => !IsSome;
 }
 
@@ -55,14 +53,13 @@ public abstract record Option<T>
 /// </summary>
 /// <typeparam name="T">The type of the value when this Option is a Some
 /// Option</typeparam>
-internal sealed record None<T> : Option<T>
+internal sealed record class None<T> : Option<T>
 {
     //------------------------------------------------------------------------------
     // Properties
     //------------------------------------------------------------------------------
 
-    public override
-    bool IsSome => false;
+    public override bool IsSome => false;
 }
 
 
@@ -73,13 +70,13 @@ internal sealed record None<T> : Option<T>
 /// </summary>
 /// <typeparam name="T">The type of the value when this Option is a Some
 /// Option</typeparam>
-/// <param name="Value">The wrapped value</param>
-internal sealed record Some<T> : Option<T>
+internal sealed record class Some<T> : Option<T>
 {
     //------------------------------------------------------------------------------
     // Constructors
     //------------------------------------------------------------------------------
 
+    /// <param name="value">The value to wrap.  Must not be null.</param>
     public Some(T value)
     {
         if (value is null)
@@ -96,12 +93,11 @@ internal sealed record Some<T> : Option<T>
     // Properties
     //------------------------------------------------------------------------------
 
+    /// <summary>
+    /// The wrapped value
+    /// </summary>
     public T Value { get; }
 
-
-    //------------------------------------------------------------------------------
-    // Properties
-    //------------------------------------------------------------------------------
 
     public override bool IsSome => true;
 }
@@ -125,17 +121,17 @@ public static partial class F
     // Static properties
     //------------------------------------------------------------------------------
 
-#pragma warning disable IDE1006 // Naming rule violation: lowercase 'none' follows functional programming convention
-    public static
-    None none => None.Instance;
+#pragma warning disable IDE1006 // Lowercase 'none' follows functional programming convention
+    public static None none => None.Instance;
 #pragma warning restore IDE1006
 
     //------------------------------------------------------------------------------
-    // Static factory methods
+    // Static methods
     //------------------------------------------------------------------------------
 
     public static Option<T>
     Some<T>(T value) => new Some<T>(value);
+
 
     // Provides a way of creating a None Option by explicitly defining the
     // Some value type.  This is useful where the type cannot be inferred from the
