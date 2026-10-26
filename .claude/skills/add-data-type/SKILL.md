@@ -26,7 +26,8 @@ Model it on `libs/ExampleLib/Person.cs`.
 2. Declare `public sealed record class <Type>` with `required` `{ get; init; }`
    properties and no methods. Use nominal syntax unless the type is a
    single-value wrapper or a small type whose parameters have distinct types
-   (guide section 2.1).
+   (guide section 2.1). An optional field is a `required Option<T>` property,
+   never a `T?` (guide section 5.5).
 3. In the same file, declare `public static class <Type>Ext`. Write each operation
    as a pure extension method (`this <Type> value`). "Modifying" operations return
    a copy made with `with`. Operations that can fail return `Result`; lookups that

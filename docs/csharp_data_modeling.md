@@ -10,6 +10,7 @@ The general coding guidelines in [AGENTS.md](../AGENTS.md) apply to all code, in
 | [Circle.cs](../libs/ExampleLib/Drawing/Circle.cs), [Rect.cs](../libs/ExampleLib/Drawing/Rect.cs), [Label.cs](../libs/ExampleLib/Drawing/Label.cs) | Domain types |
 | [Shape.cs](../libs/ExampleLib/Drawing/Shape.cs), [Drawable.cs](../libs/ExampleLib/Drawing/Drawable.cs) | Two unions sharing `Circle`; `ShapeExt` matching over a union |
 | [JsonOptions.cs](../libs/CsDepot/JsonOptions.cs) | The shared serializer options |
+| [TaggedJson.cs](../libs/FnUtil/TaggedJson.cs), [OptionJsonConverter.cs](../libs/FnUtil/OptionJsonConverter.cs), [ResultJsonConverter.cs](../libs/FnUtil/ResultJsonConverter.cs) | How `Option<T>` and `Result<TSuccess, TError>` are serialized |
 | [UnionConventions.cs](../libs/CsDepot/UnionConventions.cs) | The union convention checks run by every assembly that defines unions |
 | [UnionRegistration.spec.cs](../libs/ExampleLib.Tests/UnionRegistration.spec.cs) | The per-assembly registration test |
 | [Shape.spec.cs](../libs/ExampleLib.Tests/Drawing/Shape.spec.cs) | The per-union serialization and matching tests |
@@ -52,6 +53,8 @@ Reasons for nominal as the default: call sites are self-documenting, adding or r
 ## 4. Unions
 
 A union is a closed set of cases. In C# it is an abstract record with a private constructor and nested sealed case records. This replaces TypeScript's `A | B | C`. See [Shape.cs](../libs/ExampleLib/Drawing/Shape.cs).
+
+FnUtil's `Option<T>` and `Result<TSuccess, TError>` are library primitives, not examples of this section. Their cases are internal, created through `F.Some()`, `F.none`, `F.Success()` and `F.Error()`, and handled with `Match` and `Bind` rather than pattern matching. They share the union wire format (section 5.5) but not the structure rules. Do not change them to follow these rules, and do not copy their structure into domain unions.
 
 ### 4.1 Structure rules
 
@@ -118,6 +121,36 @@ Option<Shape> copy = JsonSerializer.Deserialize<Shape>(json, JsonOptions.Default
 
 - An unknown `kind` throws `NotSupportedException`. For a closed union, failing loudly is the intended behavior.
 - Native AOT or trimmed apps need a `JsonSerializerContext` with `[JsonSerializable(typeof(Shape))]` for each union. The attributes in this guide work unchanged with it.
+
+### 5.5 Optional values and results
+
+An optional field in a serialized type is a `required Option<T>` property, never a `T?`. `Option<T>` and `Result<TSuccess, TError>` use the same tagged `kind`/`value` format as unions. Their converters ([OptionJsonConverter.cs](../libs/FnUtil/OptionJsonConverter.cs), [ResultJsonConverter.cs](../libs/FnUtil/ResultJsonConverter.cs)) are attached to the types, so they need no registration:
+
+```csharp
+public sealed record class Contact
+{
+    public required string Name { get; init; }
+    public required Option<string> MiddleName { get; init; }
+}
+```
+
+```json
+{ "name": "Jane", "middleName": { "kind": "some", "value": "Q" } }
+{ "name": "Jane", "middleName": { "kind": "none" } }
+```
+
+| Value | JSON |
+| --- | --- |
+| `Some(x)` | `{ "kind": "some", "value": x }` |
+| `None` | `{ "kind": "none" }` |
+| `Success(x)` | `{ "kind": "success", "value": x }` |
+| `Error(e)` | `{ "kind": "error", "value": e }` |
+
+- Values nest to any depth. `Some(none)` is `{ "kind": "some", "value": { "kind": "none" } }`, so `Option<Option<T>>` round-trips.
+- The property must always appear in the JSON. Because it is `required`, a missing property fails deserialization, even when the value is `None`.
+- `null` is never valid: not in place of an `Option` or `Result`, and not as a `value`. A `Result` that wraps null is rejected when written, because it could not be read back.
+- `kind` may appear in any position, as with unions.
+- The generated TypeScript type is `{ kind: "some"; value: string } | { kind: "none" }`. TypeScript's `?.` and `??` do not work on it, so TypeScript consumers need a shared `Option` helper module (`map`, `withDefault`, and so on) rather than handling each field by hand.
 
 ## 6. Required unit tests
 

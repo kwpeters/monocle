@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace FnUtil;
 
 
@@ -6,6 +8,7 @@ namespace FnUtil;
 /// </summary>
 /// <typeparam name="TSuccess">The type of successful values</typeparam>
 /// <typeparam name="TError">The type of error values</typeparam>
+[JsonConverter(typeof(ResultJsonConverterFactory))]
 public abstract record class Result<TSuccess, TError>
 {
     //------------------------------------------------------------------------------

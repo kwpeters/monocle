@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 // CA1716: Option, None, and Some conflict with Visual Basic keywords, but these are
 // well-established functional programming type names. The benefit of using standard
 // FP nomenclature outweighs the unlikely scenario of VB.NET consumers.
@@ -12,6 +14,7 @@ namespace FnUtil;
 /// </summary>
 /// <typeparam name="T">The type of the value when this Option is a Some
 /// Option</typeparam>
+[JsonConverter(typeof(OptionJsonConverterFactory))]
 public abstract record class Option<T>
 {
     //------------------------------------------------------------------------------
