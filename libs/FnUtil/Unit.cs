@@ -1,30 +1,15 @@
 namespace FnUtil;
 
 
-// using Unit = System.ValueTuple;
-
-
 public sealed class Unit
 {
-    //------------------------------------------------------------------------------
-    // Static fields
-    //------------------------------------------------------------------------------
-
-    // The one-and-only instance.
-    private static
-    Unit? _instance;
-
     //------------------------------------------------------------------------------
     // Static properties
     //------------------------------------------------------------------------------
 
-    public static Unit Instance
-    {
-        get {
-            _instance ??= new Unit();
-            return _instance;
-        }
-    }
+    // The one-and-only instance.  A static initializer runs exactly once, so
+    // every caller gets the same instance even when first accessed concurrently.
+    public static Unit Instance { get; } = new();
 
     //------------------------------------------------------------------------------
     // Constructors
@@ -36,7 +21,7 @@ public sealed class Unit
 }
 
 
-public partial class F
+public static partial class F
 {
     //------------------------------------------------------------------------------
     // Static properties
