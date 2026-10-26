@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Unit = System.ValueTuple;
 
 // CA1716: Option, None, and Some conflict with Visual Basic keywords, but these are
 // well-established functional programming type names. The benefit of using standard
@@ -159,24 +158,12 @@ public static partial class F
 public sealed class None
 {
     //------------------------------------------------------------------------------
-    // Static fields
-    //------------------------------------------------------------------------------
-
-    // The one-and-only instance.
-    private static
-    None? _instance;
-
-    //------------------------------------------------------------------------------
     // Static properties
     //------------------------------------------------------------------------------
 
-    public static None Instance
-    {
-        get {
-            _instance ??= new None();
-            return _instance;
-        }
-    }
+    // The one-and-only instance.  A static initializer runs exactly once, so
+    // every caller gets the same instance even when first accessed concurrently.
+    public static None Instance { get; } = new();
 
     //------------------------------------------------------------------------------
     // Constructors
