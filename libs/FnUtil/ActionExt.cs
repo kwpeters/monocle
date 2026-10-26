@@ -20,8 +20,7 @@ public static class ActionExt
 }
 
 
-
-public partial class F
+public static partial class F
 {
     //------------------------------------------------------------------------------
     // Static methods
