@@ -98,6 +98,16 @@ Keep data and behavior separate. [Person.cs](libs/ExampleLib/Person.cs) is the r
   - `FoldAsync(Result, Func<S, T, Task<S>>, S)` — Async suffix; async folder function
   - `Fold(Task<Result>, Func<S, T, S>, S)` — no Async suffix; Task input but sync folder
 
+### Disposable Objects
+
+- Handing a new disposable object to something that will dispose it (a `DisposableResult`, or another object that takes ownership) triggers CA2000, which reports that the object is never disposed. Suppress it around that one statement, with a comment saying where ownership goes:
+
+```csharp
+#pragma warning disable CA2000 // Ownership transfers into DisposableResult
+        return DisposableResult.Success<Session, NativeError>(new Session(handle));
+#pragma warning restore CA2000
+```
+
 ### Unit Tests
 
 - Order the unit tests in a spec file to match the order of the methods under test in the implementation file.
