@@ -9,6 +9,7 @@ kinds of work. Read a guide only when the task calls for it.
 | --- | --- |
 | [docs/csharp_data_modeling.md](docs/csharp_data_modeling.md) | Adding or changing a union, a type serialized to JSON, or union tests, or deciding how to model a new type |
 | [docs/csharp_pinvoke.md](docs/csharp_pinvoke.md) | Calling native code, wrapping a callback-based native library, or tracking native requests and connections |
+| A project's `README.md`, and the root [README.md](README.md) | Working in a project. A project's README.md, if it has one, describes the domain the project models. The root README.md lists all domains, including ones no project models yet, and how they relate. When you add a project that models a domain, give it a README.md and add the domain to the root list. |
 
 ## Code Style
 
