@@ -14,7 +14,7 @@ using FnUtil;
 ];
 
 (IEnumerable<Person> people, IEnumerable<string> errors) = rawInputs
-    .Select((input) => PersonExt.Create(input.First, input.Last))
+    .Select((input) => Person.Create(input.First, input.Last))
     .Partition();
 
 foreach (string error in errors)
@@ -31,7 +31,7 @@ Console.WriteLine(
     people
     .FindByLastName("doe")
     .Match(
-        (person) => $"Found: {person.FullName()} ({person.Initials()})",
+        (person) => $"Found: {person.FullName} ({person.Initials})",
         () => "Not found"
     )
 );
@@ -40,7 +40,7 @@ Console.WriteLine(
     people
     .FindByLastName("Jones")
     .Match(
-        (person) => $"Found: {person.FullName()}",
+        (person) => $"Found: {person.FullName}",
         () => "Jones not found"
     )
 );
@@ -50,22 +50,23 @@ Console.WriteLine(
 // chained with Bind, and the first failure short-circuits the rest.
 ////////////////////////////////////////////////////////////////////////////////
 
-Person original = PersonExt.Create("Jane", "Doe").ThrowIfError();
+Person original = Person.Create("Jane", "Doe").ThrowIfError();
 
 original
     .WithLastName("Smith")
     .Match(
-        (renamed) => Console.WriteLine($"Renamed: {original.FullName()} -> {renamed.FullName()}"),
+        (renamed) => Console.WriteLine($"Renamed: {original.FullName} -> {renamed.FullName}"),
         (error) => Console.WriteLine($"Rename failed: {error}")
     );
 
-PersonExt.Create("Jane", "Doe")
+Person.Create("Jane", "Doe")
     .Bind((person) => person.WithLastName(""))
     .Bind((person) => person.WithLastName("Smith"))
     .Match(
-        (person) => Console.WriteLine($"Renamed: {person.FullName()}"),
+        (person) => Console.WriteLine($"Renamed: {person.FullName}"),
         (error) => Console.WriteLine($"Rename failed: {error}")
     );
 
 // The original was never modified.
-Console.WriteLine($"Original is still: {original.FullName()}");
+Console.WriteLine($"Original is still: {original.FullName}");
+ 

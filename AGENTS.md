@@ -7,7 +7,7 @@ kinds of work. Read a guide only when the task calls for it.
 
 | Read | When you are |
 | --- | --- |
-| [docs/csharp_data_modeling.md](docs/csharp_data_modeling.md) | Adding or changing a union, a type serialized to JSON, or union tests, or deciding how to model a new type |
+| [docs/csharp_data_modeling.md](docs/csharp_data_modeling.md) | Modeling a new type, adding or changing a domain type, a DTO, a union, or their tests, or serializing a type to JSON |
 | [docs/csharp_pinvoke.md](docs/csharp_pinvoke.md) | Calling native code, wrapping a callback-based native library, or tracking native requests and connections |
 | A project's `README.md`, and the root [README.md](README.md) | Working in a project. A project's README.md, if it has one, describes the domain the project models. The root README.md lists all domains, including ones no project models yet, and how they relate. When you add a project that models a domain, give it a README.md and add the domain to the root list. |
 
@@ -83,12 +83,13 @@ Start each section with a separator comment naming it. The separators may be omi
 
 ### Data and Operations
 
-Keep data and behavior separate. [Person.cs](libs/ExampleLib/Person.cs) is the reference example, and [docs/csharp_data_modeling.md](docs/csharp_data_modeling.md) has the full rules.
+Model data as immutable records, and keep the problem model separate from its wire formats. [Person.cs](libs/ExampleLib/Person.cs) and [PersonDto.cs](libs/ExampleLib/PersonDto.cs) are the reference examples, and [docs/csharp_data_modeling.md](docs/csharp_data_modeling.md) has the full rules.
 
-- Data types are `sealed record class` types with `required` `{ get; init; }` properties. They hold data only, with no methods. Never use `record struct`.
+- Data types are `sealed record class` types. Never use `record struct`.
 - Use nominal syntax. Positional syntax is only for single-value wrappers and small types whose parameters have distinct types.
-- Operations are pure extension methods in a static `<Type>Ext` class declared in the same file as the record. "Modifying" operations return a copy made with `with`.
-- A type with invariants has a validating `Create` factory that returns `Result<T, TError>`.
+- **Domain types** model the problem and are never serialized. Their factories, constants and pure operations are members of the type. A type with invariants has a private constructor, `{ get; private init; }` properties, and a static `Create` factory that returns `Result<T, TError>`.
+- **DTOs** model a wire format, and all JSON goes through them. Their names end in `Dto`. They hold data only, in `required` `{ get; init; }` properties, and map to and from their domain type in a `<Type>DtoExt` class.
+- Operations are pure. "Modifying" operations return a copy made with `with`.
 
 ### Asynchronous Code
 

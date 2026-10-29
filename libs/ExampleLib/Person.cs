@@ -22,22 +22,20 @@ namespace ExampleLib;
 
 
 //
-// Data: an immutable record with no behavior.
+// A domain type with invariants: an immutable record whose operations live on
+// the type.
+//
+// - The constructor is private, so the only way to get a Person is through
+//   Create, which validates.  Every Person that exists is valid.
+// - The properties have private init accessors, so `with` works only inside
+//   the type.  Its own "modifying" operations validate first, then copy.
+// - Operations are pure.  They never mutate the instance; "modifying"
+//   operations return a new Person.  Operations that can fail return a Result
+//   instead of throwing.
+//
+// Person is never serialized.  PersonDto is its JSON shape.
 //
 public sealed record class Person
-{
-    public required string FirstName { get; init; }
-    public required string LastName { get; init; }
-}
-
-
-//
-// Operations: pure functions that take data in and return new data out.  They
-// never mutate their inputs.  Operations that can fail return a Result instead
-// of throwing.  Declaring them as extension methods allows them to be called
-// either as functions (PersonExt.FullName(p)) or fluently (p.FullName()).
-//
-public static class PersonExt
 {
     //------------------------------------------------------------------------------
     // Constants
@@ -56,29 +54,7 @@ public static class PersonExt
     public static Result<Person, string> Create(string firstName, string lastName) =>
         from first in ValidateName(firstName, nameof(firstName))
         from last in ValidateName(lastName, nameof(lastName))
-        select new Person { FirstName = first, LastName = last };
-
-
-    public static string FullName(this Person person) => $"{person.FirstName} {person.LastName}";
-
-
-    public static string Initials(this Person person) =>
-        $"{person.FirstName[0]}{person.LastName[0]}";
-
-
-    /// <summary>
-    /// "Changes" the last name by returning a new Person.  The original
-    /// instance is left untouched.
-    /// </summary>
-    public static Result<Person, string> WithLastName(this Person person, string lastName) =>
-        ValidateName(lastName, nameof(lastName))
-        .MapSuccess((last) => person with { LastName = last });
-
-
-    public static Option<Person> FindByLastName(this IEnumerable<Person> people, string lastName) =>
-        people.FirstOrDefault((p) => string.Equals(p.LastName, lastName, StringComparison.OrdinalIgnoreCase)) is { } found ?
-            Some(found) :
-            none;
+        select new Person(first, last);
 
 
     /// <summary>
@@ -140,4 +116,59 @@ public static class PersonExt
 
 
     private static bool IsPeriod(Rune rune) => rune.Value == '.';
+
+    //------------------------------------------------------------------------------
+    // Constructors
+    //------------------------------------------------------------------------------
+
+    // Taking every value as a parameter means the compiler makes Create supply
+    // them all.
+    private Person(string firstName, string lastName)
+    {
+        FirstName = firstName;
+        LastName = lastName;
+    }
+
+    //------------------------------------------------------------------------------
+    // Properties
+    //------------------------------------------------------------------------------
+
+    public string FirstName { get; private init; }
+    public string LastName { get; private init; }
+
+    // Cheap derived values may be computed properties, because domain types are
+    // never serialized.
+    public string FullName => $"{FirstName} {LastName}";
+    public string Initials => $"{FirstName[0]}{LastName[0]}";
+
+    //------------------------------------------------------------------------------
+    // Instance methods
+    //------------------------------------------------------------------------------
+
+    /// <summary>
+    /// "Changes" the last name by returning a new Person.  The original
+    /// instance is left untouched.
+    /// </summary>
+    public Result<Person, string> WithLastName(string lastName) =>
+        ValidateName(lastName, nameof(lastName))
+        .MapSuccess((last) => this with { LastName = last });
+}
+
+
+//
+// Operations on a type that cannot be given members, such as a collection of
+// Person, go in an Ext class.  Declaring them as extension methods allows them
+// to be called either as functions (PersonExt.FindByLastName(people, "Doe")) or
+// fluently (people.FindByLastName("Doe")).
+//
+public static class PersonExt
+{
+    //------------------------------------------------------------------------------
+    // Static methods
+    //------------------------------------------------------------------------------
+
+    public static Option<Person> FindByLastName(this IEnumerable<Person> people, string lastName) =>
+        people.FirstOrDefault((p) => string.Equals(p.LastName, lastName, StringComparison.OrdinalIgnoreCase)) is { } found ?
+            Some(found) :
+            none;
 }

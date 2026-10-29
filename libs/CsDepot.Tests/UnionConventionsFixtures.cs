@@ -8,9 +8,10 @@ namespace CsDepot.Tests;
 
 
 //
-// Fixtures for UnionConventions.spec.cs.  ValidUnion is the only top-level union
-// in this assembly.  The unions in BadUnions each break one convention; they are
-// nested, so UnionConventions.FindUnions() does not find them.
+// Fixtures for UnionConventions.spec.cs.  ValidUnion (a domain union) and
+// ValidUnionDto (its DTO union) are the only top-level unions in this assembly.
+// The unions in BadUnions each break one convention; they are nested, so
+// UnionConventions.FindUnions() does not find them.
 //
 
 public sealed record class Circle
@@ -25,9 +26,18 @@ public sealed record class Square
 }
 
 
-[JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
-[JsonDerivedType(typeof(ValidUnion.CircleCase), "circle")]
-[JsonDerivedType(typeof(ValidUnion.SquareCase), "square")]
+public sealed record class CircleDto
+{
+    public required double Radius { get; init; }
+}
+
+
+public sealed record class SquareDto
+{
+    public required double Side { get; init; }
+}
+
+
 public abstract record class ValidUnion
 {
     //------------------------------------------------------------------------------
@@ -47,49 +57,72 @@ public abstract record class ValidUnion
 }
 
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+[JsonDerivedType(typeof(ValidUnionDto.CircleCase), "circle")]
+[JsonDerivedType(typeof(ValidUnionDto.SquareCase), "square")]
+public abstract record class ValidUnionDto
+{
+    //------------------------------------------------------------------------------
+    // Constructors
+    //------------------------------------------------------------------------------
+
+    private ValidUnionDto() { }
+
+    //------------------------------------------------------------------------------
+    // Nested types
+    //------------------------------------------------------------------------------
+
+    public sealed record class CircleCase(CircleDto Value) : ValidUnionDto;
+
+
+    public sealed record class SquareCase(SquareDto Value) : ValidUnionDto;
+}
+
+
 public static class BadUnions
 {
     //------------------------------------------------------------------------------
     // Nested types
     //------------------------------------------------------------------------------
 
-    [JsonDerivedType(typeof(MissingPolymorphic.CircleCase), "circle")]
-    public abstract record class MissingPolymorphic
-    {
-        //------------------------------------------------------------------------------
-        // Constructors
-        //------------------------------------------------------------------------------
-
-        private MissingPolymorphic() { }
-
-        //------------------------------------------------------------------------------
-        // Nested types
-        //------------------------------------------------------------------------------
-
-        public sealed record class CircleCase(Circle Value) : MissingPolymorphic;
-    }
-
-
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
-    [JsonDerivedType(typeof(WrongDiscriminator.CircleCase), "circle")]
-    public abstract record class WrongDiscriminator
-    {
-        //------------------------------------------------------------------------------
-        // Constructors
-        //------------------------------------------------------------------------------
-
-        private WrongDiscriminator() { }
-
-        //------------------------------------------------------------------------------
-        // Nested types
-        //------------------------------------------------------------------------------
-
-        public sealed record class CircleCase(Circle Value) : WrongDiscriminator;
-    }
-
+    //
+    // Domain unions
+    //
 
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
-    [JsonDerivedType(typeof(ProtectedConstructor.CircleCase), "circle")]
+    [JsonDerivedType(typeof(DomainWithJson.CircleCase), "circle")]
+    public abstract record class DomainWithJson
+    {
+        //------------------------------------------------------------------------------
+        // Constructors
+        //------------------------------------------------------------------------------
+
+        private DomainWithJson() { }
+
+        //------------------------------------------------------------------------------
+        // Nested types
+        //------------------------------------------------------------------------------
+
+        public sealed record class CircleCase(Circle Value) : DomainWithJson;
+    }
+
+
+    public abstract record class DomainWithDtoPayload
+    {
+        //------------------------------------------------------------------------------
+        // Constructors
+        //------------------------------------------------------------------------------
+
+        private DomainWithDtoPayload() { }
+
+        //------------------------------------------------------------------------------
+        // Nested types
+        //------------------------------------------------------------------------------
+
+        public sealed record class CircleCase(CircleDto Value) : DomainWithDtoPayload;
+    }
+
+
     public abstract record class ProtectedConstructor
     {
         //------------------------------------------------------------------------------
@@ -106,70 +139,6 @@ public static class BadUnions
     }
 
 
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
-    [JsonDerivedType(typeof(UnregisteredCase.CircleCase), "circle")]
-    public abstract record class UnregisteredCase
-    {
-        //------------------------------------------------------------------------------
-        // Constructors
-        //------------------------------------------------------------------------------
-
-        private UnregisteredCase() { }
-
-        //------------------------------------------------------------------------------
-        // Nested types
-        //------------------------------------------------------------------------------
-
-        public sealed record class CircleCase(Circle Value) : UnregisteredCase;
-
-
-        public sealed record class SquareCase(Square Value) : UnregisteredCase;
-    }
-
-
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
-    [JsonDerivedType(typeof(StaleRegistration.CircleCase), "circle")]
-    [JsonDerivedType(typeof(ValidUnion.SquareCase), "square")]
-    public abstract record class StaleRegistration
-    {
-        //------------------------------------------------------------------------------
-        // Constructors
-        //------------------------------------------------------------------------------
-
-        private StaleRegistration() { }
-
-        //------------------------------------------------------------------------------
-        // Nested types
-        //------------------------------------------------------------------------------
-
-        public sealed record class CircleCase(Circle Value) : StaleRegistration;
-    }
-
-
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
-    [JsonDerivedType(typeof(DuplicateKind.CircleCase), "circle")]
-    [JsonDerivedType(typeof(DuplicateKind.SquareCase), "circle")]
-    public abstract record class DuplicateKind
-    {
-        //------------------------------------------------------------------------------
-        // Constructors
-        //------------------------------------------------------------------------------
-
-        private DuplicateKind() { }
-
-        //------------------------------------------------------------------------------
-        // Nested types
-        //------------------------------------------------------------------------------
-
-        public sealed record class CircleCase(Circle Value) : DuplicateKind;
-
-
-        public sealed record class SquareCase(Square Value) : DuplicateKind;
-    }
-
-
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
-    [JsonDerivedType(typeof(ExtraProperty.CircleCase), "circle")]
     public abstract record class ExtraProperty
     {
         //------------------------------------------------------------------------------
@@ -186,8 +155,6 @@ public static class BadUnions
     }
 
 
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
-    [JsonDerivedType(typeof(MisnamedCase.RoundCase), "circle")]
     public abstract record class MisnamedCase
     {
         //------------------------------------------------------------------------------
@@ -203,21 +170,157 @@ public static class BadUnions
         public sealed record class RoundCase(Circle Value) : MisnamedCase;
     }
 
+    //
+    // DTO unions
+    //
 
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
-    [JsonDerivedType(typeof(WrongKind.CircleCase), "round")]
-    public abstract record class WrongKind
+    [JsonDerivedType(typeof(MissingPolymorphicDto.CircleCase), "circle")]
+    public abstract record class MissingPolymorphicDto
     {
         //------------------------------------------------------------------------------
         // Constructors
         //------------------------------------------------------------------------------
 
-        private WrongKind() { }
+        private MissingPolymorphicDto() { }
 
         //------------------------------------------------------------------------------
         // Nested types
         //------------------------------------------------------------------------------
 
-        public sealed record class CircleCase(Circle Value) : WrongKind;
+        public sealed record class CircleCase(CircleDto Value) : MissingPolymorphicDto;
+    }
+
+
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
+    [JsonDerivedType(typeof(WrongDiscriminatorDto.CircleCase), "circle")]
+    public abstract record class WrongDiscriminatorDto
+    {
+        //------------------------------------------------------------------------------
+        // Constructors
+        //------------------------------------------------------------------------------
+
+        private WrongDiscriminatorDto() { }
+
+        //------------------------------------------------------------------------------
+        // Nested types
+        //------------------------------------------------------------------------------
+
+        public sealed record class CircleCase(CircleDto Value) : WrongDiscriminatorDto;
+    }
+
+
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+    [JsonDerivedType(typeof(UnregisteredCaseDto.CircleCase), "circle")]
+    public abstract record class UnregisteredCaseDto
+    {
+        //------------------------------------------------------------------------------
+        // Constructors
+        //------------------------------------------------------------------------------
+
+        private UnregisteredCaseDto() { }
+
+        //------------------------------------------------------------------------------
+        // Nested types
+        //------------------------------------------------------------------------------
+
+        public sealed record class CircleCase(CircleDto Value) : UnregisteredCaseDto;
+
+
+        public sealed record class SquareCase(SquareDto Value) : UnregisteredCaseDto;
+    }
+
+
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+    [JsonDerivedType(typeof(StaleRegistrationDto.CircleCase), "circle")]
+    [JsonDerivedType(typeof(ValidUnionDto.SquareCase), "square")]
+    public abstract record class StaleRegistrationDto
+    {
+        //------------------------------------------------------------------------------
+        // Constructors
+        //------------------------------------------------------------------------------
+
+        private StaleRegistrationDto() { }
+
+        //------------------------------------------------------------------------------
+        // Nested types
+        //------------------------------------------------------------------------------
+
+        public sealed record class CircleCase(CircleDto Value) : StaleRegistrationDto;
+    }
+
+
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+    [JsonDerivedType(typeof(DuplicateKindDto.CircleCase), "circle")]
+    [JsonDerivedType(typeof(DuplicateKindDto.SquareCase), "circle")]
+    public abstract record class DuplicateKindDto
+    {
+        //------------------------------------------------------------------------------
+        // Constructors
+        //------------------------------------------------------------------------------
+
+        private DuplicateKindDto() { }
+
+        //------------------------------------------------------------------------------
+        // Nested types
+        //------------------------------------------------------------------------------
+
+        public sealed record class CircleCase(CircleDto Value) : DuplicateKindDto;
+
+
+        public sealed record class SquareCase(SquareDto Value) : DuplicateKindDto;
+    }
+
+
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+    [JsonDerivedType(typeof(DomainPayloadDto.CircleCase), "circle")]
+    public abstract record class DomainPayloadDto
+    {
+        //------------------------------------------------------------------------------
+        // Constructors
+        //------------------------------------------------------------------------------
+
+        private DomainPayloadDto() { }
+
+        //------------------------------------------------------------------------------
+        // Nested types
+        //------------------------------------------------------------------------------
+
+        public sealed record class CircleCase(Circle Value) : DomainPayloadDto;
+    }
+
+
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+    [JsonDerivedType(typeof(MisnamedCaseDto.CircleDtoCase), "circle")]
+    public abstract record class MisnamedCaseDto
+    {
+        //------------------------------------------------------------------------------
+        // Constructors
+        //------------------------------------------------------------------------------
+
+        private MisnamedCaseDto() { }
+
+        //------------------------------------------------------------------------------
+        // Nested types
+        //------------------------------------------------------------------------------
+
+        public sealed record class CircleDtoCase(CircleDto Value) : MisnamedCaseDto;
+    }
+
+
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+    [JsonDerivedType(typeof(WrongKindDto.CircleCase), "round")]
+    public abstract record class WrongKindDto
+    {
+        //------------------------------------------------------------------------------
+        // Constructors
+        //------------------------------------------------------------------------------
+
+        private WrongKindDto() { }
+
+        //------------------------------------------------------------------------------
+        // Nested types
+        //------------------------------------------------------------------------------
+
+        public sealed record class CircleCase(CircleDto Value) : WrongKindDto;
     }
 }

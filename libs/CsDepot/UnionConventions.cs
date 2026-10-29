@@ -15,6 +15,12 @@ namespace CsDepot;
 /// compiler does not check against a union's nested cases, so every assembly
 /// that defines unions runs these checks from a unit test.
 /// </summary>
+/// <remarks>
+/// A union whose name ends in "Dto" is a DTO union.  It is serialized, so it
+/// must carry the JSON attributes, and its cases must wrap DTOs.  Any other
+/// union is a domain union.  Domain unions are never serialized, so they must
+/// not carry JSON attributes, and their cases must not wrap DTOs.
+/// </remarks>
 public static class UnionConventions
 {
     //------------------------------------------------------------------------------
@@ -29,6 +35,8 @@ public static class UnionConventions
     private const BindingFlags DeclaredPublicProperties =
         BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
+    private const string DtoSuffix = "Dto";
+
     //------------------------------------------------------------------------------
     // Static methods
     //------------------------------------------------------------------------------
@@ -36,7 +44,7 @@ public static class UnionConventions
     /// <summary>
     /// Finds the unions defined in an assembly.  Unions are found by their shape
     /// (a top-level abstract class with nested types derived from it), not by
-    /// attribute, so that a union missing its [JsonPolymorphic] attribute is
+    /// attribute, so that a DTO union missing its [JsonPolymorphic] attribute is
     /// still found.
     /// </summary>
     public static IReadOnlyList<Type> FindUnions(Assembly assembly) =>
@@ -57,7 +65,11 @@ public static class UnionConventions
     /// Checks one union.  Returns a description of each violation found, or an
     /// empty list when the union follows the conventions.
     /// </summary>
-    public static IReadOnlyList<string> FindViolations(Type union)
+    public static IReadOnlyList<string> FindViolations(Type union) =>
+        IsDto(union) ? DtoUnionViolations(union) : DomainUnionViolations(union);
+
+
+    private static List<string> DtoUnionViolations(Type union)
     {
         List<Type> cases = NestedCases(union);
         List<JsonDerivedTypeAttribute> registrations =
@@ -69,9 +81,17 @@ public static class UnionConventions
             .. ConstructorViolations(union),
             .. RegistrationViolations(union, cases, registrations),
             .. KindViolations(union, registrations),
-            .. cases.SelectMany((caseType) => CaseViolations(union, caseType, registrations)),
+            .. cases.SelectMany((caseType) => DtoCaseViolations(union, caseType, registrations)),
         ];
     }
+
+
+    private static List<string> DomainUnionViolations(Type union) =>
+    [
+        .. NoJsonAttributeViolations(union),
+        .. ConstructorViolations(union),
+        .. NestedCases(union).SelectMany((caseType) => DomainCaseViolations(union, caseType)),
+    ];
 
 
     private static bool IsUnionShaped(Type type) =>
@@ -82,7 +102,16 @@ public static class UnionConventions
         [.. union.GetNestedTypes(AllNestedTypes).Where((nested) => nested.IsSubclassOf(union))];
 
 
-    // The union is configured for polymorphic JSON with the "kind" discriminator.
+    private static bool IsDto(Type type) => type.Name.EndsWith(DtoSuffix, StringComparison.Ordinal);
+
+
+    // The name of the concept a type models.  "CircleDto" and "Circle" are both
+    // "Circle".
+    private static string ConceptName(Type type) =>
+        IsDto(type) ? type.Name[..^DtoSuffix.Length] : type.Name;
+
+
+    // A DTO union is configured for polymorphic JSON with the "kind" discriminator.
     private static IEnumerable<string> DiscriminatorViolations(Type union)
     {
         if (union.GetCustomAttribute<JsonPolymorphicAttribute>() is not { } polymorphic)
@@ -92,6 +121,20 @@ public static class UnionConventions
         else if (polymorphic.TypeDiscriminatorPropertyName != "kind")
         {
             yield return $"{union.Name} must use \"kind\" as its type discriminator property.";
+        }
+    }
+
+
+    // A domain union is never serialized, so it has no JSON attributes.  Its DTO
+    // union carries them instead.
+    private static IEnumerable<string> NoJsonAttributeViolations(Type union)
+    {
+        if (union.IsDefined(typeof(JsonPolymorphicAttribute)) ||
+            union.IsDefined(typeof(JsonDerivedTypeAttribute)))
+        {
+            yield return
+                $"{union.Name} is a domain union and must not have JSON attributes. " +
+                $"Serialize it through a DTO union named {union.Name}{DtoSuffix}.";
         }
     }
 
@@ -162,35 +205,34 @@ public static class UnionConventions
         registration.TypeDiscriminator is not string kind || string.IsNullOrWhiteSpace(kind);
 
 
-    // A case is a public sealed nested record with exactly one property, named
-    // Value.  Its name is {DomainType}Case, and its kind is the lowerCamelCase
-    // name of the domain type.
+    // A DTO union case follows the shared case rules, wraps a DTO, and is
+    // registered with the lowerCamelCase name of its concept.  A case wrapping
+    // CircleDto is registered as "circle".
     private static IEnumerable<string>
-    CaseViolations(Type union, Type caseType, List<JsonDerivedTypeAttribute> registrations)
+    DtoCaseViolations(Type union, Type caseType, List<JsonDerivedTypeAttribute> registrations)
     {
         string name = $"{union.Name}.{caseType.Name}";
 
-        if (!caseType.IsNestedPublic || !caseType.IsSealed)
+        foreach (string violation in SharedCaseViolations(name, caseType))
         {
-            yield return $"{name} must be a public sealed nested type.";
+            yield return violation;
         }
 
-        PropertyInfo[] properties = caseType.GetProperties(DeclaredPublicProperties);
-
-        if (properties is not [{ Name: "Value" } value])
+        Option<PropertyInfo> value = CaseValue(caseType);
+        if (value.IsNone)
         {
-            yield return $"{name} must have exactly one property, named Value.";
             yield break;
         }
 
-        string domainName = value.PropertyType.Name;
+        Type valueType = value.GetValue().PropertyType;
 
-        if (caseType.Name != domainName + "Case")
+        if (!IsDto(valueType))
         {
-            yield return $"{name} must be named {domainName}Case.";
+            yield return $"{name} wraps {valueType.Name}, which is not a DTO. A DTO union's cases wrap DTOs.";
         }
 
-        string expectedKind = char.ToLowerInvariant(domainName[0]) + domainName[1..];
+        string conceptName = ConceptName(valueType);
+        string expectedKind = char.ToLowerInvariant(conceptName[0]) + conceptName[1..];
         IEnumerable<string> wrongKinds = registrations
             .Where((registration) => registration.DerivedType == caseType)
             .Select((registration) => registration.TypeDiscriminator)
@@ -202,4 +244,55 @@ public static class UnionConventions
             yield return $"{name} must be registered with the kind \"{expectedKind}\", not \"{kind}\".";
         }
     }
+
+
+    // A domain union case follows the shared case rules and wraps a domain type.
+    private static IEnumerable<string> DomainCaseViolations(Type union, Type caseType)
+    {
+        string name = $"{union.Name}.{caseType.Name}";
+
+        foreach (string violation in SharedCaseViolations(name, caseType))
+        {
+            yield return violation;
+        }
+
+        if (CaseValue(caseType).Exists((value) => IsDto(value.PropertyType)))
+        {
+            Type valueType = CaseValue(caseType).GetValue().PropertyType;
+            yield return $"{name} wraps {valueType.Name}, which is a DTO. A domain union's cases wrap domain types.";
+        }
+    }
+
+
+    // Every case is a public sealed nested record with exactly one property,
+    // named Value.  Its name is {Concept}Case, where Concept is the wrapped
+    // type's name without any "Dto" suffix.
+    private static IEnumerable<string> SharedCaseViolations(string name, Type caseType)
+    {
+        if (!caseType.IsNestedPublic || !caseType.IsSealed)
+        {
+            yield return $"{name} must be a public sealed nested type.";
+        }
+
+        Option<PropertyInfo> value = CaseValue(caseType);
+        if (value.IsNone)
+        {
+            yield return $"{name} must have exactly one property, named Value.";
+            yield break;
+        }
+
+        string expectedName = ConceptName(value.GetValue().PropertyType) + "Case";
+
+        if (caseType.Name != expectedName)
+        {
+            yield return $"{name} must be named {expectedName}.";
+        }
+    }
+
+
+    // The case's single property, when it has exactly one and it is named Value.
+    private static Option<PropertyInfo> CaseValue(Type caseType) =>
+        caseType.GetProperties(DeclaredPublicProperties) is [{ Name: "Value" } value] ?
+            F.Some(value) :
+            F.none;
 }

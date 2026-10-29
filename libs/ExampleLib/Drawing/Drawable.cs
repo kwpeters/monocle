@@ -2,18 +2,13 @@
 // At least a portion of the code below was created using AI tool Claude Code.
 //
 
-using System.Text.Json.Serialization;
-
 namespace ExampleLib.Drawing;
 
 
 //
-// A second union that also contains Circle.  Neither union knows about the
-// other, and Circle is registered with the same "circle" kind in both.
+// A second domain union that also contains Circle.  Neither union knows about
+// the other.
 //
-[JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
-[JsonDerivedType(typeof(Drawable.CircleCase), "circle")]
-[JsonDerivedType(typeof(Drawable.LabelCase), "label")]
 public abstract record class Drawable
 {
     //------------------------------------------------------------------------------

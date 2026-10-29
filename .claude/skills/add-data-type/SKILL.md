@@ -1,98 +1,111 @@
 ---
 name: add-data-type
-description: Creates C# data types in this repo following its data modeling rules, along with their required unit tests. Use when adding a record type and its Ext class, adding a discriminated union, adding a case to an existing union, or adding a type that is serialized to JSON.
+description: Creates C# data types in this repo following its data modeling rules, along with their required unit tests. Use when adding a domain type, a DTO, a discriminated union, or a case to an existing union, or when serializing a type to JSON.
 ---
 
 # Add a data type
 
 Paths are relative to the repository root. Before starting, read
 `docs/csharp_data_modeling.md`. These steps say what to do; the guide says how and
-why. All code follows `AGENTS.md`.
+why, and the section numbers below point into it. All code follows `AGENTS.md`.
 
-Choose the workflow:
+Every data type is a **domain type** (models the problem, never serialized) or a
+**DTO** (models a wire format, name ends in `Dto`). Choose the workflow:
 
-- **A. New record type**: a plain data type with its operations.
-- **B. New union**: a closed set of cases, each wrapping a domain type.
-- **C. New case on an existing union.**
+- **A. New domain type**: a record with its behavior on the type.
+- **B. New DTO**: the JSON shape of a domain type, with its mapping.
+- **C. New union**: a domain union, plus its DTO union when it is serialized.
+- **D. New case on an existing union.**
 
-Every union case wraps a domain type. If that type does not exist yet, do
-workflow A for it first.
+A type that is serialized needs both: do workflow A for the domain type, then B
+for its DTO. Every union case wraps a type that already exists; do A (and B) for
+it first.
 
-## A. New record type
+## A. New domain type
 
-Model it on `libs/ExampleLib/Person.cs`.
+Model it on `libs/ExampleLib/Person.cs` (with invariants) or
+`libs/ExampleLib/Drawing/Circle.cs` (without).
 
-1. Create `<Type>.cs` in the library folder that matches its namespace.
-2. Declare `public sealed record class <Type>` with `required` `{ get; init; }`
-   properties and no methods. Use nominal syntax unless the type is a
-   single-value wrapper or a small type whose parameters have distinct types
-   (guide section 2.1). An optional field is a `required Option<T>` property,
-   never a `T?` (guide section 5.5).
-3. In the same file, declare `public static class <Type>Ext`. Write each operation
-   as a pure extension method (`this <Type> value`). "Modifying" operations return
-   a copy made with `with`. Operations that can fail return `Result`; lookups that
-   may find nothing return `Option`. Computed values are `Ext` methods, never
-   properties on the record.
-4. If the type has invariants, add a `Create` factory to `<Type>Ext` that returns
-   `Result<<Type>, string>`. Compose validations the way `PersonExt.Create` does,
-   and reuse `CsDepot.StringValidators` and `CsDepot.StringNormalizers` where they
-   fit.
-5. Add `<Library>.Tests/<folder>/<Type>.spec.cs` with class `<Type>Tests`. Follow
-   `libs/CsDepot.Tests/StringValidators.spec.cs`:
-   - one banner comment per method under test, in the same order as the methods in
-     `<Type>Ext`;
-   - test names like `Method_WhenCondition_ExpectedResult`;
-   - for `Create`, one test for success and one for each kind of failure.
+1. Create `<Type>.cs` in the library folder that matches its namespace, declaring
+   `public sealed record class <Type>`.
+2. Shape it by whether it has invariants (guide 3.2, 3.3):
+   - **None**: `required` `{ get; init; }` properties, or positional when guide
+     2.1 allows.
+   - **Some**: a private constructor taking every value, `{ get; private init; }`
+     properties, and a static `Create` on the type returning
+     `Result<<Type>, string>`. Compose validations the way `Person.Create` does,
+     and reuse `CsDepot.StringValidators` and `CsDepot.StringNormalizers` where
+     they fit.
+3. Put factories, constants and pure operations on the type (guide 3.1). An
+   operation on a collection of the type, or on a delegate, goes in a
+   `<Type>Ext` class in the same file.
+4. Add `<Library>.Tests/<folder>/<Type>.spec.cs` with class `<Type>Tests`
+   (guide 7.2), modeled on `libs/ExampleLib.Tests/Person.spec.cs`, with one
+   banner comment per member under test, in the order the members are declared.
 
-If the library has no test project, create one by copying
-`libs/ExampleLib.Tests/ExampleLib.Tests.csproj`, `.editorconfig` and
-`GlobalUsings.cs`. Point its project references at the library, and add it to
-`monocle.slnx`.
+## B. New DTO
 
-## B. New union
+Model it on `libs/ExampleLib/PersonDto.cs`.
 
-Model it on `libs/ExampleLib/Drawing/Shape.cs`.
+1. Create `<Type>Dto.cs` beside the domain type, declaring
+   `public sealed record class <Type>Dto` with public `required` `{ get; init; }`
+   properties matching the JSON, and nothing else (guide 4). An optional field is
+   a `required Option<T>` property (guide 6.4).
+2. In the same file, declare `public static class <Type>DtoExt` with
+   `FromDomain(<Type>)` and `ToDomain(this <Type>Dto)` returning
+   `Result<<Type>, string>`, built through `<Type>.Create` when the domain type
+   has invariants.
+3. Add `<Type>Dto.spec.cs` (guide 7.4), modeled on
+   `libs/ExampleLib.Tests/PersonDto.spec.cs`.
 
-1. Create `<Union>.cs` and declare `public abstract record class <Union>` with a
-   `private <Union>() { }` constructor.
-2. For each case, add a nested
-   `public sealed record class <DomainType>Case(<DomainType> Value) : <Union>;`.
-3. Add `[JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]`, and one
-   `[JsonDerivedType(typeof(<Union>.<DomainType>Case), "<domainType>")]` per case.
-   The kind is the lowerCamelCase domain type name. If the domain type already
-   appears in another union, reuse that union's kind string.
-4. Put behavior that spans the cases in `<Union>Ext` in the same file. Write each
-   operation as a `switch` expression with a positional pattern for the case and a
-   property pattern for the payload, ending with
-   `_ => throw new UnreachableException()`. That is the only discard arm allowed:
-   list every case explicitly, and never handle cases with a `_` arm or a
-   `default:` label that has real behavior.
-5. If `<Library>.Tests` has no `UnionRegistration.spec.cs`, copy
-   `libs/ExampleLib.Tests/UnionRegistration.spec.cs`, fix its namespace, and
-   set `_targetAssembly` to a type from the library.
-6. Add `<Library>.Tests/<folder>/<Union>.spec.cs`, modeled on
-   `libs/ExampleLib.Tests/Drawing/Shape.spec.cs`:
-   - `Samples()` with one instance of every case;
-   - a round-trip test over the samples, using `CsDepot.JsonOptions.Default`;
-   - a malformed-input test for a missing `value`, a null `value`, and an unknown
-     `kind`;
-   - a test for every case of every `switch` in `<Union>Ext`.
+## C. New union
 
-## C. New case on an existing union
+Model it on `libs/ExampleLib/Drawing/Shape.cs` and `ShapeDto.cs`.
 
-1. Add the nested `<DomainType>Case` record to the union.
-2. Add its `[JsonDerivedType]` attribute. Reuse the kind string if the domain type
-   already appears in another union.
-3. Find every `switch` on the union. The compiler does not flag missing arms, and
-   switches can live outside `<Union>Ext`, so search the whole repo for the union's
-   case names (for example, `grep -rn "<Union>\.[A-Za-z]*Case" --include=*.cs`).
-   Add an explicit arm to each, before the `UnreachableException` arm. If a
-   switch handles cases with any other discard arm, replace it with explicit arms.
-4. In the union's spec file, add a sample to `Samples()` and a test for each new
-   arm.
+1. Create `<Union>.cs`: `public abstract record class <Union>` with a
+   `private <Union>() { }` constructor and, per case, a nested
+   `public sealed record class <Concept>Case(<Concept> Value) : <Union>;`.
+   It carries no JSON attributes (guide 5.2).
+2. Put behavior that spans the cases on the union, as a `switch` on `this` with a
+   positional pattern per case, ending with `_ => throw new UnreachableException()`.
+   That is the only discard arm: list every case explicitly (guide 5.4).
+3. If the union is serialized, create `<Union>Dto.cs` (guide 5.3):
+   - `[JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]` on
+     `public abstract record class <Union>Dto` with a private constructor;
+   - per case, `public sealed record class <Concept>Case(<Concept>Dto Value) : <Union>Dto;`
+     and `[JsonDerivedType(typeof(<Union>Dto.<Concept>Case), "<concept>")]`, where
+     the kind is the lowerCamelCase concept name. If the concept already appears
+     in another DTO union, reuse that union's kind string;
+   - `<Union>DtoExt` with `FromDomain` and `ToDomain`, one arm per case.
+4. If `<Library>.Tests` has no `UnionRegistration.spec.cs`, copy
+   `libs/ExampleLib.Tests/UnionRegistration.spec.cs`, fix its namespace, and set
+   `_targetAssembly` to a type from the library.
+5. Add `<Union>.spec.cs` (guide 7.3) with `Samples()` holding one instance of
+   every case, and a test for every `switch` arm.
+6. If step 3 applied, add `<Union>Dto.spec.cs` (guide 7.5), modeled on
+   `libs/ExampleLib.Tests/Drawing/ShapeDto.spec.cs`, including the mapping
+   round-trip test driven by `<Union>Tests.Samples`.
+
+## D. New case on an existing union
+
+1. Add the nested `<Concept>Case` record to the domain union.
+2. If a `<Union>Dto` exists, add the matching case and its `[JsonDerivedType]`
+   attribute there, reusing the kind string if the concept appears in another
+   DTO union.
+3. Find every `switch` on both unions. The compiler does not flag missing arms,
+   and switches can live outside the union and `<Union>DtoExt`, so search the
+   whole repo for the unions' case names (for example,
+   `grep -rnE "<Union>(Dto)?\.[A-Za-z]*Case" --include=*.cs`). Add an explicit arm
+   to each, before the `UnreachableException` arm. If a switch handles cases
+   with any other discard arm, replace it with explicit arms.
+4. Add a sample to `<Union>Tests.Samples()` and, if it exists,
+   `<Union>DtoTests.Samples()`, plus a test for each new arm.
 
 ## Finish
 
-Run `dotnet build` and `dotnet test`. Warnings are errors, so the build also
-enforces the style rules in `.editorconfig`. If `UnionRegistrationTests` fails, its
-message names the union, the case, and the broken convention.
+Run `dotnet build` and `dotnet test`. Done means both pass. Warnings are errors,
+so the build also enforces the style rules in `.editorconfig`. If
+`UnionRegistrationTests` fails, its message names the union, the case, and the
+broken convention. If a library got a new test project, it must be listed in the
+repository's `.slnx` file; copy `libs/ExampleLib.Tests/ExampleLib.Tests.csproj`
+and `GlobalUsings.cs` to create one.

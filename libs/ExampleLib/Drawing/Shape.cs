@@ -3,20 +3,18 @@
 //
 
 using System.Diagnostics;
-using System.Text.Json.Serialization;
 
 namespace ExampleLib.Drawing;
 
 
 //
-// A union: a closed set of cases.  The private constructor means only nested
-// types can derive from it.  Each case wraps exactly one domain type in a
-// property named Value, and is registered with a "kind" that is the
-// lowerCamelCase name of that domain type.
+// A domain union: a closed set of cases.  The private constructor means only
+// nested types can derive from it.  Each case wraps exactly one domain type in a
+// property named Value.
 //
-[JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
-[JsonDerivedType(typeof(Shape.CircleCase), "circle")]
-[JsonDerivedType(typeof(Shape.RectCase), "rect")]
+// Domain unions are never serialized, so they carry no JSON attributes.
+// ShapeDto is its JSON shape.
+//
 public abstract record class Shape
 {
     //------------------------------------------------------------------------------
@@ -26,6 +24,20 @@ public abstract record class Shape
     private Shape() { }
 
     //------------------------------------------------------------------------------
+    // Instance methods
+    //------------------------------------------------------------------------------
+
+    // Behavior that spans the cases is a switch expression on the union.  The
+    // compiler does not check that the switch is exhaustive, so it ends with an
+    // arm that throws UnreachableException.
+    public string Describe() => this switch
+    {
+        Shape.CircleCase({ Radius: double r }) => $"Circle, radius {r}",
+        Shape.RectCase({ Width: double w, Height: double h }) => $"{w} x {h} rectangle",
+        _ => throw new UnreachableException()
+    };
+
+    //------------------------------------------------------------------------------
     // Nested types
     //------------------------------------------------------------------------------
 
@@ -33,24 +45,4 @@ public abstract record class Shape
 
 
     public sealed record class RectCase(Rect Value) : Shape;
-}
-
-
-//
-// Behavior that spans a union's cases is a switch expression in the union's Ext
-// class.  The compiler does not check that the switch is exhaustive, so it ends
-// with an arm that throws UnreachableException.
-//
-public static class ShapeExt
-{
-    //------------------------------------------------------------------------------
-    // Static methods
-    //------------------------------------------------------------------------------
-
-    public static string Describe(this Shape shape) => shape switch
-    {
-        Shape.CircleCase({ Radius: double r }) => $"Circle, radius {r}",
-        Shape.RectCase({ Width: double w, Height: double h }) => $"{w} x {h} rectangle",
-        _ => throw new UnreachableException()
-    };
 }
