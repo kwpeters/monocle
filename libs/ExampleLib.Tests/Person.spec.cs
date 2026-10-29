@@ -38,7 +38,7 @@ public class PersonTests
     {
         Result<Person, string> result = Person.Create("  ", "Doe");
 
-        Assert.Equal("firstName must not be blank.", result.ThrowIfSuccess());
+        Assert.Equal("firstName must not be blank.", result.GetError());
     }
 
 
@@ -47,7 +47,7 @@ public class PersonTests
     {
         Result<Person, string> result = Person.Create("Jane", "Doe42");
 
-        Assert.StartsWith("lastName must contain only letters", result.ThrowIfSuccess());
+        Assert.StartsWith("lastName must contain only letters", result.GetError());
     }
 
     //
@@ -98,7 +98,7 @@ public class PersonTests
 
         Result<Person, string> result = original.WithLastName("");
 
-        Assert.Equal("lastName must not be blank.", result.ThrowIfSuccess());
+        Assert.Equal("lastName must not be blank.", result.GetError());
     }
 
     //

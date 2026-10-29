@@ -79,6 +79,6 @@ public class DrawableDtoTests
         string json = JsonSerializer.Serialize<DrawableDto>(DrawableDtoExt.FromDomain(drawable), JsonOptions.Default);
         DrawableDto dto = JsonSerializer.Deserialize<DrawableDto>(json, JsonOptions.Default).ToOption().ThrowIfNone();
 
-        Assert.Equal(drawable, dto.ToDomain().ThrowIfError());
+        Assert.Equal(drawable, dto.ToDomain().GetValue());
     }
 }

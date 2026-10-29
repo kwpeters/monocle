@@ -66,7 +66,7 @@ public class PersonDtoTests
 
         Person person = dto.ToDomain().ThrowIfError();
 
-        Assert.Equal(Person.Create("Jane", "Doe").ThrowIfError(), person);
+        Assert.Equal(Person.Create("Jane", "Doe").GetValue(), person);
     }
 
 
@@ -79,6 +79,6 @@ public class PersonDtoTests
 
         Result<Person, string> result = dto.ToDomain();
 
-        Assert.Equal("firstName must not be blank.", result.ThrowIfSuccess());
+        Assert.Equal("firstName must not be blank.", result.GetError());
     }
 }

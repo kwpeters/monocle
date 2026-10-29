@@ -24,7 +24,7 @@ public class ResultExtTests
 
         Result<IEnumerable<int>, IEnumerable<string>> result = input.AllOrErrors();
 
-        Assert.Empty(result.ThrowIfError());
+        Assert.Empty(result.GetValue());
     }
 
 
@@ -35,7 +35,7 @@ public class ResultExtTests
 
         Result<IEnumerable<int>, IEnumerable<string>> result = input.AllOrErrors();
 
-        Assert.Equal(new[] { 1, 2, 3 }, result.ThrowIfError());
+        Assert.Equal(new[] { 1, 2, 3 }, result.GetValue());
     }
 
 
@@ -46,7 +46,7 @@ public class ResultExtTests
 
         Result<IEnumerable<int>, IEnumerable<string>> result = input.AllOrErrors();
 
-        Assert.Equal(new[] { "err1", "err2", "err3" }, result.ThrowIfSuccess());
+        Assert.Equal(new[] { "err1", "err2", "err3" }, result.GetError());
     }
 
 
@@ -64,7 +64,7 @@ public class ResultExtTests
 
         Result<IEnumerable<int>, IEnumerable<string>> result = input.AllOrErrors();
 
-        Assert.Equal(new[] { "err1", "err2" }, result.ThrowIfSuccess());
+        Assert.Equal(new[] { "err1", "err2" }, result.GetError());
     }
 
 
@@ -98,7 +98,7 @@ public class ResultExtTests
 
         Result<IEnumerable<int>, string> result = input.AllOrFirstError();
 
-        Assert.Empty(result.ThrowIfError());
+        Assert.Empty(result.GetValue());
     }
 
 
@@ -109,7 +109,7 @@ public class ResultExtTests
 
         Result<IEnumerable<int>, string> result = input.AllOrFirstError();
 
-        Assert.Equal(new[] { 1, 2, 3 }, result.ThrowIfError());
+        Assert.Equal(new[] { 1, 2, 3 }, result.GetValue());
     }
 
 
@@ -126,7 +126,7 @@ public class ResultExtTests
 
         Result<IEnumerable<int>, string> result = input.AllOrFirstError();
 
-        Assert.Equal("err1", result.ThrowIfSuccess());
+        Assert.Equal("err1", result.GetError());
     }
 
 
@@ -143,7 +143,7 @@ public class ResultExtTests
 
         Result<IEnumerable<int>, string> result = input.AllOrFirstError();
 
-        Assert.Equal("err1", result.ThrowIfSuccess());
+        Assert.Equal("err1", result.GetError());
         Assert.Equal(2, numEnumerated);
     }
 
@@ -159,7 +159,7 @@ public class ResultExtTests
 
         Result<(int, string, bool), string> result = (count, name, isAdmin).AllOrFirstError();
 
-        Assert.Equal((3, "Fred", true), result.ThrowIfError());
+        Assert.Equal((3, "Fred", true), result.GetValue());
     }
 
 
@@ -172,7 +172,7 @@ public class ResultExtTests
 
         Result<(int, string, bool), string> result = (a, b, c).AllOrFirstError();
 
-        Assert.Equal("err b", result.ThrowIfSuccess());
+        Assert.Equal("err b", result.GetError());
     }
 
 
@@ -182,13 +182,13 @@ public class ResultExtTests
         Result<int, string> r = Success(1);
         Result<int, string> e = Error("last");
 
-        Assert.Equal((1, 1), (r, r).AllOrFirstError().ThrowIfError());
-        Assert.Equal((1, 1, 1), (r, r, r).AllOrFirstError().ThrowIfError());
-        Assert.Equal((1, 1, 1, 1), (r, r, r, r).AllOrFirstError().ThrowIfError());
-        Assert.Equal((1, 1, 1, 1, 1), (r, r, r, r, r).AllOrFirstError().ThrowIfError());
-        Assert.Equal((1, 1, 1, 1, 1, 1), (r, r, r, r, r, r).AllOrFirstError().ThrowIfError());
-        Assert.Equal((1, 1, 1, 1, 1, 1, 1), (r, r, r, r, r, r, r).AllOrFirstError().ThrowIfError());
-        Assert.Equal("last", (r, r, r, r, r, r, e).AllOrFirstError().ThrowIfSuccess());
+        Assert.Equal((1, 1), (r, r).AllOrFirstError().GetValue());
+        Assert.Equal((1, 1, 1), (r, r, r).AllOrFirstError().GetValue());
+        Assert.Equal((1, 1, 1, 1), (r, r, r, r).AllOrFirstError().GetValue());
+        Assert.Equal((1, 1, 1, 1, 1), (r, r, r, r, r).AllOrFirstError().GetValue());
+        Assert.Equal((1, 1, 1, 1, 1, 1), (r, r, r, r, r, r).AllOrFirstError().GetValue());
+        Assert.Equal((1, 1, 1, 1, 1, 1, 1), (r, r, r, r, r, r, r).AllOrFirstError().GetValue());
+        Assert.Equal("last", (r, r, r, r, r, r, e).AllOrFirstError().GetError());
     }
 
     //
@@ -280,7 +280,7 @@ public class ResultExtTests
             await Task.Delay(1);
             return SuccessE<int, string>(x * 2);
         });
-        Assert.Equal(42, result.ThrowIfError());
+        Assert.Equal(42, result.GetValue());
     }
 
 
@@ -295,7 +295,7 @@ public class ResultExtTests
             return SuccessE<int, string>(x * 2);
         });
         Assert.False(fnCalled);
-        Assert.Equal("Error message", result.ThrowIfSuccess());
+        Assert.Equal("Error message", result.GetError());
     }
 
 
@@ -352,7 +352,7 @@ public class ResultExtTests
     public void BindError_WhenGivenErrorResult_ReturnsResultOfFunction()
     {
         Result<int, string> result = ErrorE<int, string>("primary failed").BindError((e) => SuccessE<int, string>(5));
-        Assert.Equal(5, result.ThrowIfError());
+        Assert.Equal(5, result.GetValue());
     }
 
 
@@ -360,7 +360,7 @@ public class ResultExtTests
     public void BindError_WhenFunctionReturnsError_ReturnsNewErrorOfNewType()
     {
         Result<int, int> result = ErrorE<int, string>("primary failed").BindError((e) => ErrorE<int, int>(e.Length));
-        Assert.Equal(14, result.ThrowIfSuccess());
+        Assert.Equal(14, result.GetError());
     }
 
 
@@ -374,7 +374,7 @@ public class ResultExtTests
             return SuccessE<int, string>(0);
         });
         Assert.False(fnCalled);
-        Assert.Equal(42, result.ThrowIfError());
+        Assert.Equal(42, result.GetValue());
     }
 
 
@@ -385,7 +385,7 @@ public class ResultExtTests
     {
         Result<int, string> result = await Task.FromResult(ErrorE<int, string>("primary failed"))
             .BindError((e) => SuccessE<int, string>(5));
-        Assert.Equal(5, result.ThrowIfError());
+        Assert.Equal(5, result.GetValue());
     }
 
 
@@ -400,7 +400,7 @@ public class ResultExtTests
                 return SuccessE<int, string>(0);
             });
         Assert.False(fnCalled);
-        Assert.Equal(42, result.ThrowIfError());
+        Assert.Equal(42, result.GetValue());
     }
 
 
@@ -414,7 +414,7 @@ public class ResultExtTests
             await Task.Delay(1);
             return SuccessE<int, string>(e.Length);
         });
-        Assert.Equal(14, result.ThrowIfError());
+        Assert.Equal(14, result.GetValue());
     }
 
 
@@ -429,7 +429,7 @@ public class ResultExtTests
             return SuccessE<int, string>(0);
         });
         Assert.False(fnCalled);
-        Assert.Equal(42, result.ThrowIfError());
+        Assert.Equal(42, result.GetValue());
     }
 
 
@@ -442,7 +442,7 @@ public class ResultExtTests
                 await Task.Delay(1);
                 return SuccessE<int, string>(e.Length);
             });
-        Assert.Equal(14, result.ThrowIfError());
+        Assert.Equal(14, result.GetValue());
     }
 
 
@@ -458,7 +458,7 @@ public class ResultExtTests
                 return SuccessE<int, string>(0);
             });
         Assert.False(fnCalled);
-        Assert.Equal(42, result.ThrowIfError());
+        Assert.Equal(42, result.GetValue());
     }
 
     //
@@ -739,7 +739,7 @@ public class ResultExtTests
     public void ExecuteWhileSuccessful_WhenGivenNoFunctions_ReturnsSuccessWithEmptyCollection()
     {
         IEnumerable<Func<Result<int, string>>> fns = [];
-        Assert.Empty(fns.ExecuteWhileSuccessful().ThrowIfError());
+        Assert.Empty(fns.ExecuteWhileSuccessful().GetValue());
     }
 
 
@@ -755,7 +755,7 @@ public class ResultExtTests
 
         Result<IEnumerable<int>, string> result = fns.ExecuteWhileSuccessful();
 
-        Assert.Equal(new[] { 1, 2, 3 }, result.ThrowIfError());
+        Assert.Equal(new[] { 1, 2, 3 }, result.GetValue());
     }
 
 
@@ -772,7 +772,7 @@ public class ResultExtTests
 
         Result<IEnumerable<int>, string> result = fns.ExecuteWhileSuccessful();
 
-        Assert.Equal("err b", result.ThrowIfSuccess());
+        Assert.Equal("err b", result.GetError());
         Assert.Equal(new[] { "a", "b" }, calls);
     }
 
@@ -1208,7 +1208,7 @@ public class ResultExtTests
             await Task.Delay(1);
             return x > 5 ? SuccessE<bool, string>(true) : ErrorE<bool, string>("too small");
         });
-        Assert.Equal(10, result.ThrowIfError());
+        Assert.Equal(10, result.GetValue());
     }
 
 
@@ -1220,7 +1220,7 @@ public class ResultExtTests
             await Task.Delay(1);
             return x > 5 ? SuccessE<bool, string>(true) : ErrorE<bool, string>("too small");
         });
-        Assert.Equal("too small", result.ThrowIfSuccess());
+        Assert.Equal("too small", result.GetError());
     }
 
 
@@ -1471,7 +1471,7 @@ public class ResultExtTests
             await Task.Delay(1);
             return e.Length;
         });
-        Assert.Equal(3, result.ThrowIfSuccess());
+        Assert.Equal(3, result.GetError());
     }
 
 
@@ -1486,7 +1486,7 @@ public class ResultExtTests
             return e.Length;
         });
         Assert.False(fnCalled);
-        Assert.Equal(42, result.ThrowIfError());
+        Assert.Equal(42, result.GetValue());
     }
 
 
@@ -1648,7 +1648,7 @@ public class ResultExtTests
             await Task.Delay(1);
             return x * 2;
         });
-        Assert.Equal(42, result.ThrowIfError());
+        Assert.Equal(42, result.GetValue());
     }
 
 
@@ -1663,7 +1663,7 @@ public class ResultExtTests
             return x * 2;
         });
         Assert.False(fnCalled);
-        Assert.Equal("Error message", result.ThrowIfSuccess());
+        Assert.Equal("Error message", result.GetError());
     }
 
 
@@ -1711,7 +1711,7 @@ public class ResultExtTests
 
         Result<IEnumerable<int>, string> result = new[] { 1, 2, 3 }.MapWhileSuccessful(tenTimesPositive);
 
-        Assert.Equal(new[] { 10, 20, 30 }, result.ThrowIfError());
+        Assert.Equal(new[] { 10, 20, 30 }, result.GetValue());
     }
 
 
@@ -1728,7 +1728,7 @@ public class ResultExtTests
 
         Result<IEnumerable<int>, string> result = new[] { 1, -2, 3, -4 }.MapWhileSuccessful(tenTimesPositive);
 
-        Assert.Equal("-2 is not positive", result.ThrowIfSuccess());
+        Assert.Equal("-2 is not positive", result.GetError());
         Assert.Equal(new[] { 1, -2 }, mapped);
     }
 
@@ -2171,7 +2171,7 @@ public class ResultExtTests
     {
         int[] input = new[] { 1, 2, 3 };
         Result<IReadOnlyList<int>, string> result = input.RequireNonEmpty(() => "empty");
-        Assert.Same(input, result.ThrowIfError());
+        Assert.Same(input, result.GetValue());
     }
 
 
@@ -2180,7 +2180,7 @@ public class ResultExtTests
     {
         var input = new List<int>();
         Result<IReadOnlyList<int>, string> result = input.RequireNonEmpty(() => "empty");
-        Assert.Equal("empty", result.ThrowIfSuccess());
+        Assert.Equal("empty", result.GetError());
     }
 
 
@@ -2207,7 +2207,7 @@ public class ResultExtTests
     public void RequireSingle_WhenGivenOneElement_ReturnsSuccessWithThatElement()
     {
         Result<int, string> result = new[] { 42 }.RequireSingle(() => "not single");
-        Assert.Equal(42, result.ThrowIfError());
+        Assert.Equal(42, result.GetValue());
     }
 
 
@@ -2216,7 +2216,7 @@ public class ResultExtTests
     {
         IEnumerable<int> empty = [];
         Result<int, string> result = empty.RequireSingle(() => "not single");
-        Assert.Equal("not single", result.ThrowIfSuccess());
+        Assert.Equal("not single", result.GetError());
     }
 
 
@@ -2224,7 +2224,7 @@ public class ResultExtTests
     public void RequireSingle_WhenGivenMultipleElements_ReturnsErrorFromFactory()
     {
         Result<int, string> result = new[] { 1, 2 }.RequireSingle(() => "not single");
-        Assert.Equal("not single", result.ThrowIfSuccess());
+        Assert.Equal("not single", result.GetError());
     }
 
 
@@ -2256,7 +2256,7 @@ public class ResultExtTests
     {
         Result<int, string> result = SuccessE<int, string>(21).Select((x) => x * 2);
 
-        Assert.Equal(42, result.ThrowIfError());
+        Assert.Equal(42, result.GetValue());
     }
 
 
@@ -2271,7 +2271,7 @@ public class ResultExtTests
             return x * 2;
         });
 
-        Assert.Equal("err1", result.ThrowIfSuccess());
+        Assert.Equal("err1", result.GetError());
         Assert.Equal(0, numInvocations);
     }
 
@@ -2285,7 +2285,7 @@ public class ResultExtTests
             from x in input
             select x * 2;
 
-        Assert.Equal(42, result.ThrowIfError());
+        Assert.Equal(42, result.GetValue());
     }
 
     //
@@ -2301,7 +2301,7 @@ public class ResultExtTests
             (a) => SuccessE<string, string>(new string('x', a)),
             (a, b) => $"{a}:{b}");
 
-        Assert.Equal("2:xx", result.ThrowIfError());
+        Assert.Equal("2:xx", result.GetValue());
     }
 
 
@@ -2323,7 +2323,7 @@ public class ResultExtTests
                 return a + b;
             });
 
-        Assert.Equal("err1", result.ThrowIfSuccess());
+        Assert.Equal("err1", result.GetError());
         Assert.Equal(0, numNextInvocations);
         Assert.Equal(0, numProjectInvocations);
     }
@@ -2342,7 +2342,7 @@ public class ResultExtTests
                 return a + b;
             });
 
-        Assert.Equal("err2", result.ThrowIfSuccess());
+        Assert.Equal("err2", result.GetError());
         Assert.Equal(0, numProjectInvocations);
     }
 
@@ -2356,7 +2356,7 @@ public class ResultExtTests
             from scale in SuccessE<double, string>(1.5)
             select $"{count}-{text}-{scale.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
 
-        Assert.Equal("3-ab-1.5", result.ThrowIfError());
+        Assert.Equal("3-ab-1.5", result.GetValue());
     }
 
 
@@ -2377,7 +2377,7 @@ public class ResultExtTests
             from c in last()
             select a + b + c;
 
-        Assert.Equal("err2", result.ThrowIfSuccess());
+        Assert.Equal("err2", result.GetError());
         Assert.Equal(0, numLastInvocations);
     }
 
@@ -2400,8 +2400,8 @@ public class ResultExtTests
             from c in half(b)
             select c;
 
-        Assert.Equal(2, success.ThrowIfError());
-        Assert.Equal("3 is odd", error.ThrowIfSuccess());
+        Assert.Equal(2, success.GetValue());
+        Assert.Equal("3 is odd", error.GetError());
     }
 
     //
@@ -2565,7 +2565,7 @@ public class ResultExtTests
     {
         var seen = new List<string>();
         Result<int, string> output = await Task.FromResult(ErrorE<int, string>("err")).TapError(seen.Add);
-        Assert.Equal("err", output.ThrowIfSuccess());
+        Assert.Equal("err", output.GetError());
         Assert.Equal(new[] { "err" }, seen);
     }
 
@@ -2575,7 +2575,7 @@ public class ResultExtTests
     {
         var seen = new List<string>();
         Result<int, string> output = await Task.FromResult(SuccessE<int, string>(1)).TapError(seen.Add);
-        Assert.Equal(1, output.ThrowIfError());
+        Assert.Equal(1, output.GetValue());
         Assert.Empty(seen);
     }
 
@@ -2627,7 +2627,7 @@ public class ResultExtTests
             seen.Add(e);
         });
 
-        Assert.Equal("err", output.ThrowIfSuccess());
+        Assert.Equal("err", output.GetError());
         Assert.Equal(new[] { "err" }, seen);
     }
 
@@ -2670,7 +2670,7 @@ public class ResultExtTests
     {
         var seen = new List<int>();
         Result<int, string> output = await Task.FromResult(SuccessE<int, string>(1)).TapSuccess(seen.Add);
-        Assert.Equal(1, output.ThrowIfError());
+        Assert.Equal(1, output.GetValue());
         Assert.Equal(new[] { 1 }, seen);
     }
 
@@ -2680,7 +2680,7 @@ public class ResultExtTests
     {
         var seen = new List<int>();
         Result<int, string> output = await Task.FromResult(ErrorE<int, string>("err")).TapSuccess(seen.Add);
-        Assert.Equal("err", output.ThrowIfSuccess());
+        Assert.Equal("err", output.GetError());
         Assert.Empty(seen);
     }
 
@@ -2732,7 +2732,7 @@ public class ResultExtTests
             seen.Add(s);
         });
 
-        Assert.Equal(1, output.ThrowIfError());
+        Assert.Equal(1, output.GetValue());
         Assert.Equal(new[] { 1 }, seen);
     }
 
@@ -3020,7 +3020,7 @@ public class ResultExtTests
 
         var result = value.ToResult(() => "missing value");
 
-        Assert.Equal("alpha", result.ThrowIfError());
+        Assert.Equal("alpha", result.GetValue());
     }
 
 
@@ -3031,7 +3031,7 @@ public class ResultExtTests
 
         var result = value.ToResult(() => "missing value");
 
-        Assert.Equal("missing value", result.ThrowIfSuccess());
+        Assert.Equal("missing value", result.GetError());
     }
 
 
@@ -3047,7 +3047,7 @@ public class ResultExtTests
             return "missing value";
         });
 
-        Assert.Equal("alpha", result.ThrowIfError());
+        Assert.Equal("alpha", result.GetValue());
         Assert.False(invoked);
     }
 
@@ -3066,7 +3066,7 @@ public class ResultExtTests
     {
         var result = Some("alpha").ToResult(() => "missing value");
 
-        Assert.Equal("alpha", result.ThrowIfError());
+        Assert.Equal("alpha", result.GetValue());
     }
 
 
@@ -3075,7 +3075,7 @@ public class ResultExtTests
     {
         var result = NoneE<string>().ToResult(() => "missing value");
 
-        Assert.Equal("missing value", result.ThrowIfSuccess());
+        Assert.Equal("missing value", result.GetError());
     }
 
 
@@ -3090,7 +3090,7 @@ public class ResultExtTests
             return "missing value";
         });
 
-        Assert.Equal("alpha", result.ThrowIfError());
+        Assert.Equal("alpha", result.GetValue());
         Assert.False(invoked);
     }
 
@@ -3118,7 +3118,7 @@ public class ResultExtTests
     {
         int? value = 5;
         Result<int, string> result = value.ToResult(() => "missing value");
-        Assert.Equal(5, result.ThrowIfError());
+        Assert.Equal(5, result.GetValue());
     }
 
 
@@ -3127,7 +3127,7 @@ public class ResultExtTests
     {
         int? value = null;
         Result<int, string> result = value.ToResult(() => "missing value");
-        Assert.Equal("missing value", result.ThrowIfSuccess());
+        Assert.Equal("missing value", result.GetError());
     }
 
 
@@ -3146,7 +3146,7 @@ public class ResultExtTests
     {
         bool isValid = true;
         var result = isValid.ToResult(5, "invalid");
-        Assert.Equal(5, result.ThrowIfError());
+        Assert.Equal(5, result.GetValue());
     }
 
 
@@ -3155,7 +3155,7 @@ public class ResultExtTests
     {
         bool isValid = false;
         var result = isValid.ToResult(5, "invalid");
-        Assert.Equal("invalid", result.ThrowIfSuccess());
+        Assert.Equal("invalid", result.GetError());
     }
 
 
@@ -3168,7 +3168,7 @@ public class ResultExtTests
 
         Result<string, string> result = await input.ToResult(() => "missing value");
 
-        Assert.Equal("alpha", result.ThrowIfError());
+        Assert.Equal("alpha", result.GetValue());
     }
 
 
@@ -3179,7 +3179,7 @@ public class ResultExtTests
 
         Result<string, string> result = await input.ToResult(() => "missing value");
 
-        Assert.Equal("missing value", result.ThrowIfSuccess());
+        Assert.Equal("missing value", result.GetError());
     }
 
 
@@ -3195,7 +3195,7 @@ public class ResultExtTests
             return "missing value";
         });
 
-        Assert.Equal("alpha", result.ThrowIfError());
+        Assert.Equal("alpha", result.GetValue());
         Assert.False(invoked);
     }
 

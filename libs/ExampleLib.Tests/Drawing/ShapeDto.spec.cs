@@ -88,7 +88,7 @@ public class ShapeDtoTests
         string json = JsonSerializer.Serialize<ShapeDto>(ShapeDtoExt.FromDomain(shape), JsonOptions.Default);
         ShapeDto dto = JsonSerializer.Deserialize<ShapeDto>(json, JsonOptions.Default).ToOption().ThrowIfNone();
 
-        Assert.Equal(shape, dto.ToDomain().ThrowIfError());
+        Assert.Equal(shape, dto.ToDomain().GetValue());
     }
 
 
@@ -110,6 +110,6 @@ public class ShapeDtoTests
 
         Result<Shape, string> shape = dto.ToDomain();
 
-        Assert.Equal(new Shape.RectCase(new Rect { Width = 3, Height = 4 }), shape.ThrowIfError());
+        Assert.Equal(new Shape.RectCase(new Rect { Width = 3, Height = 4 }), shape.GetValue());
     }
 }

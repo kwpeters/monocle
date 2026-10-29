@@ -21,7 +21,7 @@ public class OptionExtTests
 
         Option<IEnumerable<int>> result = input.AllOrNone();
 
-        Assert.Empty(result.ThrowIfNone());
+        Assert.Empty(result.GetValue());
     }
 
 
@@ -32,7 +32,7 @@ public class OptionExtTests
 
         Option<IEnumerable<int>> result = input.AllOrNone();
 
-        Assert.Equal(new[] { 1, 2, 3 }, result.ThrowIfNone());
+        Assert.Equal(new[] { 1, 2, 3 }, result.GetValue());
     }
 
 
@@ -1517,7 +1517,7 @@ public class OptionExtTests
     {
         int[] input = new[] { 1, 2, 3 };
         Option<IReadOnlyList<int>> result = input.RequireNonEmpty();
-        Assert.Same(input, result.ThrowIfNone());
+        Assert.Same(input, result.GetValue());
     }
 
 

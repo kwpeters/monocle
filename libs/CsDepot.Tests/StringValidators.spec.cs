@@ -18,7 +18,7 @@ public class StringValidatorsTests
     {
         Result<string, string> result = StringValidators.NonBlank("Doe", "lastName");
 
-        Assert.Equal("Doe", result.ThrowIfError());
+        Assert.Equal("Doe", result.GetValue());
     }
 
 
@@ -27,7 +27,7 @@ public class StringValidatorsTests
     {
         Result<string, string> result = StringValidators.NonBlank("  Doe  ", "lastName");
 
-        Assert.Equal("  Doe  ", result.ThrowIfError());
+        Assert.Equal("  Doe  ", result.GetValue());
     }
 
 
@@ -40,7 +40,7 @@ public class StringValidatorsTests
     {
         Result<string, string> result = StringValidators.NonBlank(value, "lastName");
 
-        Assert.Equal("lastName must not be blank.", result.ThrowIfSuccess());
+        Assert.Equal("lastName must not be blank.", result.GetError());
     }
 
     //
@@ -54,7 +54,7 @@ public class StringValidatorsTests
     {
         Result<string, string> result = StringValidators.MaxLengthInTextElements("abc", 3, "lastName");
 
-        Assert.Equal("abc", result.ThrowIfError());
+        Assert.Equal("abc", result.GetValue());
     }
 
 
@@ -63,7 +63,7 @@ public class StringValidatorsTests
     {
         Result<string, string> result = StringValidators.MaxLengthInTextElements("abcd", 3, "lastName");
 
-        Assert.Equal("lastName must not exceed 3 characters.", result.ThrowIfSuccess());
+        Assert.Equal("lastName must not exceed 3 characters.", result.GetError());
     }
 
 
@@ -72,7 +72,7 @@ public class StringValidatorsTests
     {
         Result<string, string> result = StringValidators.MaxLengthInTextElements("", 0, "lastName");
 
-        Assert.Equal("", result.ThrowIfError());
+        Assert.Equal("", result.GetValue());
     }
 
 
@@ -106,7 +106,7 @@ public class StringValidatorsTests
     {
         Result<string, string> result = StringValidators.MaxLengthInCodeUnits("abc", 3, "lastName");
 
-        Assert.Equal("abc", result.ThrowIfError());
+        Assert.Equal("abc", result.GetValue());
     }
 
 
@@ -115,7 +115,7 @@ public class StringValidatorsTests
     {
         Result<string, string> result = StringValidators.MaxLengthInCodeUnits("abcd", 3, "lastName");
 
-        Assert.Equal("lastName must not exceed 3 UTF-16 code units.", result.ThrowIfSuccess());
+        Assert.Equal("lastName must not exceed 3 UTF-16 code units.", result.GetError());
     }
 
 

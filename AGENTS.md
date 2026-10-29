@@ -80,6 +80,15 @@ Start each section with a separator comment naming it. The separators may be omi
 - For operations that can fail but communicating the error reason is not needed,
   `Option<T>` is appropriate.  This allows callers to handle the presence or absence
   of a value without try/catch and without using null references.
+- To unwrap a `Result` or `Option` that should never fail (as in tests), choose the name
+  that tells the reader what the call returns:
+  - When the value is used inside an expression (an assert, a method argument, a
+    `return`, a chained call), use the accessor: `GetValue()` or `GetError()`.
+    For example, `Assert.Equal("must not be blank.", result.GetError())`.
+  - When the value is assigned to a typed local, or the call stands alone as an
+    assertion, use `ThrowIfError()`, `ThrowIfSuccess()`, `ThrowIfNone()` or
+    `ThrowIfSome()`. For example, `Person person = Person.Create(...).ThrowIfError()`.
+    Use these too when you need a custom exception message.
 
 ### Data and Operations
 

@@ -65,17 +65,15 @@ public sealed class DisposableResult<TSuccess, TError> : IDisposable
 
 
     /// <summary>
-    /// Throws an InvalidOperationException if the result is a success, otherwise returns the error value.
-     /// </summary>
+    /// Returns the error value.
     /// </summary>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <returns>The error value if the result is an error.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the result is a success.
+    /// </exception>
     public TError GetError()
     {
-        return _result.Match(
-            (s) => throw new InvalidOperationException($"Expected error result but got success: {s}"),
-            (e) => e
-        );
+        return ThrowIfSuccess();
     }
 
 

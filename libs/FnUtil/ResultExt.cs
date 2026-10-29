@@ -995,10 +995,7 @@ public static class ResultExt
     public static TError
     GetError<TSuccess, TError>(this Result<TSuccess, TError> input)
     {
-        return input.Match(
-            (s) => throw new InvalidOperationException("Cannot access Error on a SuccessResult."),
-            (e) => e
-        );
+        return input.ThrowIfSuccess();
     }
 
 
@@ -1033,10 +1030,7 @@ public static class ResultExt
     public static TSuccess
     GetValue<TSuccess, TError>(this Result<TSuccess, TError> input)
     {
-        return input.Match(
-            (s) => s,
-            (e) => throw new InvalidOperationException("Cannot access Value on an ErrorResult.")
-        );
+        return input.ThrowIfError();
     }
 
 
@@ -1897,6 +1891,7 @@ public static class ResultExt
             (e) => throw new InvalidOperationException(errMsgFn(e))
         );
 
+
     /// <summary>
     /// Throws an InvalidOperationException if the Task-wrapped Result is an error, otherwise returns the success value.
     /// </summary>
@@ -1979,6 +1974,7 @@ public static class ResultExt
             (s) => throw new InvalidOperationException(errMsgFn(s)),
             (e) => e
         );
+
 
     /// <summary>
     /// Throws an InvalidOperationException if the Task-wrapped Result is a success, otherwise returns the error value.

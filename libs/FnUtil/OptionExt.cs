@@ -866,10 +866,7 @@ public static class OptionExt
     public static T
     GetValue<T>(this Option<T> input)
     {
-        return input.Match(
-            (t) => t,
-            () => throw new InvalidOperationException("Cannot get value from a None option.")
-        );
+        return input.ThrowIfNone();
     }
 
 
@@ -1414,6 +1411,7 @@ public static class OptionExt
             (t) => t,
             () => throw new InvalidOperationException(errMsg ?? "Expected Some Option but got None.")
         );
+
 
     /// <summary>
     /// Throws an InvalidOperationException if the Task-wrapped Option is None,
