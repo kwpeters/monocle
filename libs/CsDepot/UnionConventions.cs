@@ -49,8 +49,8 @@ public static class UnionConventions
     /// </summary>
     public static IReadOnlyList<Type> FindUnions(Assembly assembly) =>
         assembly.GetTypes()
-            .Where((type) => type.DeclaringType is null && IsUnionShaped(type))
-            .ToList();
+        .Where((type) => type.DeclaringType is null && IsUnionShaped(type))
+        .ToList();
 
 
     /// <summary>

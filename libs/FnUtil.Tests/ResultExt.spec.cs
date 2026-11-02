@@ -1776,10 +1776,10 @@ public class ResultExtTests
     {
         var calls = new List<string>();
         SuccessE<int, string>(42)
-            .Match(
-                (s) => calls.Add($"Success: {s}"),
-                (e) => calls.Add($"Error: {e}")
-            );
+        .Match(
+            (s) => calls.Add($"Success: {s}"),
+            (e) => calls.Add($"Error: {e}")
+        );
         Assert.Equal(new[] { "Success: 42" }, calls);
     }
 
@@ -1789,10 +1789,10 @@ public class ResultExtTests
     {
         var calls = new List<string>();
         ErrorE<int, string>("Error message")
-            .Match(
-                (s) => calls.Add($"Success: {s}"),
-                (e) => calls.Add($"Error: {e}")
-            );
+        .Match(
+            (s) => calls.Add($"Success: {s}"),
+            (e) => calls.Add($"Error: {e}")
+        );
         Assert.Equal(new[] { "Error: Error message" }, calls);
     }
 
@@ -1828,10 +1828,10 @@ public class ResultExtTests
     {
         var calls = new List<string>();
         await Task.FromResult(SuccessE<int, string>(42))
-            .Match(
-                (s) => calls.Add($"Success: {s}"),
-                (e) => calls.Add($"Error: {e}")
-            );
+        .Match(
+            (s) => calls.Add($"Success: {s}"),
+            (e) => calls.Add($"Error: {e}")
+        );
         Assert.Equal(new[] { "Success: 42" }, calls);
     }
 
@@ -1841,10 +1841,10 @@ public class ResultExtTests
     {
         var calls = new List<string>();
         await Task.FromResult(ErrorE<int, string>("Error message"))
-            .Match(
-                (s) => calls.Add($"Success: {s}"),
-                (e) => calls.Add($"Error: {e}")
-            );
+        .Match(
+            (s) => calls.Add($"Success: {s}"),
+            (e) => calls.Add($"Error: {e}")
+        );
         Assert.Equal(new[] { "Error: Error message" }, calls);
     }
 
@@ -1973,16 +1973,16 @@ public class ResultExtTests
         bool successCalled = false;
         bool errorCalled = false;
         await Task.FromResult(SuccessE<int, string>(42))
-            .MatchAsync(
-                async (s) => {
-                    await Task.Delay(1);
-                    successCalled = true;
-                },
-                async (e) => {
-                    await Task.Delay(1);
-                    errorCalled = true;
-                }
-            );
+        .MatchAsync(
+            async (s) => {
+                await Task.Delay(1);
+                successCalled = true;
+            },
+            async (e) => {
+                await Task.Delay(1);
+                errorCalled = true;
+            }
+        );
         Assert.True(successCalled);
         Assert.False(errorCalled);
     }
@@ -1994,16 +1994,16 @@ public class ResultExtTests
         bool successCalled = false;
         bool errorCalled = false;
         await Task.FromResult(ErrorE<int, string>("Error message"))
-            .MatchAsync(
-                async (s) => {
-                    await Task.Delay(1);
-                    successCalled = true;
-                },
-                async (e) => {
-                    await Task.Delay(1);
-                    errorCalled = true;
-                }
-            );
+        .MatchAsync(
+            async (s) => {
+                await Task.Delay(1);
+                successCalled = true;
+            },
+            async (e) => {
+                await Task.Delay(1);
+                errorCalled = true;
+            }
+        );
         Assert.False(successCalled);
         Assert.True(errorCalled);
     }

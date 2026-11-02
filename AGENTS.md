@@ -42,6 +42,26 @@ string result = condition ?
     valueIfFalse;
 ```
 
+### Method Chains
+
+When a chain of calls doesn't fit on one line, put each call on its own line, starting with its `.`, and line the calls up with the start of the expression they're called on:
+
+- If the expression starts its own line, give the calls the same indentation:
+
+  ```csharp
+  public Result<Person, string> WithLastName(string lastName) =>
+      ValidateName(lastName, nameof(lastName))
+      .MapSuccess((last) => this with { LastName = last });
+  ```
+
+- If the expression starts partway through a line (after `return` or `Type name =`), indent the calls one level deeper than that line:
+
+  ```csharp
+  IEnumerable<string> names = people
+      .Where((person) => person.IsActive)
+      .Select((person) => person.Name);
+  ```
+
 ### Method Signatures
 
 Keep a method signature on a single line when it fits within 100 columns and the method declares no type parameters of its own. Otherwise, keep the return type (including `async` and other modifiers) on one line, start the method name on the next, and put each parameter on its own line:
