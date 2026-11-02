@@ -44,7 +44,7 @@ string result = condition ?
 
 ### Method Signatures
 
-Keep a method signature on a single line when it fits within 100 columns. When it does not, keep the return type (including `async` and other modifiers) on one line and start the method name on the next:
+Keep a method signature on a single line when it fits within 100 columns and the method declares no type parameters of its own. Otherwise, keep the return type (including `async` and other modifiers) on one line, start the method name on the next, and put each parameter on its own line:
 
 ```csharp
 public static Result<int, string>
@@ -53,6 +53,8 @@ Initialize(
     string paramB
 )
 ```
+
+A generic method, such as `MapSuccess<TInSuccess, TOutSuccess, TError>`, always uses this style, however short it is. A non-generic method in a generic type, such as `Result<TSuccess, TError>`, doesn't count as generic.
 
 ### Class and Record Member Ordering
 
