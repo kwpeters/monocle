@@ -180,7 +180,41 @@ value, which is wrong.
   Check a value with `.Bind(...)`, as `RequireZeroStatus` does. A `let` clause,
   which names a computed value, does work.
 
-## 7. Summary
+## 7. Writing: BufWriter
+
+`BufWriter` is the write-side counterpart to `BufReader`. It owns a growable
+buffer and tracks how many bytes have been written.
+
+| Member | What it does |
+| --- | --- |
+| `new BufWriter()` | Creates an empty writer at offset 0 |
+| `NumWrittenBytes` | How many bytes have been written |
+| `WrittenMemory` | The bytes written so far |
+| `WriteBytes(bytes)` | Appends bytes, such as a value's `Encode()` output |
+| `AlignTo(n)` | Writes the zero pad bytes needed to reach the next multiple of `n` |
+
+A type that is written to bytes has an instance `Encode()` method returning its
+bytes. To build a message from several values, write each `Encode()` into one
+writer and add padding with `AlignTo`:
+
+```csharp
+BufWriter writer = new();
+writer.WriteBytes(tag.Encode());
+writer.AlignTo(2);                 // pad to a 16-bit boundary
+writer.WriteBytes(value.Encode());
+ReadOnlyMemory<byte> message = writer.WrittenMemory;
+```
+
+Two differences from `BufReader`:
+
+- Writing to a growable buffer cannot run out of room, so `WriteBytes` and
+  `AlignTo` return nothing, where the reader's `ReadBytes` and `Align` return a
+  `Result`.
+- `AlignTo` counts boundaries from the start of the buffer, not from the start
+  of a structure. (The reader's `Align` counts from the start of the current
+  `Attempt`.)
+
+## 8. Summary
 
 - A `BufReader` keeps track of the offset. Each successful read moves it
   forward, and a failed read leaves it alone.
@@ -189,3 +223,5 @@ value, which is wrong.
   anywhere fails the structure and leaves the reader where it started.
 - Inside `Attempt`, `Align` counts from the start of the attempt, so pads are
   relative to the start of the structure.
+- `BufWriter` is the write side: `WriteBytes` appends a value's `Encode()`
+  output and `AlignTo` writes pad bytes.
