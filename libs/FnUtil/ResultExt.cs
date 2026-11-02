@@ -593,7 +593,9 @@ public static class ResultExt
     /// <param name="input">The sequence of Results.</param>
     /// <returns>The error values, in input order.</returns>
     public static IEnumerable<TError>
-    Errors<TSuccess, TError>(this IEnumerable<Result<TSuccess, TError>> input)
+    Errors<TSuccess, TError>(
+        this IEnumerable<Result<TSuccess, TError>> input
+    )
     {
         foreach (Result<TSuccess, TError> res in input)
         {
@@ -993,7 +995,9 @@ public static class ResultExt
     /// Thrown when the Result is successful.
     /// </exception>
     public static TError
-    GetError<TSuccess, TError>(this Result<TSuccess, TError> input)
+    GetError<TSuccess, TError>(
+        this Result<TSuccess, TError> input
+    )
     {
         return input.ThrowIfSuccess();
     }
@@ -1010,7 +1014,9 @@ public static class ResultExt
     /// Thrown when the Result is successful.
     /// </exception>
     public static async Task<TError>
-    GetError<TSuccess, TError>(this Task<Result<TSuccess, TError>> taskInput)
+    GetError<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskInput
+    )
     {
         Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
         return input.GetError();
@@ -1028,7 +1034,9 @@ public static class ResultExt
     /// Thrown when the Result is an error.
     /// </exception>
     public static TSuccess
-    GetValue<TSuccess, TError>(this Result<TSuccess, TError> input)
+    GetValue<TSuccess, TError>(
+        this Result<TSuccess, TError> input
+    )
     {
         return input.ThrowIfError();
     }
@@ -1045,7 +1053,9 @@ public static class ResultExt
     /// Thrown when the Result is an error.
     /// </exception>
     public static async Task<TSuccess>
-    GetValue<TSuccess, TError>(this Task<Result<TSuccess, TError>> taskInput)
+    GetValue<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskInput
+    )
     {
         Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
         return input.GetValue();
@@ -1618,7 +1628,9 @@ public static class ResultExt
     /// <param name="input">The sequence of Results.</param>
     /// <returns>The success values, in input order.</returns>
     public static IEnumerable<TSuccess>
-    Successes<TSuccess, TError>(this IEnumerable<Result<TSuccess, TError>> input)
+    Successes<TSuccess, TError>(
+        this IEnumerable<Result<TSuccess, TError>> input
+    )
     {
         foreach (Result<TSuccess, TError> res in input)
         {
@@ -2014,7 +2026,9 @@ public static class ResultExt
     /// <typeparam name="TError">The error value type.</typeparam>
     /// <param name="input">The Result input value.</param>
     public static Option<TSuccess>
-    ToOption<TSuccess, TError>(this Result<TSuccess, TError> input)
+    ToOption<TSuccess, TError>(
+        this Result<TSuccess, TError> input
+    )
     {
         ArgumentNullException.ThrowIfNull(input);
 
@@ -2033,7 +2047,9 @@ public static class ResultExt
     /// <typeparam name="TError">The error value type.</typeparam>
     /// <param name="taskInput">A task that resolves to a Result.</param>
     public static async Task<Option<TSuccess>>
-    ToOption<TSuccess, TError>(this Task<Result<TSuccess, TError>> taskInput)
+    ToOption<TSuccess, TError>(
+        this Task<Result<TSuccess, TError>> taskInput
+    )
     {
         ArgumentNullException.ThrowIfNull(taskInput);
 

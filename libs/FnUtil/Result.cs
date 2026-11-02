@@ -96,7 +96,9 @@ public static partial class F
     // Provides a way of creating a success Result by explicitly defining the
     // error type.  The appended "E" stands for "explicit."
     public static Result<TSuccess, TError>
-    SuccessE<TSuccess, TError>(TSuccess value)
+    SuccessE<TSuccess, TError>(
+        TSuccess value
+    )
     {
         Result<TSuccess, TError> res = Success(value);
         return res;
@@ -110,7 +112,9 @@ public static partial class F
     // Provides a way of creating an error Result by explicitly defining the
     // success type.  The appended "E" stands for "explicit."
     public static Result<TSuccess, TError>
-    ErrorE<TSuccess, TError>(TError error)
+    ErrorE<TSuccess, TError>(
+        TError error
+    )
     {
         Result<TSuccess, TError> res = Error(error);
         return res;

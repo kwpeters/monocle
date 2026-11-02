@@ -26,7 +26,9 @@ public static class OptionExt
     /// (including when the input is empty).  Otherwise, None.
     /// </returns>
     public static Option<IEnumerable<T>>
-    AllOrNone<T>(this IEnumerable<Option<T>> input)
+    AllOrNone<T>(
+        this IEnumerable<Option<T>> input
+    )
     {
         List<T> values = [];
 
@@ -459,7 +461,10 @@ public static class OptionExt
     /// provided default value if None.
     /// </summary>
     public static async Task<T>
-    DefaultValue<T>(this Task<Option<T>> taskInput, T defaultValue)
+    DefaultValue<T>(
+        this Task<Option<T>> taskInput,
+        T defaultValue
+    )
     {
         Option<T> opt = await taskInput.ConfigureAwait(false);
         return opt.DefaultValue(defaultValue);
@@ -489,7 +494,10 @@ public static class OptionExt
     /// None.
     /// </summary>
     public static async Task<T>
-    DefaultWith<T>(this Task<Option<T>> taskInput, Func<T> defaultValueFunc)
+    DefaultWith<T>(
+        this Task<Option<T>> taskInput,
+        Func<T> defaultValueFunc
+    )
     {
         Option<T> opt = await taskInput.ConfigureAwait(false);
         return opt.DefaultWith(defaultValueFunc);
@@ -520,7 +528,10 @@ public static class OptionExt
     /// None.
     /// </summary>
     public static async Task<T>
-    DefaultWithAsync<T>(this Task<Option<T>> taskInput, Func<Task<T>> defaultValueFunc)
+    DefaultWithAsync<T>(
+        this Task<Option<T>> taskInput,
+        Func<Task<T>> defaultValueFunc
+    )
     {
         Option<T> opt = await taskInput.ConfigureAwait(false);
         T result = opt switch {
@@ -864,7 +875,9 @@ public static class OptionExt
     /// Thrown when the Option is None.
     /// </exception>
     public static T
-    GetValue<T>(this Option<T> input)
+    GetValue<T>(
+        this Option<T> input
+    )
     {
         return input.ThrowIfNone();
     }
@@ -880,7 +893,9 @@ public static class OptionExt
     /// Thrown when the Option is None.
     /// </exception>
     public static async Task<T>
-    GetValue<T>(this Task<Option<T>> input)
+    GetValue<T>(
+        this Task<Option<T>> input
+    )
     {
         Option<T> option = await input.ConfigureAwait(false);
         return option.GetValue();
@@ -1138,7 +1153,9 @@ public static class OptionExt
     /// None.
     /// </returns>
     public static Option<T>
-    RequireSingle<T>(this IEnumerable<T> input)
+    RequireSingle<T>(
+        this IEnumerable<T> input
+    )
     {
         using IEnumerator<T> enumerator = input.GetEnumerator();
         if (!enumerator.MoveNext())
@@ -1233,7 +1250,9 @@ public static class OptionExt
     /// The values of the Some Options, in input order.
     /// </returns>
     public static IEnumerable<T>
-    Somes<T>(this IEnumerable<Option<T>> input)
+    Somes<T>(
+        this IEnumerable<Option<T>> input
+    )
     {
         foreach (Option<T> opt in input)
         {
@@ -1550,7 +1569,9 @@ public static class OptionExt
     /// null becomes None, otherwise Some(value).
     /// </summary>
     public static Option<T>
-    ToOption<T>(this T? value)
+    ToOption<T>(
+        this T? value
+    )
     {
         return value is null ? none : Some(value);
     }

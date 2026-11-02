@@ -147,7 +147,9 @@ public static class DisposableResult
     //------------------------------------------------------------------------------
 
     public static DisposableResult<TSuccess, TError>
-    Success<TSuccess, TError>(TSuccess value)
+    Success<TSuccess, TError>(
+        TSuccess value
+    )
         where TSuccess : IDisposable
     {
         Result<TSuccess, TError> result = F.Success(value);
@@ -156,7 +158,9 @@ public static class DisposableResult
 
 
     public static DisposableResult<TSuccess, TError>
-    Error<TSuccess, TError>(TError error)
+    Error<TSuccess, TError>(
+        TError error
+    )
         where TSuccess : IDisposable
     {
         Result<TSuccess, TError> result = F.Error(error);

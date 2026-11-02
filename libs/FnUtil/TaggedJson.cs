@@ -74,7 +74,11 @@ internal static class TaggedJson
     /// present and must not be null.
     /// </summary>
     public static T
-    ReadValue<T>(JsonElement tagged, Type typeToConvert, JsonSerializerOptions options)
+    ReadValue<T>(
+        JsonElement tagged,
+        Type typeToConvert,
+        JsonSerializerOptions options
+    )
     {
         if (!tagged.TryGetProperty(ValueProperty, out JsonElement valueElement))
         {
@@ -104,7 +108,12 @@ internal static class TaggedJson
     /// value is rejected, because ReadValue() could not read it back.
     /// </summary>
     public static void
-    WriteCase<T>(Utf8JsonWriter writer, string kind, T value, JsonSerializerOptions options)
+    WriteCase<T>(
+        Utf8JsonWriter writer,
+        string kind,
+        T value,
+        JsonSerializerOptions options
+    )
     {
         if (value is null)
         {
