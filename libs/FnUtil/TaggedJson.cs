@@ -36,7 +36,11 @@ internal static class TaggedJson
     /// Reads the whole object at the reader, so that its properties can be read in
     /// any order.  The caller disposes the returned document.
     /// </summary>
-    public static JsonDocument ParseObject(ref Utf8JsonReader reader, Type typeToConvert)
+    public static JsonDocument
+    ParseObject(
+        ref Utf8JsonReader reader,
+        Type typeToConvert
+    )
     {
         if (reader.TokenType != JsonTokenType.StartObject)
         {
@@ -52,7 +56,11 @@ internal static class TaggedJson
     /// <summary>
     /// Returns the object's "kind" property, which must be a string.
     /// </summary>
-    public static JsonElement Kind(JsonElement tagged, Type typeToConvert)
+    public static JsonElement
+    Kind(
+        JsonElement tagged,
+        Type typeToConvert
+    )
     {
         bool hasKind =
             tagged.TryGetProperty(KindProperty, out JsonElement kind) &&
@@ -65,7 +73,11 @@ internal static class TaggedJson
     }
 
 
-    public static JsonException UnknownKind(JsonElement kind, Type typeToConvert) =>
+    public static JsonException
+    UnknownKind(
+        JsonElement kind,
+        Type typeToConvert
+    ) =>
         new($"\"{kind.GetString()}\" is not a valid \"{KindProperty}\" for {typeToConvert}.");
 
 

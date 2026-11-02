@@ -28,6 +28,9 @@ public static class CircleDtoExt
 
     // Circle has no invariants, so this cannot fail today.  It still returns a
     // Result, so adding an invariant later does not change its signature.
-    public static Result<Circle, string> ToDomain(this CircleDto dto) =>
+    public static Result<Circle, string>
+    ToDomain(
+        this CircleDto dto
+    ) =>
         Success(new Circle { Radius = dto.Radius });
 }

@@ -21,9 +21,16 @@ public static class RectDtoExt
     // Static methods
     //------------------------------------------------------------------------------
 
-    public static RectDto FromDomain(Rect rect) => new() { Width = rect.Width, Height = rect.Height };
+    public static RectDto
+    FromDomain(
+        Rect rect
+    ) =>
+        new() { Width = rect.Width, Height = rect.Height };
 
 
-    public static Result<Rect, string> ToDomain(this RectDto dto) =>
+    public static Result<Rect, string>
+    ToDomain(
+        this RectDto dto
+    ) =>
         Success(new Rect { Width = dto.Width, Height = dto.Height });
 }

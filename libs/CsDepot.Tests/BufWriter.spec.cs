@@ -72,7 +72,8 @@ public class BufWriterTests
     [InlineData(3, 4, 1)]
     [InlineData(4, 4, 0)]
     [InlineData(5, 8, 3)]
-    public void AlignTo_WritesZeroPadBytesToTheNextBoundary(
+    public void
+    AlignTo_WritesZeroPadBytesToTheNextBoundary(
         int offsetBytes,
         int boundaryBytes,
         int expectedNumPadBytes

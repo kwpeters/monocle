@@ -34,6 +34,9 @@ public static class PersonDtoExt
         new() { FirstName = person.FirstName, LastName = person.LastName };
 
 
-    public static Result<Person, string> ToDomain(this PersonDto dto) =>
+    public static Result<Person, string>
+    ToDomain(
+        this PersonDto dto
+    ) =>
         Person.Create(dto.FirstName, dto.LastName);
 }

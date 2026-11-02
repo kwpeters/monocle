@@ -23,6 +23,9 @@ public static class LabelDtoExt
     public static LabelDto FromDomain(Label label) => new() { Content = label.Content };
 
 
-    public static Result<Label, string> ToDomain(this LabelDto dto) =>
+    public static Result<Label, string>
+    ToDomain(
+        this LabelDto dto
+    ) =>
         Success(new Label { Content = dto.Content });
 }

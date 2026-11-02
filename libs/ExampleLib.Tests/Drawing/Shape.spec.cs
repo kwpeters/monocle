@@ -15,7 +15,8 @@ public class ShapeTests
 
     // One sample per case.  Add a sample whenever a case is added.  ShapeDtoTests
     // also uses these samples to check that every case maps to and from its DTO.
-    public static TheoryData<Shape> Samples() =>
+    public static TheoryData<Shape>
+    Samples() =>
         new(
             new Shape.CircleCase(new Circle { Radius = 2 }),
             new Shape.RectCase(new Rect { Width = 3, Height = 4 })

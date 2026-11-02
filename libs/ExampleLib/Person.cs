@@ -51,7 +51,11 @@ public sealed record class Person
     /// Validating factory ("smart constructor").  Produces a Person only
     /// when all inputs are valid.
     /// </summary>
-    public static Result<Person, string> Create(string firstName, string lastName) =>
+    public static Result<Person, string>
+    Create(
+        string firstName,
+        string lastName
+    ) =>
         from first in ValidateName(firstName, nameof(firstName))
         from last in ValidateName(lastName, nameof(lastName))
         select new Person(first, last);
@@ -60,7 +64,11 @@ public sealed record class Person
     /// <summary>
     /// Cleans up a name, then validates it.  Returns the cleaned-up name.
     /// </summary>
-    private static Result<string, string> ValidateName(string value, string fieldName)
+    private static Result<string, string>
+    ValidateName(
+        string value,
+        string fieldName
+    )
     {
         // Normalize so that accented letters typed as a base letter followed by
         // a combining mark (e.g. "e" + U+0301) become a single letter (é).
@@ -83,7 +91,11 @@ public sealed record class Person
     // Enumerates by Rune rather than char so that characters outside the Basic
     // Multilingual Plane (such as emoji) are examined as a whole, not as two
     // surrogate halves.
-    private static Result<string, string> LettersAndSeparators(string value, string fieldName)
+    private static Result<string, string>
+    LettersAndSeparators(
+        string value,
+        string fieldName
+    )
     {
         Rune[] runes = [.. value.EnumerateRunes()];
 
@@ -149,7 +161,10 @@ public sealed record class Person
     /// "Changes" the last name by returning a new Person.  The original
     /// instance is left untouched.
     /// </summary>
-    public Result<Person, string> WithLastName(string lastName) =>
+    public Result<Person, string>
+    WithLastName(
+        string lastName
+    ) =>
         ValidateName(lastName, nameof(lastName))
         .MapSuccess((last) => this with { LastName = last });
 }
@@ -167,7 +182,11 @@ public static class PersonExt
     // Static methods
     //------------------------------------------------------------------------------
 
-    public static Option<Person> FindByLastName(this IEnumerable<Person> people, string lastName) =>
+    public static Option<Person>
+    FindByLastName(
+        this IEnumerable<Person> people,
+        string lastName
+    ) =>
         people.FirstOrDefault((p) => string.Equals(p.LastName, lastName, StringComparison.OrdinalIgnoreCase)) is { } found ?
             Some(found) :
             none;

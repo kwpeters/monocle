@@ -80,7 +80,10 @@ public class StringValidatorsTests
     [InlineData("\U0001F44D\U0001F3FD")]                        // Thumbs up + skin tone modifier: 4 UTF-16 code units
     [InlineData("e\u0301")]                                     // "e" + combining acute accent: 2 UTF-16 code units
     [InlineData("\U0001F468\u200D\U0001F469\u200D\U0001F467")]  // Family emoji joined by zero-width joiners: 8 UTF-16 code units
-    public void MaxLengthInTextElements_WhenGivenSinglePerceivedCharacter_CountsItAsOne(string value)
+    public void
+    MaxLengthInTextElements_WhenGivenSinglePerceivedCharacter_CountsItAsOne(
+        string value
+    )
     {
         Result<string, string> result = StringValidators.MaxLengthInTextElements(value, 1, "lastName");
 

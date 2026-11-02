@@ -16,7 +16,8 @@ public class DrawableDtoTests
     //------------------------------------------------------------------------------
 
     // One sample per case.  Add a sample whenever a case is added.
-    public static TheoryData<DrawableDto> Samples() =>
+    public static TheoryData<DrawableDto>
+    Samples() =>
         new(
             new DrawableDto.CircleCase(new CircleDto { Radius = 2 }),
             new DrawableDto.LabelCase(new LabelDto { Content = "Hello" })

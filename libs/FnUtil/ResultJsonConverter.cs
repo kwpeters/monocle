@@ -31,7 +31,11 @@ public sealed class ResultJsonConverterFactory : JsonConverterFactory
         typeToConvert.IsGenericType && typeToConvert.GetGenericTypeDefinition() == typeof(Result<,>);
 
 
-    public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+    public override JsonConverter
+    CreateConverter(
+        Type typeToConvert,
+        JsonSerializerOptions options
+    )
     {
         Type converterType =
             typeof(ResultJsonConverter<,>).MakeGenericType(typeToConvert.GetGenericArguments());

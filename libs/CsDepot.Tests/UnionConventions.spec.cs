@@ -67,7 +67,11 @@ public class UnionConventionsTests
     [InlineData(typeof(BadUnions.DomainPayloadDto), "DomainPayloadDto.CircleCase wraps Circle, which is not a DTO. A DTO union's cases wrap DTOs.")]
     [InlineData(typeof(BadUnions.MisnamedCaseDto), "MisnamedCaseDto.CircleDtoCase must be named CircleCase.")]
     [InlineData(typeof(BadUnions.WrongKindDto), "WrongKindDto.CircleCase must be registered with the kind \"circle\", not \"round\".")]
-    public void FindViolations_WhenUnionBreaksOneConvention_ReturnsOnlyThatViolation(Type union, string expected)
+    public void
+    FindViolations_WhenUnionBreaksOneConvention_ReturnsOnlyThatViolation(
+        Type union,
+        string expected
+    )
     {
         IReadOnlyList<string> violations = UnionConventions.FindViolations(union);
 

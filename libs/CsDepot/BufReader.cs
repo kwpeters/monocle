@@ -89,7 +89,10 @@ public sealed class BufReader
     /// </summary>
     /// <param name="numBytes">The number of bytes to read.</param>
     /// <returns>The bytes read, or an error if too few bytes remain.</returns>
-    public Result<ReadOnlyMemory<byte>, string> ReadBytes(int numBytes)
+    public Result<ReadOnlyMemory<byte>, string>
+    ReadBytes(
+        int numBytes
+    )
     {
         if (numBytes < 0)
         {
@@ -125,7 +128,10 @@ public sealed class BufReader
     /// The pad bytes, so callers can check them if needed, or an error if too
     /// few bytes remain.
     /// </returns>
-    public Result<ReadOnlyMemory<byte>, string> Align(int boundaryBytes)
+    public Result<ReadOnlyMemory<byte>, string>
+    Align(
+        int boundaryBytes
+    )
     {
         if (boundaryBytes <= 0)
         {

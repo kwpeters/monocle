@@ -26,7 +26,8 @@ public class ResultJsonConverterTests
     // Static methods
     //------------------------------------------------------------------------------
 
-    public static TheoryData<string, Result<int, string>> Results() =>
+    public static TheoryData<string, Result<int, string>>
+    Results() =>
         new()
         {
             { """{"kind":"success","value":42}""", SuccessE<int, string>(42) },
@@ -34,7 +35,8 @@ public class ResultJsonConverterTests
         };
 
 
-    public static TheoryData<Result<Option<int>, string>> NestedResults() =>
+    public static TheoryData<Result<Option<int>, string>>
+    NestedResults() =>
         new(
             SuccessE<Option<int>, string>(Some(1)),
             SuccessE<Option<int>, string>(none),
@@ -42,7 +44,10 @@ public class ResultJsonConverterTests
         );
 
 
-    private static T Deserialize<T>(string json) =>
+    private static T
+    Deserialize<T>(
+        string json
+    ) =>
         JsonSerializer.Deserialize<T>(json, _options) ??
             throw new InvalidOperationException($"Deserialized a null {typeof(T)}.");
 
@@ -108,7 +113,11 @@ public class ResultJsonConverterTests
 
     [Theory]
     [MemberData(nameof(Results))]
-    public void Write_WhenGivenResult_WritesKindAndValue(string expected, Result<int, string> result)
+    public void
+    Write_WhenGivenResult_WritesKindAndValue(
+        string expected,
+        Result<int, string> result
+    )
     {
         Assert.Equal(expected, JsonSerializer.Serialize(result, _options));
     }

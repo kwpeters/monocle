@@ -16,7 +16,8 @@ public class ShapeDtoTests
     //------------------------------------------------------------------------------
 
     // One sample per case.  Add a sample whenever a case is added.
-    public static TheoryData<ShapeDto> Samples() =>
+    public static TheoryData<ShapeDto>
+    Samples() =>
         new(
             new ShapeDto.CircleCase(new CircleDto { Radius = 2 }),
             new ShapeDto.RectCase(new RectDto { Width = 3, Height = 4 })

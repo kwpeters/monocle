@@ -65,7 +65,15 @@ When a chain of calls doesn't fit on one line, put each call on its own line, st
 
 ### Method Signatures
 
-Keep a method signature on a single line when it fits within 100 columns and the method declares no type parameters of its own. Otherwise, keep the return type (including `async` and other modifiers) on one line, start the method name on the next, and put each parameter on its own line:
+Put a method signature on a single line unless one of the following is true of the signature written on a single line, counting its modifiers (`public`, `static`, `async`, and so on) and its leading indentation:
+
+- it extends past column 100,
+- the method declares type parameters of its own, or
+- the method name starts at column 30 or later.
+
+The method name is the most important part of a signature. Moving it to the start of its own line lets a reader scan down a file and find it without hunting past modifiers and a long return type.
+
+When any of these is true, keep the return type (including `async` and other modifiers) on one line, start the method name on the next, and put each parameter on its own line:
 
 ```csharp
 public static Result<int, string>

@@ -47,7 +47,10 @@ public static class UnionConventions
     /// attribute, so that a DTO union missing its [JsonPolymorphic] attribute is
     /// still found.
     /// </summary>
-    public static IReadOnlyList<Type> FindUnions(Assembly assembly) =>
+    public static IReadOnlyList<Type>
+    FindUnions(
+        Assembly assembly
+    ) =>
         assembly.GetTypes()
         .Where((type) => type.DeclaringType is null && IsUnionShaped(type))
         .ToList();
@@ -57,7 +60,10 @@ public static class UnionConventions
     /// Checks every union in an assembly.  Returns a description of each
     /// violation found, or an empty list when all unions follow the conventions.
     /// </summary>
-    public static IReadOnlyList<string> FindAllViolations(Assembly assembly) =>
+    public static IReadOnlyList<string>
+    FindAllViolations(
+        Assembly assembly
+    ) =>
         FindUnions(assembly).SelectMany(FindViolations).ToList();
 
 
@@ -65,11 +71,17 @@ public static class UnionConventions
     /// Checks one union.  Returns a description of each violation found, or an
     /// empty list when the union follows the conventions.
     /// </summary>
-    public static IReadOnlyList<string> FindViolations(Type union) =>
+    public static IReadOnlyList<string>
+    FindViolations(
+        Type union
+    ) =>
         IsDto(union) ? DtoUnionViolations(union) : DomainUnionViolations(union);
 
 
-    private static List<string> DtoUnionViolations(Type union)
+    private static List<string>
+    DtoUnionViolations(
+        Type union
+    )
     {
         List<Type> cases = NestedCases(union);
         List<JsonDerivedTypeAttribute> registrations =
@@ -86,7 +98,10 @@ public static class UnionConventions
     }
 
 
-    private static List<string> DomainUnionViolations(Type union) =>
+    private static List<string>
+    DomainUnionViolations(
+        Type union
+    ) =>
     [
         .. NoJsonAttributeViolations(union),
         .. ConstructorViolations(union),
@@ -98,7 +113,10 @@ public static class UnionConventions
         type.IsClass && type.IsAbstract && !type.IsSealed && NestedCases(type).Count > 0;
 
 
-    private static List<Type> NestedCases(Type union) =>
+    private static List<Type>
+    NestedCases(
+        Type union
+    ) =>
         [.. union.GetNestedTypes(AllNestedTypes).Where((nested) => nested.IsSubclassOf(union))];
 
 
@@ -112,7 +130,10 @@ public static class UnionConventions
 
 
     // A DTO union is configured for polymorphic JSON with the "kind" discriminator.
-    private static IEnumerable<string> DiscriminatorViolations(Type union)
+    private static IEnumerable<string>
+    DiscriminatorViolations(
+        Type union
+    )
     {
         if (union.GetCustomAttribute<JsonPolymorphicAttribute>() is not { } polymorphic)
         {
@@ -127,7 +148,10 @@ public static class UnionConventions
 
     // A domain union is never serialized, so it has no JSON attributes.  Its DTO
     // union carries them instead.
-    private static IEnumerable<string> NoJsonAttributeViolations(Type union)
+    private static IEnumerable<string>
+    NoJsonAttributeViolations(
+        Type union
+    )
     {
         if (union.IsDefined(typeof(JsonPolymorphicAttribute)) ||
             union.IsDefined(typeof(JsonDerivedTypeAttribute)))
@@ -141,7 +165,10 @@ public static class UnionConventions
 
     // The union is closed: its parameterless constructor is private, so only
     // nested types can derive from it.
-    private static IEnumerable<string> ConstructorViolations(Type union)
+    private static IEnumerable<string>
+    ConstructorViolations(
+        Type union
+    )
     {
         Option<ConstructorInfo> parameterless = union
             .GetConstructor(AllInstanceMembers, binder: null, Type.EmptyTypes, modifiers: null)
@@ -247,7 +274,11 @@ public static class UnionConventions
 
 
     // A domain union case follows the shared case rules and wraps a domain type.
-    private static IEnumerable<string> DomainCaseViolations(Type union, Type caseType)
+    private static IEnumerable<string>
+    DomainCaseViolations(
+        Type union,
+        Type caseType
+    )
     {
         string name = $"{union.Name}.{caseType.Name}";
 
@@ -267,7 +298,11 @@ public static class UnionConventions
     // Every case is a public sealed nested record with exactly one property,
     // named Value.  Its name is {Concept}Case, where Concept is the wrapped
     // type's name without any "Dto" suffix.
-    private static IEnumerable<string> SharedCaseViolations(string name, Type caseType)
+    private static IEnumerable<string>
+    SharedCaseViolations(
+        string name,
+        Type caseType
+    )
     {
         if (!caseType.IsNestedPublic || !caseType.IsSealed)
         {
@@ -291,7 +326,10 @@ public static class UnionConventions
 
 
     // The case's single property, when it has exactly one and it is named Value.
-    private static Option<PropertyInfo> CaseValue(Type caseType) =>
+    private static Option<PropertyInfo>
+    CaseValue(
+        Type caseType
+    ) =>
         caseType.GetProperties(DeclaredPublicProperties) is [{ Name: "Value" } value] ?
             F.Some(value) :
             F.none;

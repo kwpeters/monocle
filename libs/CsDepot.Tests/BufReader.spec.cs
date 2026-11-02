@@ -94,7 +94,8 @@ public class BufReaderTests
     [InlineData(3, 4, 1)]
     [InlineData(4, 4, 0)]
     [InlineData(5, 8, 3)]
-    public void Align_ReadsThePadBytesToTheNextBoundary(
+    public void
+    Align_ReadsThePadBytesToTheNextBoundary(
         int offsetBytes,
         int boundaryBytes,
         int expectedNumPadBytes
@@ -265,10 +266,16 @@ public class BufReaderTests
     [Fact]
     public void Example_ReadingAStructuredReply()
     {
-        static Result<byte, string> RequireZeroStatus(byte status) =>
+        static Result<byte, string>
+        RequireZeroStatus(
+            byte status
+        ) =>
             status == 0 ? Success(status) : Error($"Reply status {status} is not 0.");
 
-        static Result<SampleReply, string> ReadReply(BufReader reader) =>
+        static Result<SampleReply, string>
+        ReadReply(
+            BufReader reader
+        ) =>
             reader.Attempt(r =>
                 from status in SampleReads.ReadByte(r).Bind(RequireZeroStatus)
                 from length in SampleReads.ReadByte(r)
@@ -308,7 +315,10 @@ public class BufReaderTests
     [Fact]
     public void Example_ReadingAPaddedStructure()
     {
-        static Result<SampleTaggedValue, string> ReadTaggedValue(BufReader reader) =>
+        static Result<SampleTaggedValue, string>
+        ReadTaggedValue(
+            BufReader reader
+        ) =>
             reader.Attempt(r =>
                 from tag in SampleReads.ReadByte(r)
                 from pad in r.Align(2)
@@ -337,7 +347,10 @@ public class BufReaderTests
 // would write its own Read method.
 file static class SampleReads
 {
-    public static Result<byte, string> ReadByte(BufReader reader) =>
+    public static Result<byte, string>
+    ReadByte(
+        BufReader reader
+    ) =>
         reader.ReadBytes(1).MapSuccess(bytes => bytes.Span[0]);
 }
 

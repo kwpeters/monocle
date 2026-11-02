@@ -27,13 +27,15 @@ public class TasksTests
     [Fact]
     public async Task All_WhenATaskFaults_TheReturnedTaskFaults()
     {
-        static async Task<bool> task1()
+        static async Task<bool>
+        task1()
         {
             await Task.Delay(5);
             return true;
         }
 
-        static async Task<string> task2()
+        static async Task<string>
+        task2()
         {
             await Task.Delay(10);
             throw new InvalidOperationException("Error message");

@@ -56,12 +56,16 @@ public static class ShapeDtoExt
     };
 
 
-    public static Result<Shape, string> ToDomain(this ShapeDto dto) => dto switch
-    {
-        ShapeDto.CircleCase(CircleDto circleDto) =>
-            circleDto.ToDomain().MapSuccess(Shape (Circle circle) => new Shape.CircleCase(circle)),
-        ShapeDto.RectCase(RectDto rectDto) =>
-            rectDto.ToDomain().MapSuccess(Shape (Rect rect) => new Shape.RectCase(rect)),
-        _ => throw new UnreachableException()
-    };
+    public static Result<Shape, string>
+    ToDomain(
+        this ShapeDto dto
+    ) =>
+        dto switch
+        {
+            ShapeDto.CircleCase(CircleDto circleDto) =>
+                circleDto.ToDomain().MapSuccess(Shape (Circle circle) => new Shape.CircleCase(circle)),
+            ShapeDto.RectCase(RectDto rectDto) =>
+                rectDto.ToDomain().MapSuccess(Shape (Rect rect) => new Shape.RectCase(rect)),
+            _ => throw new UnreachableException()
+        };
 }

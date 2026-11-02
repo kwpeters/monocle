@@ -9,7 +9,10 @@ public static class ActionExt
     // Static methods
     //------------------------------------------------------------------------------
 
-    public static Func<Unit> ToFunc(this Action action)
+    public static Func<Unit>
+    ToFunc(
+        this Action action
+    )
         => () => { action(); return unit; };
 
 

@@ -26,7 +26,8 @@ public class OptionJsonConverterTests
     // Static methods
     //------------------------------------------------------------------------------
 
-    public static TheoryData<Contact> Contacts() =>
+    public static TheoryData<Contact>
+    Contacts() =>
         new(
             new Contact { Name = "Jane", MiddleName = Some("Q"), Age = Some(42) },
             new Contact { Name = "Jane", MiddleName = none, Age = Some(0) },
@@ -34,7 +35,8 @@ public class OptionJsonConverterTests
         );
 
 
-    public static TheoryData<string, Option<Option<int>>> NestedOptions() =>
+    public static TheoryData<string, Option<Option<int>>>
+    NestedOptions() =>
         new()
         {
             { """{"kind":"none"}""", none },
@@ -43,7 +45,10 @@ public class OptionJsonConverterTests
         };
 
 
-    private static T Deserialize<T>(string json) =>
+    private static T
+    Deserialize<T>(
+        string json
+    ) =>
         JsonSerializer.Deserialize<T>(json, _options) ??
             throw new InvalidOperationException($"Deserialized a null {typeof(T)}.");
 
@@ -161,7 +166,11 @@ public class OptionJsonConverterTests
 
     [Theory]
     [MemberData(nameof(NestedOptions))]
-    public void Write_WhenOptionsAreNested_WritesEveryLevel(string expected, Option<Option<int>> option)
+    public void
+    Write_WhenOptionsAreNested_WritesEveryLevel(
+        string expected,
+        Option<Option<int>> option
+    )
     {
         Assert.Equal(expected, JsonSerializer.Serialize(option, _options));
     }

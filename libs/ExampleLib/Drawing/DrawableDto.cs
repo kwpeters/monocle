@@ -41,20 +41,28 @@ public static class DrawableDtoExt
     // Static methods
     //------------------------------------------------------------------------------
 
-    public static DrawableDto FromDomain(Drawable drawable) => drawable switch
-    {
-        Drawable.CircleCase(Circle circle) => new DrawableDto.CircleCase(CircleDtoExt.FromDomain(circle)),
-        Drawable.LabelCase(Label label) => new DrawableDto.LabelCase(LabelDtoExt.FromDomain(label)),
-        _ => throw new UnreachableException()
-    };
+    public static DrawableDto
+    FromDomain(
+        Drawable drawable
+    ) =>
+        drawable switch
+        {
+            Drawable.CircleCase(Circle circle) => new DrawableDto.CircleCase(CircleDtoExt.FromDomain(circle)),
+            Drawable.LabelCase(Label label) => new DrawableDto.LabelCase(LabelDtoExt.FromDomain(label)),
+            _ => throw new UnreachableException()
+        };
 
 
-    public static Result<Drawable, string> ToDomain(this DrawableDto dto) => dto switch
-    {
-        DrawableDto.CircleCase(CircleDto circleDto) =>
-            circleDto.ToDomain().MapSuccess(Drawable (Circle circle) => new Drawable.CircleCase(circle)),
-        DrawableDto.LabelCase(LabelDto labelDto) =>
-            labelDto.ToDomain().MapSuccess(Drawable (Label label) => new Drawable.LabelCase(label)),
-        _ => throw new UnreachableException()
-    };
+    public static Result<Drawable, string>
+    ToDomain(
+        this DrawableDto dto
+    ) =>
+        dto switch
+        {
+            DrawableDto.CircleCase(CircleDto circleDto) =>
+                circleDto.ToDomain().MapSuccess(Drawable (Circle circle) => new Drawable.CircleCase(circle)),
+            DrawableDto.LabelCase(LabelDto labelDto) =>
+                labelDto.ToDomain().MapSuccess(Drawable (Label label) => new Drawable.LabelCase(label)),
+            _ => throw new UnreachableException()
+        };
 }

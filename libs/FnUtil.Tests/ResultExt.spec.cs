@@ -285,7 +285,8 @@ public class ResultExtTests
 
 
     [Fact]
-    public async Task BindAsync_NonTaskInput_WhenGivenErrorResult_PropagatesErrorWithoutCallingFunction()
+    public async Task
+    BindAsync_NonTaskInput_WhenGivenErrorResult_PropagatesErrorWithoutCallingFunction()
     {
         bool fnCalled = false;
         Result<int, string> result = await ErrorE<int, string>("Error message").BindAsync(async (x) =>
@@ -447,7 +448,8 @@ public class ResultExtTests
 
 
     [Fact]
-    public async Task BindErrorAsync_Task_WhenGivenSuccessResult_ReturnsSuccessWithoutCallingFunction()
+    public async Task
+    BindErrorAsync_Task_WhenGivenSuccessResult_ReturnsSuccessWithoutCallingFunction()
     {
         bool fnCalled = false;
         Result<int, string> result = await Task.FromResult(SuccessE<int, string>(42))
@@ -666,7 +668,8 @@ public class ResultExtTests
 
 
     [Fact]
-    public async Task DefaultWithAsync_SyncResult_WhenGivenSuccessResult_ReturnsSuccessValueWithoutCallingFunction()
+    public async Task
+    DefaultWithAsync_SyncResult_WhenGivenSuccessResult_ReturnsSuccessValueWithoutCallingFunction()
     {
         bool fnCalled = false;
         int val = await SuccessE<int, string>(42).DefaultWithAsync(async (err) => {
@@ -1476,7 +1479,8 @@ public class ResultExtTests
 
 
     [Fact]
-    public async Task MapErrorAsync_NonTaskInput_WhenGivenSuccessResult_PassesThroughWithoutCallingFunction()
+    public async Task
+    MapErrorAsync_NonTaskInput_WhenGivenSuccessResult_PassesThroughWithoutCallingFunction()
     {
         bool fnCalled = false;
         Result<int, int> result = await SuccessE<int, string>(42).MapErrorAsync(async (e) =>
@@ -1653,7 +1657,8 @@ public class ResultExtTests
 
 
     [Fact]
-    public async Task MapSuccessAsync_NonTaskInput_WhenGivenErrorResult_PassesThroughWithoutCallingFunction()
+    public async Task
+    MapSuccessAsync_NonTaskInput_WhenGivenErrorResult_PassesThroughWithoutCallingFunction()
     {
         bool fnCalled = false;
         Result<int, string> result = await ErrorE<int, string>("Error message").MapSuccessAsync(async (x) =>
@@ -1706,7 +1711,10 @@ public class ResultExtTests
     [Fact]
     public void MapWhileSuccessful_WhenAllSucceed_ReturnsAllMappedValuesInOrder()
     {
-        static Result<int, string> tenTimesPositive(int x) =>
+        static Result<int, string>
+        tenTimesPositive(
+            int x
+        ) =>
             x > 0 ? Success(x * 10) : Error($"{x} is not positive");
 
         Result<IEnumerable<int>, string> result = new[] { 1, 2, 3 }.MapWhileSuccessful(tenTimesPositive);
@@ -1852,7 +1860,8 @@ public class ResultExtTests
     // ── MatchAsync (non-Task input — async callbacks) ─────────────────────
 
     [Fact]
-    public async Task MatchAsync_NonTaskInput_WithReturnValue_WhenGivenSuccessResult_ExecutesSuccessFn()
+    public async Task
+    MatchAsync_NonTaskInput_WithReturnValue_WhenGivenSuccessResult_ExecutesSuccessFn()
     {
         string result = await SuccessE<int, string>(42).MatchAsync(
             async (s) =>
@@ -2385,7 +2394,10 @@ public class ResultExtTests
     [Fact]
     public void SelectMany_WhenUsedWithQuerySyntax_AllowsLaterClausesToUseEarlierValues()
     {
-        static Result<int, string> half(int x) =>
+        static Result<int, string>
+        half(
+            int x
+        ) =>
             x % 2 == 0 ? Success(x / 2) : Error($"{x} is odd");
 
         Result<int, string> success =
@@ -2830,7 +2842,8 @@ public class ResultExtTests
 
 
     [Fact]
-    public async Task ThrowIfError_Task_WhenGivenErrorResultWithCustomMessage_ThrowsWithCustomMessage()
+    public async Task
+    ThrowIfError_Task_WhenGivenErrorResultWithCustomMessage_ThrowsWithCustomMessage()
     {
         InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(
             async () => await Task.FromResult(ErrorE<int, string>("Error message")).ThrowIfError("Custom error"));
@@ -2903,7 +2916,8 @@ public class ResultExtTests
 
 
     [Fact]
-    public async Task ThrowIfSuccess_MessageFn_Task_WhenGivenSuccessResult_ThrowsWithMessageFromValue()
+    public async Task
+    ThrowIfSuccess_MessageFn_Task_WhenGivenSuccessResult_ThrowsWithMessageFromValue()
     {
         InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(
             async () => await Task.FromResult(SuccessE<int, string>(42)).ThrowIfSuccess((s) => $"Unexpected: {s}"));
@@ -2931,7 +2945,8 @@ public class ResultExtTests
 
 
     [Fact]
-    public async Task ThrowIfSuccess_Task_WhenGivenSuccessResultWithCustomMessage_ThrowsWithCustomMessage()
+    public async Task
+    ThrowIfSuccess_Task_WhenGivenSuccessResultWithCustomMessage_ThrowsWithCustomMessage()
     {
         InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(
             async () => await Task.FromResult(SuccessE<int, string>(42)).ThrowIfSuccess("Custom error"));
