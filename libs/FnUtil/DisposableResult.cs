@@ -110,11 +110,11 @@ public sealed class DisposableResult<TSuccess, TError> : IDisposable
     /// </summary>
     public void
     Match(
-        Action<TSuccess> successAction,
-        Action<TError> errorAction
+        Action<TSuccess> successFn,
+        Action<TError> errorFn
     )
     {
-        _result.Match(successAction, errorAction);
+        _result.Match(successFn, errorFn);
     }
 
 

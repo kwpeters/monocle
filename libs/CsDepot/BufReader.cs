@@ -149,15 +149,15 @@ public sealed class BufReader
 
 
     /// <summary>
-    /// Reads several values as one unit.  <paramref name="read"/> receives a
+    /// Reads several values as one unit.  <paramref name="readFn"/> receives a
     /// new reader that starts at this reader's offset.  If it succeeds, this
     /// reader advances past everything it read.  If it fails, this reader is
     /// left unchanged.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// <paramref name="read"/> must read only from the reader it is given.
-    /// Reads from this reader inside <paramref name="read"/> are not undone on
+    /// <paramref name="readFn"/> must read only from the reader it is given.
+    /// Reads from this reader inside <paramref name="readFn"/> are not undone on
     /// failure, and are overwritten on success.
     /// </para>
     /// <para>
@@ -167,15 +167,15 @@ public sealed class BufReader
     /// </para>
     /// </remarks>
     /// <typeparam name="T">The type of the value read.</typeparam>
-    /// <param name="read">Reads the values and returns the result.</param>
-    /// <returns>The result returned by <paramref name="read"/>.</returns>
+    /// <param name="readFn">Reads the values and returns the result.</param>
+    /// <returns>The result returned by <paramref name="readFn"/>.</returns>
     public Result<T, string>
     Attempt<T>(
-        Func<BufReader, Result<T, string>> read
+        Func<BufReader, Result<T, string>> readFn
     )
     {
         BufReader attemptReader = new(_buffer, OffsetBytes);
-        Result<T, string> result = read(attemptReader);
+        Result<T, string> result = readFn(attemptReader);
         if (result.IsSuccess)
         {
             OffsetBytes = attemptReader.OffsetBytes;

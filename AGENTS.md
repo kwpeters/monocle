@@ -21,6 +21,7 @@ kinds of work. Read a guide only when the task calls for it.
 - **Two blank lines between members** (methods, properties, fields with attributes, test methods). Use one blank line only within a member's body.
 - **Private fields**: `_camelCase` with underscore prefix.
 - **Physical quantities**: include the units.  For example, `timeoutMs`.
+- **Functions**: end the name of a parameter, property or field whose type is a function (`Func<...>`, `Action<...>`, or any other delegate type) with `Fn`. For example, `predicateFn`, `runFn`, `successFn`. This is a convention that tooling does not enforce. Exceptions: events, which keep the usual .NET event naming, and parameters of members that override or implement an API from outside this repo, which keep that API's names so that named arguments still match.
 - See [.editorconfig](.editorconfig) for all formatting and style rules.
 
 ### Lambdas
@@ -32,7 +33,7 @@ kinds of work. Read a guide only when the task calls for it.
 Keep a ternary on a single line when it fits within 100 columns:
 
 ```csharp
-return input.Count > 0 ? Success(input) : Error(errorFactory());
+return input.Count > 0 ? Success(input) : Error(errorFactoryFn());
 ```
 
 When a ternary spans multiple lines, the `?` and `:` should appear at the end of the line (not the beginning of the next line). For example:
@@ -99,6 +100,25 @@ Start each section with a separator comment naming it. The separators may be omi
 
 ## Patterns
 
+### Decomposition
+
+Decompose aggressively into functions.
+Whenever a method or function does several things,
+move each operation into its own function,
+so that the original reads as a short sequence of named steps.
+Choose the home that fits the operation:
+
+- A local function, when only that one method uses it.
+- A private method, when other members of the same class use it.
+- A reusable utility function, when other classes or projects could use it.
+
+Name each function for what it does,
+so that the caller reads without opening the steps.
+Decomposition has a cost in some code,
+such as hot paths where call overhead or lost inlining, allocations, or captured variables matter.
+In those cases you may keep the operations together,
+but write a comment on the method that says why.
+
 ### Functional Programming
 
 - Always prefer use of the functional data types and patterns defined in the FnUtil library.
@@ -127,7 +147,7 @@ Model data as immutable records, and keep the problem model separate from its wi
 
 - Data types are `sealed record class` types. Never use `record struct`.
 - Use nominal syntax. Positional syntax is only for single-value wrappers and small types whose parameters have distinct types.
-- **Domain types** model the problem and are never serialized. Their factories, constants and pure operations are members of the type. A type with invariants has a private constructor, `{ get; private init; }` properties, and a static `Create` factory that returns `Result<T, TError>`.
+- **Domain types** model the problem and are never serialized. Their factories, constants and pure operations are members of the type. A type with invariants has a private constructor, `{ get; private init; }` properties, and a static `Create` factory that returns `Result<T, TError>`. A type without invariants may be publicly constructible, or may use the same private-constructor and static-factory pattern.
 - **DTOs** model a wire format, and all JSON goes through them. Their names end in `Dto`. They hold data only, in `required` `{ get; init; }` properties, and map to and from their domain type in a `<Type>DtoExt` class.
 - Operations are pure. "Modifying" operations return a copy made with `with`.
 
@@ -159,4 +179,60 @@ Model data as immutable records, and keep the problem model separate from its wi
 ```shell
 dotnet build
 dotnet test
+```
+
+## Markdown Guidelines
+
+### Markdown: semantic line breaks
+
+Write Markdown prose with [semantic line breaks](https://sembr.org).
+Line breaks follow the structure of the sentence,
+not a column width.
+
+- Start every sentence on a new line.
+- Break a long sentence at its clause boundaries:
+  after a comma, semicolon, colon, or dash that ends a clause,
+  and before a conjunction or relative clause that starts a new idea.
+- Keep each line a complete unit of thought;
+  short clauses can share a line with the clause they belong to.
+- Keep inline code spans, links, and emphasized phrases whole on one line.
+- In list items, indent continuation lines to align with the item's text.
+- When you edit a paragraph, reflow the whole paragraph to semantic line breaks.
+
+These breaks leave the rendered output unchanged,
+because Markdown renders a single newline inside a paragraph as a space.
+They keep diffs small, since changing one clause changes one line.
+
+Example:
+
+```markdown
+The cache is shared by every worker process,
+so a stale entry written by one worker is visible to all of them.
+If the entry has expired,
+the next read misses the cache
+and the value is loaded from the database.
+```
+
+### Markdown: aligned tables
+
+Use a table only for short, enumerable data such as names, types, and flags.
+If any row would exceed about 120 characters
+(prose sentences, long URLs),
+use a list or one heading per row instead.
+
+Pad table cells with spaces so the columns line up when the file is viewed as plain text.
+Every `|` in a column sits at the same character position on every row,
+including the header and the delimiter row.
+
+- When you add, remove, or edit a cell, re-pad the whole table to the new widest cell in each column.
+- A table row stays on one line.
+  Semantic line breaks apply to prose, not to table rows.
+
+Example:
+
+```markdown
+| Name   | Role                  |
+| ------ | --------------------- |
+| Parser | Reads the input file  |
+| Cache  | Stores recent results |
 ```

@@ -476,16 +476,16 @@ public static class OptionExt
     /// </summary>
     /// <typeparam name="T">The type of value contained in the Option.</typeparam>
     /// <param name="opt">The Option to extract a value from.</param>
-    /// <param name="defaultValueFunc">
+    /// <param name="defaultValueFn">
     /// A function that produces the default value.  This function is only
     /// invoked if the Option is None.
     /// </param>
     /// <returns>The contained value or the computed default value.</returns>
     public static T
-    DefaultWith<T>(this Option<T> opt, Func<T> defaultValueFunc) =>
+    DefaultWith<T>(this Option<T> opt, Func<T> defaultValueFn) =>
         opt.Match(
             (t) => t,
-            () => defaultValueFunc()
+            () => defaultValueFn()
         );
 
     /// <summary>
@@ -496,11 +496,11 @@ public static class OptionExt
     public static async Task<T>
     DefaultWith<T>(
         this Task<Option<T>> taskInput,
-        Func<T> defaultValueFunc
+        Func<T> defaultValueFn
     )
     {
         Option<T> opt = await taskInput.ConfigureAwait(false);
-        return opt.DefaultWith(defaultValueFunc);
+        return opt.DefaultWith(defaultValueFn);
     }
 
 
@@ -510,16 +510,16 @@ public static class OptionExt
     /// </summary>
     /// <typeparam name="T">The type of value contained in the Option.</typeparam>
     /// <param name="opt">The Option to extract a value from.</param>
-    /// <param name="defaultValueFunc">
+    /// <param name="defaultValueFn">
     /// An async function that produces the default value.  This function is
     /// only invoked if the Option is None.
     /// </param>
     /// <returns>A Task containing the contained value or the computed default value.</returns>
     public static Task<T>
-    DefaultWithAsync<T>(this Option<T> opt, Func<Task<T>> defaultValueFunc) =>
+    DefaultWithAsync<T>(this Option<T> opt, Func<Task<T>> defaultValueFn) =>
         opt.Match(
             (t) => Task.FromResult(t),
-            () => defaultValueFunc()
+            () => defaultValueFn()
         );
 
     /// <summary>
@@ -530,13 +530,13 @@ public static class OptionExt
     public static async Task<T>
     DefaultWithAsync<T>(
         this Task<Option<T>> taskInput,
-        Func<Task<T>> defaultValueFunc
+        Func<Task<T>> defaultValueFn
     )
     {
         Option<T> opt = await taskInput.ConfigureAwait(false);
         T result = opt switch {
             Some<T> some => some.Value,
-            None<T> => await defaultValueFunc().ConfigureAwait(false),
+            None<T> => await defaultValueFn().ConfigureAwait(false),
             _ => throw new ArgumentException("Option must be None or Some.")
         };
         return result;
@@ -549,7 +549,7 @@ public static class OptionExt
     /// </summary>
     /// <typeparam name="T">The type of the contained value.</typeparam>
     /// <param name="input">The option to check.</param>
-    /// <param name="predicate">The predicate to apply to the contained value.</param>
+    /// <param name="predicateFn">The predicate to apply to the contained value.</param>
     /// <returns>True if the option is Some and the predicate returns true; false otherwise.</returns>
     /// <example>
     /// <code>
@@ -563,11 +563,11 @@ public static class OptionExt
     public static bool
     Exists<T>(
         this Option<T> input,
-        Func<T, bool> predicate
+        Func<T, bool> predicateFn
     )
     {
         return input.Match(
-            (t) => predicate(t),
+            (t) => predicateFn(t),
             () => false
         );
     }
@@ -579,7 +579,7 @@ public static class OptionExt
     /// </summary>
     /// <typeparam name="T">The type of the contained value.</typeparam>
     /// <param name="taskInput">The task wrapping an option to check.</param>
-    /// <param name="predicate">The predicate to apply to the contained value.</param>
+    /// <param name="predicateFn">The predicate to apply to the contained value.</param>
     /// <returns>A task that completes with true if the option is Some and the predicate returns true; false otherwise.</returns>
     /// <example>
     /// <code>
@@ -591,11 +591,11 @@ public static class OptionExt
     public static async Task<bool>
     Exists<T>(
         this Task<Option<T>> taskInput,
-        Func<T, bool> predicate
+        Func<T, bool> predicateFn
     )
     {
         Option<T> input = await taskInput.ConfigureAwait(false);
-        return input.Exists(predicate);
+        return input.Exists(predicateFn);
     }
 
 
@@ -605,7 +605,7 @@ public static class OptionExt
     /// </summary>
     /// <typeparam name="T">The type of the contained value.</typeparam>
     /// <param name="input">The option to check.</param>
-    /// <param name="predicate">The asynchronous predicate to apply to the contained value.</param>
+    /// <param name="predicateFn">The asynchronous predicate to apply to the contained value.</param>
     /// <returns>A task that completes with true if the option is Some and the predicate returns true; false otherwise.</returns>
     /// <example>
     /// <code>
@@ -620,11 +620,11 @@ public static class OptionExt
     public static async Task<bool>
     ExistsAsync<T>(
         this Option<T> input,
-        Func<T, Task<bool>> predicate
+        Func<T, Task<bool>> predicateFn
     )
     {
         return await input.Match(
-            async (t) => await predicate(t).ConfigureAwait(false),
+            async (t) => await predicateFn(t).ConfigureAwait(false),
             () => Task.FromResult(false)
         ).ConfigureAwait(false);
     }
@@ -636,7 +636,7 @@ public static class OptionExt
     /// </summary>
     /// <typeparam name="T">The type of the contained value.</typeparam>
     /// <param name="taskInput">The task wrapping an option to check.</param>
-    /// <param name="predicate">The asynchronous predicate to apply to the contained value.</param>
+    /// <param name="predicateFn">The asynchronous predicate to apply to the contained value.</param>
     /// <returns>A task that completes with true if the option is Some and the predicate returns true; false otherwise.</returns>
     /// <example>
     /// <code>
@@ -651,11 +651,11 @@ public static class OptionExt
     public static async Task<bool>
     ExistsAsync<T>(
         this Task<Option<T>> taskInput,
-        Func<T, Task<bool>> predicate
+        Func<T, Task<bool>> predicateFn
     )
     {
         Option<T> input = await taskInput.ConfigureAwait(false);
-        return await input.ExistsAsync(predicate).ConfigureAwait(false);
+        return await input.ExistsAsync(predicateFn).ConfigureAwait(false);
     }
 
 
@@ -1179,7 +1179,7 @@ public static class OptionExt
     /// <typeparam name="T">The type of value contained in the input Option.</typeparam>
     /// <typeparam name="TOut">The type of value contained in the output Option.</typeparam>
     /// <param name="input">The input Option.</param>
-    /// <param name="selector">
+    /// <param name="selectorFn">
     /// The function to apply to the contained value.  Only invoked if the input
     /// Option is Some.
     /// </param>
@@ -1190,9 +1190,9 @@ public static class OptionExt
     public static Option<TOut>
     Select<T, TOut>(
         this Option<T> input,
-        Func<T, TOut> selector
+        Func<T, TOut> selectorFn
     ) =>
-        input.Map(selector);
+        input.Map(selectorFn);
 
 
     /// <summary>
@@ -1212,15 +1212,15 @@ public static class OptionExt
     /// <typeparam name="T">The type of value contained in the input Option.</typeparam>
     /// <typeparam name="TNext">
     /// The type of value contained in the Option returned by
-    /// <paramref name="next"/>.
+    /// <paramref name="nextFn"/>.
     /// </typeparam>
     /// <typeparam name="TOut">The type of value contained in the output Option.</typeparam>
     /// <param name="input">The input Option.</param>
-    /// <param name="next">
+    /// <param name="nextFn">
     /// A function that takes the input's value and returns the next Option.
     /// Only invoked if the input Option is Some.
     /// </param>
-    /// <param name="project">
+    /// <param name="projectFn">
     /// A function that combines both values into the output value.  Only
     /// invoked if both Options are Some.
     /// </param>
@@ -1231,10 +1231,10 @@ public static class OptionExt
     public static Option<TOut>
     SelectMany<T, TNext, TOut>(
         this Option<T> input,
-        Func<T, Option<TNext>> next,
-        Func<T, TNext, TOut> project
+        Func<T, Option<TNext>> nextFn,
+        Func<T, TNext, TOut> projectFn
     ) =>
-        input.Bind((a) => next(a).Map((b) => project(a, b)));
+        input.Bind((a) => nextFn(a).Map((b) => projectFn(a, b)));
 
 
     /// <summary>

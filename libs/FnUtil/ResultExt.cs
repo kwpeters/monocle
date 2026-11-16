@@ -499,7 +499,7 @@ public static class ResultExt
     /// <typeparam name="TSuccess">The type of the success value.</typeparam>
     /// <typeparam name="TError">The type of the error value.</typeparam>
     /// <param name="input">The input Result.</param>
-    /// <param name="defaultValueFunc">
+    /// <param name="defaultValueFn">
     /// A function that takes the error value and returns a default success
     /// value. This function is only invoked if the input Result is an error.
     /// </param>
@@ -510,12 +510,12 @@ public static class ResultExt
     public static TSuccess
     DefaultWith<TSuccess, TError>(
         this Result<TSuccess, TError> input,
-        Func<TError, TSuccess> defaultValueFunc
+        Func<TError, TSuccess> defaultValueFn
     )
     {
         TSuccess val = input.Match(
             (s) => s,
-            (e) => defaultValueFunc(e)
+            (e) => defaultValueFn(e)
         );
         return val;
     }
@@ -528,11 +528,11 @@ public static class ResultExt
     public static async Task<TSuccess>
     DefaultWith<TSuccess, TError>(
         this Task<Result<TSuccess, TError>> taskInput,
-        Func<TError, TSuccess> defaultValueFunc
+        Func<TError, TSuccess> defaultValueFn
     )
     {
         Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
-        return input.DefaultWith(defaultValueFunc);
+        return input.DefaultWith(defaultValueFn);
     }
 
 
@@ -543,7 +543,7 @@ public static class ResultExt
     /// <typeparam name="TSuccess">The type of the success value.</typeparam>
     /// <typeparam name="TError">The type of the error value.</typeparam>
     /// <param name="input">The input Result.</param>
-    /// <param name="defaultValueFunc">
+    /// <param name="defaultValueFn">
     /// An asynchronous function that takes the error value and returns a
     /// default success value. This function is only invoked if the input
     /// Result is an error.
@@ -555,11 +555,11 @@ public static class ResultExt
     public static Task<TSuccess>
     DefaultWithAsync<TSuccess, TError>(
         this Result<TSuccess, TError> input,
-        Func<TError, Task<TSuccess>> defaultValueFunc
+        Func<TError, Task<TSuccess>> defaultValueFn
     ) =>
         input.Match(
             (s) => Task.FromResult(s),
-            (e) => defaultValueFunc(e)
+            (e) => defaultValueFn(e)
         );
 
 
@@ -571,13 +571,13 @@ public static class ResultExt
     public static async Task<TSuccess>
     DefaultWithAsync<TSuccess, TError>(
         this Task<Result<TSuccess, TError>> taskInput,
-        Func<TError, Task<TSuccess>> defaultValueFunc
+        Func<TError, Task<TSuccess>> defaultValueFn
     )
     {
         Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
         TSuccess result = input switch {
             SuccessResult<TSuccess, TError>(var s) => s,
-            ErrorResult<TSuccess, TError>(var e) => await defaultValueFunc(e).ConfigureAwait(false),
+            ErrorResult<TSuccess, TError>(var e) => await defaultValueFn(e).ConfigureAwait(false),
             _ => throw new ArgumentException("Result must be SuccessResult or ErrorResult.")
         };
         return result;
@@ -637,7 +637,7 @@ public static class ResultExt
     /// <typeparam name="TSuccess">The type of the success value.</typeparam>
     /// <typeparam name="TError">The type of the error value.</typeparam>
     /// <param name="input">The result to check.</param>
-    /// <param name="predicate">The predicate to apply to the success value.</param>
+    /// <param name="predicateFn">The predicate to apply to the success value.</param>
     /// <returns>True if the result is successful and the predicate returns true; false otherwise.</returns>
     /// <example>
     /// <code>
@@ -651,11 +651,11 @@ public static class ResultExt
     public static bool
     Exists<TSuccess, TError>(
         this Result<TSuccess, TError> input,
-        Func<TSuccess, bool> predicate
+        Func<TSuccess, bool> predicateFn
     )
     {
         return input.Match(
-            (s) => predicate(s),
+            (s) => predicateFn(s),
             (e) => false
         );
     }
@@ -668,7 +668,7 @@ public static class ResultExt
     /// <typeparam name="TSuccess">The type of the success value.</typeparam>
     /// <typeparam name="TError">The type of the error value.</typeparam>
     /// <param name="taskInput">The task wrapping a result to check.</param>
-    /// <param name="predicate">The predicate to apply to the success value.</param>
+    /// <param name="predicateFn">The predicate to apply to the success value.</param>
     /// <returns>A task that completes with true if the result is successful and the predicate returns true; false otherwise.</returns>
     /// <example>
     /// <code>
@@ -680,11 +680,11 @@ public static class ResultExt
     public static async Task<bool>
     Exists<TSuccess, TError>(
         this Task<Result<TSuccess, TError>> taskInput,
-        Func<TSuccess, bool> predicate
+        Func<TSuccess, bool> predicateFn
     )
     {
         Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
-        return input.Exists(predicate);
+        return input.Exists(predicateFn);
     }
 
 
@@ -695,7 +695,7 @@ public static class ResultExt
     /// <typeparam name="TSuccess">The type of the success value.</typeparam>
     /// <typeparam name="TError">The type of the error value.</typeparam>
     /// <param name="input">The result to check.</param>
-    /// <param name="predicate">The asynchronous predicate to apply to the success value.</param>
+    /// <param name="predicateFn">The asynchronous predicate to apply to the success value.</param>
     /// <returns>A task that completes with true if the result is successful and the predicate returns true; false otherwise.</returns>
     /// <example>
     /// <code>
@@ -710,11 +710,11 @@ public static class ResultExt
     public static async Task<bool>
     ExistsAsync<TSuccess, TError>(
         this Result<TSuccess, TError> input,
-        Func<TSuccess, Task<bool>> predicate
+        Func<TSuccess, Task<bool>> predicateFn
     )
     {
         return await input.Match(
-            async (s) => await predicate(s).ConfigureAwait(false),
+            async (s) => await predicateFn(s).ConfigureAwait(false),
             (e) => Task.FromResult(false)
         ).ConfigureAwait(false);
     }
@@ -727,7 +727,7 @@ public static class ResultExt
     /// <typeparam name="TSuccess">The type of the success value.</typeparam>
     /// <typeparam name="TError">The type of the error value.</typeparam>
     /// <param name="taskInput">The task wrapping a result to check.</param>
-    /// <param name="predicate">The asynchronous predicate to apply to the success value.</param>
+    /// <param name="predicateFn">The asynchronous predicate to apply to the success value.</param>
     /// <returns>A task that completes with true if the result is successful and the predicate returns true; false otherwise.</returns>
     /// <example>
     /// <code>
@@ -743,11 +743,11 @@ public static class ResultExt
     public static async Task<bool>
     ExistsAsync<TSuccess, TError>(
         this Task<Result<TSuccess, TError>> taskInput,
-        Func<TSuccess, Task<bool>> predicate
+        Func<TSuccess, Task<bool>> predicateFn
     )
     {
         Result<TSuccess, TError> input = await taskInput.ConfigureAwait(false);
-        return await input.ExistsAsync(predicate).ConfigureAwait(false);
+        return await input.ExistsAsync(predicateFn).ConfigureAwait(false);
     }
 
 
@@ -1489,20 +1489,20 @@ public static class ResultExt
     /// <typeparam name="T">The type of the list elements.</typeparam>
     /// <typeparam name="TError">The error value type.</typeparam>
     /// <param name="input">The list to check.</param>
-    /// <param name="errorFactory">
+    /// <param name="errorFactoryFn">
     /// Factory for the error value.  This factory is invoked only when the
     /// list is empty.
     /// </param>
     /// <returns>
     /// A successful Result containing the list if it is not empty; otherwise
-    /// Error(errorFactory()).
+    /// Error(errorFactoryFn()).
     /// </returns>
     public static Result<IReadOnlyList<T>, TError>
     RequireNonEmpty<T, TError>(
         this IReadOnlyList<T> input,
-        Func<TError> errorFactory
+        Func<TError> errorFactoryFn
     ) =>
-        input.Count > 0 ? Success(input) : Error(errorFactory());
+        input.Count > 0 ? Success(input) : Error(errorFactoryFn());
 
 
     /// <summary>
@@ -1512,28 +1512,28 @@ public static class ResultExt
     /// <typeparam name="T">The type of the sequence elements.</typeparam>
     /// <typeparam name="TError">The error value type.</typeparam>
     /// <param name="input">The sequence to check.</param>
-    /// <param name="errorFactory">
+    /// <param name="errorFactoryFn">
     /// Factory for the error value.  This factory is invoked only when the
     /// sequence does not contain exactly one element.
     /// </param>
     /// <returns>
     /// A successful Result containing the single element if there is exactly
-    /// one; otherwise Error(errorFactory()).
+    /// one; otherwise Error(errorFactoryFn()).
     /// </returns>
     public static Result<T, TError>
     RequireSingle<T, TError>(
         this IEnumerable<T> input,
-        Func<TError> errorFactory
+        Func<TError> errorFactoryFn
     )
     {
         using IEnumerator<T> enumerator = input.GetEnumerator();
         if (!enumerator.MoveNext())
         {
-            return Error(errorFactory());
+            return Error(errorFactoryFn());
         }
 
         T first = enumerator.Current;
-        return enumerator.MoveNext() ? Error(errorFactory()) : Success(first);
+        return enumerator.MoveNext() ? Error(errorFactoryFn()) : Success(first);
     }
 
 
@@ -1553,7 +1553,7 @@ public static class ResultExt
     /// </typeparam>
     /// <typeparam name="TError">The type of the error value.</typeparam>
     /// <param name="input">The input Result.</param>
-    /// <param name="selector">
+    /// <param name="selectorFn">
     /// The function to apply to the success value.  Only invoked if the input
     /// Result is successful.
     /// </param>
@@ -1564,9 +1564,9 @@ public static class ResultExt
     public static Result<TOutSuccess, TError>
     Select<TInSuccess, TOutSuccess, TError>(
         this Result<TInSuccess, TError> input,
-        Func<TInSuccess, TOutSuccess> selector
+        Func<TInSuccess, TOutSuccess> selectorFn
     ) =>
-        input.MapSuccess(selector);
+        input.MapSuccess(selectorFn);
 
 
     /// <summary>
@@ -1589,18 +1589,18 @@ public static class ResultExt
     /// </typeparam>
     /// <typeparam name="TNextSuccess">
     /// The type of the success value in the Result returned by
-    /// <paramref name="next"/>.
+    /// <paramref name="nextFn"/>.
     /// </typeparam>
     /// <typeparam name="TOutSuccess">
     /// The type of the success value in the output Result.
     /// </typeparam>
     /// <typeparam name="TError">The type of the error value.</typeparam>
     /// <param name="input">The input Result.</param>
-    /// <param name="next">
+    /// <param name="nextFn">
     /// A function that takes the input's success value and returns the next
     /// Result.  Only invoked if the input Result is successful.
     /// </param>
-    /// <param name="project">
+    /// <param name="projectFn">
     /// A function that combines both success values into the output value.
     /// Only invoked if both Results are successful.
     /// </param>
@@ -1611,10 +1611,10 @@ public static class ResultExt
     public static Result<TOutSuccess, TError>
     SelectMany<TInSuccess, TNextSuccess, TOutSuccess, TError>(
         this Result<TInSuccess, TError> input,
-        Func<TInSuccess, Result<TNextSuccess, TError>> next,
-        Func<TInSuccess, TNextSuccess, TOutSuccess> project
+        Func<TInSuccess, Result<TNextSuccess, TError>> nextFn,
+        Func<TInSuccess, TNextSuccess, TOutSuccess> projectFn
     ) =>
-        input.Bind((a) => next(a).MapSuccess((b) => project(a, b)));
+        input.Bind((a) => nextFn(a).MapSuccess((b) => projectFn(a, b)));
 
 
     /// <summary>
@@ -2061,49 +2061,49 @@ public static class ResultExt
     /// <summary>
     /// Converts a nullable reference to a Result explicitly.
     /// Returns Success(value) when value is non-null; otherwise returns
-    /// Error(errorFactory()).
+    /// Error(errorFactoryFn()).
     /// </summary>
     /// <typeparam name="TSuccess">The success value type.</typeparam>
     /// <typeparam name="TError">The error value type.</typeparam>
     /// <param name="value">The nullable input value.</param>
-    /// <param name="errorFactory">
+    /// <param name="errorFactoryFn">
     /// Factory for the error value. This factory is invoked only when value is null.
     /// </param>
     public static Result<TSuccess, TError>
     ToResult<TSuccess, TError>(
         this TSuccess? value,
-        Func<TError> errorFactory
+        Func<TError> errorFactoryFn
     ) where TSuccess : class
     {
-        ArgumentNullException.ThrowIfNull(errorFactory);
+        ArgumentNullException.ThrowIfNull(errorFactoryFn);
 
-        return value is null ? Error(errorFactory()) : Success(value);
+        return value is null ? Error(errorFactoryFn()) : Success(value);
     }
 
 
     /// <summary>
     /// Converts an Option to a Result explicitly.
     /// Returns Success(value) when the Option is Some; otherwise returns
-    /// Error(errorFactory()).
+    /// Error(errorFactoryFn()).
     /// </summary>
     /// <typeparam name="TSuccess">The success value type.</typeparam>
     /// <typeparam name="TError">The error value type.</typeparam>
     /// <param name="input">The Option input value.</param>
-    /// <param name="errorFactory">
+    /// <param name="errorFactoryFn">
     /// Factory for the error value. This factory is invoked only when the Option is None.
     /// </param>
     public static Result<TSuccess, TError>
     ToResult<TSuccess, TError>(
         this Option<TSuccess> input,
-        Func<TError> errorFactory
+        Func<TError> errorFactoryFn
     )
     {
         ArgumentNullException.ThrowIfNull(input);
-        ArgumentNullException.ThrowIfNull(errorFactory);
+        ArgumentNullException.ThrowIfNull(errorFactoryFn);
 
         return input.Match<TSuccess, Result<TSuccess, TError>>(
             someFn: (value) => Success(value),
-            noneFn: () => Error(errorFactory())
+            noneFn: () => Error(errorFactoryFn())
         );
     }
 
@@ -2111,23 +2111,23 @@ public static class ResultExt
     /// <summary>
     /// Converts a nullable value type to a Result explicitly.
     /// Returns Success(value) when value has a value; otherwise returns
-    /// Error(errorFactory()).
+    /// Error(errorFactoryFn()).
     /// </summary>
     /// <typeparam name="TSuccess">The success value type.</typeparam>
     /// <typeparam name="TError">The error value type.</typeparam>
     /// <param name="value">The nullable input value.</param>
-    /// <param name="errorFactory">
+    /// <param name="errorFactoryFn">
     /// Factory for the error value. This factory is invoked only when value is null.
     /// </param>
     public static Result<TSuccess, TError>
     ToResult<TSuccess, TError>(
         this TSuccess? value,
-        Func<TError> errorFactory
+        Func<TError> errorFactoryFn
     ) where TSuccess : struct
     {
-        ArgumentNullException.ThrowIfNull(errorFactory);
+        ArgumentNullException.ThrowIfNull(errorFactoryFn);
 
-        return value.HasValue ? Success(value.Value) : Error(errorFactory());
+        return value.HasValue ? Success(value.Value) : Error(errorFactoryFn());
     }
 
 
@@ -2151,24 +2151,24 @@ public static class ResultExt
     /// <summary>
     /// Converts a Task-wrapped Option to a Result explicitly.
     /// Returns Success(value) when the Option is Some; otherwise returns
-    /// Error(errorFactory()).
+    /// Error(errorFactoryFn()).
     /// </summary>
     /// <typeparam name="TSuccess">The success value type.</typeparam>
     /// <typeparam name="TError">The error value type.</typeparam>
     /// <param name="taskInput">A task that resolves to an Option.</param>
-    /// <param name="errorFactory">
+    /// <param name="errorFactoryFn">
     /// Factory for the error value. This factory is invoked only when the Option is None.
     /// </param>
     public static async Task<Result<TSuccess, TError>>
     ToResult<TSuccess, TError>(
         this Task<Option<TSuccess>> taskInput,
-        Func<TError> errorFactory
+        Func<TError> errorFactoryFn
     )
     {
         ArgumentNullException.ThrowIfNull(taskInput);
-        ArgumentNullException.ThrowIfNull(errorFactory);
+        ArgumentNullException.ThrowIfNull(errorFactoryFn);
 
         Option<TSuccess> input = await taskInput.ConfigureAwait(false);
-        return input.ToResult(errorFactory);
+        return input.ToResult(errorFactoryFn);
     }
 }

@@ -19,7 +19,7 @@ public static class IEnumerableExt
     /// </summary>
     /// <typeparam name="T">The type of elements in the collection.</typeparam>
     /// <param name="col">The collection to filter.</param>
-    /// <param name="filter">
+    /// <param name="filterFn">
     /// A predicate function that returns true for elements to exclude.
     /// </param>
     /// <returns>
@@ -28,8 +28,8 @@ public static class IEnumerableExt
     public static IEnumerable<T>
     Exclude<T>(
         this IEnumerable<T> col,
-        Func<T, bool> filter
-    ) => col.Where((T item) => !filter(item));
+        Func<T, bool> filterFn
+    ) => col.Where((T item) => !filterFn(item));
 
 
     /// <summary>
