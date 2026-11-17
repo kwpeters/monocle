@@ -73,8 +73,7 @@ public class ResultExtTests
     {
         int numEnumerated = 0;
         IEnumerable<Result<int, string>> input = new Result<int, string>[] { Error("err1"), Success(1), Error("err2") }
-            .Select((r) =>
-            {
+            .Select((r) => {
                 numEnumerated++;
                 return r;
             });
@@ -135,8 +134,7 @@ public class ResultExtTests
     {
         int numEnumerated = 0;
         IEnumerable<Result<int, string>> input = new Result<int, string>[] { Success(1), Error("err1"), Success(2), Error("err2") }
-            .Select((r) =>
-            {
+            .Select((r) => {
                 numEnumerated++;
                 return r;
             });
@@ -275,8 +273,7 @@ public class ResultExtTests
     [Fact]
     public async Task BindAsync_NonTaskInput_WhenGivenSuccessResult_ChainsCorrectly()
     {
-        Result<int, string> result = await SuccessE<int, string>(21).BindAsync(async (x) =>
-        {
+        Result<int, string> result = await SuccessE<int, string>(21).BindAsync(async (x) => {
             await Task.Delay(1);
             return SuccessE<int, string>(x * 2);
         });
@@ -289,8 +286,7 @@ public class ResultExtTests
     BindAsync_NonTaskInput_WhenGivenErrorResult_PropagatesErrorWithoutCallingFunction()
     {
         bool fnCalled = false;
-        Result<int, string> result = await ErrorE<int, string>("Error message").BindAsync(async (x) =>
-        {
+        Result<int, string> result = await ErrorE<int, string>("Error message").BindAsync(async (x) => {
             fnCalled = true;
             await Task.Delay(1);
             return SuccessE<int, string>(x * 2);
@@ -369,8 +365,7 @@ public class ResultExtTests
     public void BindError_WhenGivenSuccessResult_ReturnsSuccessWithoutCallingFunction()
     {
         bool fnCalled = false;
-        Result<int, string> result = SuccessE<int, string>(42).BindError((e) =>
-        {
+        Result<int, string> result = SuccessE<int, string>(42).BindError((e) => {
             fnCalled = true;
             return SuccessE<int, string>(0);
         });
@@ -395,8 +390,7 @@ public class ResultExtTests
     {
         bool fnCalled = false;
         Result<int, string> result = await Task.FromResult(SuccessE<int, string>(42))
-            .BindError((e) =>
-            {
+            .BindError((e) => {
                 fnCalled = true;
                 return SuccessE<int, string>(0);
             });
@@ -410,8 +404,7 @@ public class ResultExtTests
     [Fact]
     public async Task BindErrorAsync_WhenGivenErrorResult_ReturnsResultOfFunction()
     {
-        Result<int, string> result = await ErrorE<int, string>("primary failed").BindErrorAsync(async (e) =>
-        {
+        Result<int, string> result = await ErrorE<int, string>("primary failed").BindErrorAsync(async (e) => {
             await Task.Delay(1);
             return SuccessE<int, string>(e.Length);
         });
@@ -423,8 +416,7 @@ public class ResultExtTests
     public async Task BindErrorAsync_WhenGivenSuccessResult_ReturnsSuccessWithoutCallingFunction()
     {
         bool fnCalled = false;
-        Result<int, string> result = await SuccessE<int, string>(42).BindErrorAsync(async (e) =>
-        {
+        Result<int, string> result = await SuccessE<int, string>(42).BindErrorAsync(async (e) => {
             fnCalled = true;
             await Task.Delay(1);
             return SuccessE<int, string>(0);
@@ -438,8 +430,7 @@ public class ResultExtTests
     public async Task BindErrorAsync_Task_WhenGivenErrorResult_ReturnsResultOfFunction()
     {
         Result<int, string> result = await Task.FromResult(ErrorE<int, string>("primary failed"))
-            .BindErrorAsync(async (e) =>
-            {
+            .BindErrorAsync(async (e) => {
                 await Task.Delay(1);
                 return SuccessE<int, string>(e.Length);
             });
@@ -453,8 +444,7 @@ public class ResultExtTests
     {
         bool fnCalled = false;
         Result<int, string> result = await Task.FromResult(SuccessE<int, string>(42))
-            .BindErrorAsync(async (e) =>
-            {
+            .BindErrorAsync(async (e) => {
                 fnCalled = true;
                 await Task.Delay(1);
                 return SuccessE<int, string>(0);
@@ -719,8 +709,7 @@ public class ResultExtTests
     {
         int numEnumerated = 0;
         IEnumerable<Result<int, string>> input = new Result<int, string>[] { Success(1), Error("err1"), Error("err2") }
-            .Select((r) =>
-            {
+            .Select((r) => {
                 numEnumerated++;
                 return r;
             });
@@ -851,8 +840,7 @@ public class ResultExtTests
     {
         Result<int, string> input = Success(42);
 
-        bool result = await input.ExistsAsync(async (x) =>
-        {
+        bool result = await input.ExistsAsync(async (x) => {
             await Task.Delay(1);
             return x > 40;
         });
@@ -866,8 +854,7 @@ public class ResultExtTests
     {
         Result<int, string> input = Success(42);
 
-        bool result = await input.ExistsAsync(async (x) =>
-        {
+        bool result = await input.ExistsAsync(async (x) => {
             await Task.Delay(1);
             return x > 50;
         });
@@ -881,8 +868,7 @@ public class ResultExtTests
     {
         Result<int, string> input = Error("failed");
 
-        bool result = await input.ExistsAsync(async (x) =>
-        {
+        bool result = await input.ExistsAsync(async (x) => {
             await Task.Delay(1);
             return x > 40;
         });
@@ -897,8 +883,7 @@ public class ResultExtTests
         Result<int, string> input = Error("failed");
         bool predicateInvoked = false;
 
-        bool result = await input.ExistsAsync(async (x) =>
-        {
+        bool result = await input.ExistsAsync(async (x) => {
             predicateInvoked = true;
             await Task.Delay(1);
             return x > 40;
@@ -917,8 +902,7 @@ public class ResultExtTests
         Result<int, string> successResult = Success(42);
         Task<Result<int, string>> input = Task.FromResult(successResult);
 
-        bool result = await input.ExistsAsync(async (x) =>
-        {
+        bool result = await input.ExistsAsync(async (x) => {
             await Task.Delay(1);
             return x > 40;
         });
@@ -933,8 +917,7 @@ public class ResultExtTests
         Result<int, string> errorResult = Error("failed");
         Task<Result<int, string>> input = Task.FromResult(errorResult);
 
-        bool result = await input.ExistsAsync(async (x) =>
-        {
+        bool result = await input.ExistsAsync(async (x) => {
             await Task.Delay(1);
             return x > 40;
         });
@@ -1014,8 +997,7 @@ public class ResultExtTests
     {
         Result<int, string> input = Success(5);
 
-        int result = await input.FoldAsync(async (state, value) =>
-        {
+        int result = await input.FoldAsync(async (state, value) => {
             await Task.Delay(1);
             return state + value;
         }, 10);
@@ -1029,8 +1011,7 @@ public class ResultExtTests
     {
         Result<int, string> input = Error("failed");
 
-        int result = await input.FoldAsync(async (state, value) =>
-        {
+        int result = await input.FoldAsync(async (state, value) => {
             await Task.Delay(1);
             return state + value;
         }, 10);
@@ -1045,8 +1026,7 @@ public class ResultExtTests
         Result<int, string> input = Error("failed");
         bool folderInvoked = false;
 
-        int result = await input.FoldAsync(async (state, value) =>
-        {
+        int result = await input.FoldAsync(async (state, value) => {
             folderInvoked = true;
             await Task.Delay(1);
             return state + value;
@@ -1065,8 +1045,7 @@ public class ResultExtTests
         Result<int, string> successResult = Success(5);
         Task<Result<int, string>> input = Task.FromResult(successResult);
 
-        int result = await input.FoldAsync(async (state, value) =>
-        {
+        int result = await input.FoldAsync(async (state, value) => {
             await Task.Delay(1);
             return state + value;
         }, 10);
@@ -1081,8 +1060,7 @@ public class ResultExtTests
         Result<int, string> errorResult = Error("failed");
         Task<Result<int, string>> input = Task.FromResult(errorResult);
 
-        int result = await input.FoldAsync(async (state, value) =>
-        {
+        int result = await input.FoldAsync(async (state, value) => {
             await Task.Delay(1);
             return state + value;
         }, 10);
@@ -1206,8 +1184,7 @@ public class ResultExtTests
     [Fact]
     public async Task GateAsync_NonTaskInput_WhenGateSucceeds_ReturnsOriginalSuccess()
     {
-        Result<int, string> result = await SuccessE<int, string>(10).GateAsync(async (x) =>
-        {
+        Result<int, string> result = await SuccessE<int, string>(10).GateAsync(async (x) => {
             await Task.Delay(1);
             return x > 5 ? SuccessE<bool, string>(true) : ErrorE<bool, string>("too small");
         });
@@ -1218,8 +1195,7 @@ public class ResultExtTests
     [Fact]
     public async Task GateAsync_NonTaskInput_WhenGateFails_ReturnsGateError()
     {
-        Result<int, string> result = await SuccessE<int, string>(3).GateAsync(async (x) =>
-        {
+        Result<int, string> result = await SuccessE<int, string>(3).GateAsync(async (x) => {
             await Task.Delay(1);
             return x > 5 ? SuccessE<bool, string>(true) : ErrorE<bool, string>("too small");
         });
@@ -1469,8 +1445,7 @@ public class ResultExtTests
     [Fact]
     public async Task MapErrorAsync_NonTaskInput_WhenGivenErrorResult_MapsError()
     {
-        Result<int, int> result = await ErrorE<int, string>("abc").MapErrorAsync(async (e) =>
-        {
+        Result<int, int> result = await ErrorE<int, string>("abc").MapErrorAsync(async (e) => {
             await Task.Delay(1);
             return e.Length;
         });
@@ -1483,8 +1458,7 @@ public class ResultExtTests
     MapErrorAsync_NonTaskInput_WhenGivenSuccessResult_PassesThroughWithoutCallingFunction()
     {
         bool fnCalled = false;
-        Result<int, int> result = await SuccessE<int, string>(42).MapErrorAsync(async (e) =>
-        {
+        Result<int, int> result = await SuccessE<int, string>(42).MapErrorAsync(async (e) => {
             fnCalled = true;
             await Task.Delay(1);
             return e.Length;
@@ -1647,8 +1621,7 @@ public class ResultExtTests
     [Fact]
     public async Task MapSuccessAsync_NonTaskInput_WhenGivenSuccessResult_MapsValue()
     {
-        Result<int, string> result = await SuccessE<int, string>(21).MapSuccessAsync(async (x) =>
-        {
+        Result<int, string> result = await SuccessE<int, string>(21).MapSuccessAsync(async (x) => {
             await Task.Delay(1);
             return x * 2;
         });
@@ -1661,8 +1634,7 @@ public class ResultExtTests
     MapSuccessAsync_NonTaskInput_WhenGivenErrorResult_PassesThroughWithoutCallingFunction()
     {
         bool fnCalled = false;
-        Result<int, string> result = await ErrorE<int, string>("Error message").MapSuccessAsync(async (x) =>
-        {
+        Result<int, string> result = await ErrorE<int, string>("Error message").MapSuccessAsync(async (x) => {
             fnCalled = true;
             await Task.Delay(1);
             return x * 2;
@@ -1864,13 +1836,11 @@ public class ResultExtTests
     MatchAsync_NonTaskInput_WithReturnValue_WhenGivenSuccessResult_ExecutesSuccessFn()
     {
         string result = await SuccessE<int, string>(42).MatchAsync(
-            async (s) =>
-            {
+            async (s) => {
                 await Task.Delay(1);
                 return $"Success: {s}";
             },
-            async (e) =>
-            {
+            async (e) => {
                 await Task.Delay(1);
                 return $"Error: {e}";
             }
@@ -1883,13 +1853,11 @@ public class ResultExtTests
     public async Task MatchAsync_NonTaskInput_WithReturnValue_WhenGivenErrorResult_ExecutesErrorFn()
     {
         string result = await ErrorE<int, string>("Error message").MatchAsync(
-            async (s) =>
-            {
+            async (s) => {
                 await Task.Delay(1);
                 return $"Success: {s}";
             },
-            async (e) =>
-            {
+            async (e) => {
                 await Task.Delay(1);
                 return $"Error: {e}";
             }
@@ -1903,13 +1871,11 @@ public class ResultExtTests
     {
         var calls = new List<string>();
         await SuccessE<int, string>(42).MatchAsync(
-            async (s) =>
-            {
+            async (s) => {
                 await Task.Delay(1);
                 calls.Add($"Success: {s}");
             },
-            async (e) =>
-            {
+            async (e) => {
                 await Task.Delay(1);
                 calls.Add($"Error: {e}");
             }
@@ -1923,13 +1889,11 @@ public class ResultExtTests
     {
         var calls = new List<string>();
         await ErrorE<int, string>("Error message").MatchAsync(
-            async (s) =>
-            {
+            async (s) => {
                 await Task.Delay(1);
                 calls.Add($"Success: {s}");
             },
-            async (e) =>
-            {
+            async (e) => {
                 await Task.Delay(1);
                 calls.Add($"Error: {e}");
             }
@@ -2197,8 +2161,7 @@ public class ResultExtTests
     public void RequireNonEmpty_WhenGivenNonEmptyList_DoesNotInvokeErrorFactory()
     {
         bool invoked = false;
-        Result<IReadOnlyList<int>, string> result = new[] { 1 }.RequireNonEmpty(() =>
-        {
+        Result<IReadOnlyList<int>, string> result = new[] { 1 }.RequireNonEmpty(() => {
             invoked = true;
             return "empty";
         });
@@ -2242,8 +2205,7 @@ public class ResultExtTests
     {
         int numEnumerated = 0;
         IEnumerable<int> input = Enumerable.Range(1, int.MaxValue)
-            .Select((x) =>
-            {
+            .Select((x) => {
                 numEnumerated++;
                 return x;
             });
@@ -2274,8 +2236,7 @@ public class ResultExtTests
     {
         int numInvocations = 0;
 
-        Result<int, string> result = ErrorE<int, string>("err1").Select((x) =>
-        {
+        Result<int, string> result = ErrorE<int, string>("err1").Select((x) => {
             numInvocations++;
             return x * 2;
         });
@@ -2321,13 +2282,11 @@ public class ResultExtTests
         int numProjectInvocations = 0;
 
         Result<int, string> result = ErrorE<int, string>("err1").SelectMany(
-            (a) =>
-            {
+            (a) => {
                 numNextInvocations++;
                 return SuccessE<int, string>(a);
             },
-            (a, b) =>
-            {
+            (a, b) => {
                 numProjectInvocations++;
                 return a + b;
             });
@@ -2345,8 +2304,7 @@ public class ResultExtTests
 
         Result<int, string> result = SuccessE<int, string>(1).SelectMany(
             (a) => ErrorE<int, string>("err2"),
-            (a, b) =>
-            {
+            (a, b) => {
                 numProjectInvocations++;
                 return a + b;
             });
@@ -2443,8 +2401,7 @@ public class ResultExtTests
     {
         int numEnumerated = 0;
         IEnumerable<Result<int, string>> input = new Result<int, string>[] { Error("err1"), Success(1), Success(2) }
-            .Select((r) =>
-            {
+            .Select((r) => {
                 numEnumerated++;
                 return r;
             });
@@ -2511,8 +2468,7 @@ public class ResultExtTests
         var seen = new List<Result<int, string>>();
         Result<int, string> input = Success(1);
 
-        Result<int, string> output = await input.TapAsync(async (r) =>
-        {
+        Result<int, string> output = await input.TapAsync(async (r) => {
             await Task.Delay(1);
             seen.Add(r);
         });
@@ -2528,8 +2484,7 @@ public class ResultExtTests
         var seen = new List<Result<int, string>>();
         Result<int, string> input = Error("err");
 
-        Result<int, string> output = await Task.FromResult(input).TapAsync(async (r) =>
-        {
+        Result<int, string> output = await Task.FromResult(input).TapAsync(async (r) => {
             await Task.Delay(1);
             seen.Add(r);
         });
@@ -2600,8 +2555,7 @@ public class ResultExtTests
         var seen = new List<string>();
         Result<int, string> input = Error("err");
 
-        Result<int, string> output = await input.TapErrorAsync(async (e) =>
-        {
+        Result<int, string> output = await input.TapErrorAsync(async (e) => {
             await Task.Delay(1);
             seen.Add(e);
         });
@@ -2617,8 +2571,7 @@ public class ResultExtTests
         var seen = new List<string>();
         Result<int, string> input = Success(1);
 
-        Result<int, string> output = await input.TapErrorAsync(async (e) =>
-        {
+        Result<int, string> output = await input.TapErrorAsync(async (e) => {
             await Task.Delay(1);
             seen.Add(e);
         });
@@ -2633,8 +2586,7 @@ public class ResultExtTests
     {
         var seen = new List<string>();
 
-        Result<int, string> output = await Task.FromResult(ErrorE<int, string>("err")).TapErrorAsync(async (e) =>
-        {
+        Result<int, string> output = await Task.FromResult(ErrorE<int, string>("err")).TapErrorAsync(async (e) => {
             await Task.Delay(1);
             seen.Add(e);
         });
@@ -2705,8 +2657,7 @@ public class ResultExtTests
         var seen = new List<int>();
         Result<int, string> input = Success(1);
 
-        Result<int, string> output = await input.TapSuccessAsync(async (s) =>
-        {
+        Result<int, string> output = await input.TapSuccessAsync(async (s) => {
             await Task.Delay(1);
             seen.Add(s);
         });
@@ -2722,8 +2673,7 @@ public class ResultExtTests
         var seen = new List<int>();
         Result<int, string> input = Error("err");
 
-        Result<int, string> output = await input.TapSuccessAsync(async (s) =>
-        {
+        Result<int, string> output = await input.TapSuccessAsync(async (s) => {
             await Task.Delay(1);
             seen.Add(s);
         });
@@ -2738,8 +2688,7 @@ public class ResultExtTests
     {
         var seen = new List<int>();
 
-        Result<int, string> output = await Task.FromResult(SuccessE<int, string>(1)).TapSuccessAsync(async (s) =>
-        {
+        Result<int, string> output = await Task.FromResult(SuccessE<int, string>(1)).TapSuccessAsync(async (s) => {
             await Task.Delay(1);
             seen.Add(s);
         });
@@ -2803,8 +2752,7 @@ public class ResultExtTests
     public void ThrowIfError_MessageFn_WhenGivenSuccessResult_ReturnsValueWithoutCallingFunction()
     {
         bool fnCalled = false;
-        int val = SuccessE<int, string>(42).ThrowIfError((e) =>
-        {
+        int val = SuccessE<int, string>(42).ThrowIfError((e) => {
             fnCalled = true;
             return e;
         });
@@ -2905,8 +2853,7 @@ public class ResultExtTests
     public void ThrowIfSuccess_MessageFn_WhenGivenErrorResult_ReturnsErrorWithoutCallingFunction()
     {
         bool fnCalled = false;
-        string err = ErrorE<int, string>("err").ThrowIfSuccess((s) =>
-        {
+        string err = ErrorE<int, string>("err").ThrowIfSuccess((s) => {
             fnCalled = true;
             return "unexpected";
         });
@@ -3056,8 +3003,7 @@ public class ResultExtTests
         string? value = "alpha";
         bool invoked = false;
 
-        var result = value.ToResult(() =>
-        {
+        var result = value.ToResult(() => {
             invoked = true;
             return "missing value";
         });
@@ -3099,8 +3045,7 @@ public class ResultExtTests
     {
         bool invoked = false;
 
-        var result = Some("alpha").ToResult(() =>
-        {
+        var result = Some("alpha").ToResult(() => {
             invoked = true;
             return "missing value";
         });
@@ -3204,8 +3149,7 @@ public class ResultExtTests
         Task<Option<string>> input = Task.FromResult(Some("alpha"));
         bool invoked = false;
 
-        Result<string, string> result = await input.ToResult(() =>
-        {
+        Result<string, string> result = await input.ToResult(() => {
             invoked = true;
             return "missing value";
         });

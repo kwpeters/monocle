@@ -48,8 +48,7 @@ public static class ShapeDtoExt
     // Static methods
     //------------------------------------------------------------------------------
 
-    public static ShapeDto FromDomain(Shape shape) => shape switch
-    {
+    public static ShapeDto FromDomain(Shape shape) => shape switch {
         Shape.CircleCase(Circle circle) => new ShapeDto.CircleCase(CircleDtoExt.FromDomain(circle)),
         Shape.RectCase(Rect rect) => new ShapeDto.RectCase(RectDtoExt.FromDomain(rect)),
         _ => throw new UnreachableException()
@@ -60,8 +59,7 @@ public static class ShapeDtoExt
     ToDomain(
         this ShapeDto dto
     ) =>
-        dto switch
-        {
+        dto switch {
             ShapeDto.CircleCase(CircleDto circleDto) =>
                 circleDto.ToDomain().MapSuccess(Shape (Circle circle) => new Shape.CircleCase(circle)),
             ShapeDto.RectCase(RectDto rectDto) =>

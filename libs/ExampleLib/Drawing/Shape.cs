@@ -30,8 +30,7 @@ public abstract record class Shape
     // Behavior that spans the cases is a switch expression on the union.  The
     // compiler does not check that the switch is exhaustive, so it ends with an
     // arm that throws UnreachableException.
-    public string Describe() => this switch
-    {
+    public string Describe() => this switch {
         Shape.CircleCase({ Radius: double r }) => $"Circle, radius {r}",
         Shape.RectCase({ Width: double w, Height: double h }) => $"{w} x {h} rectangle",
         _ => throw new UnreachableException()

@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using CsDepot;
 using FnUtil;
 using static FnUtil.F;

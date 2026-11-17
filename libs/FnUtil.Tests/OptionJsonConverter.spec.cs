@@ -16,8 +16,7 @@ public class OptionJsonConverterTests
     // FnUtil cannot reference CsDepot (CsDepot references FnUtil), so these tests
     // cannot use CsDepot.JsonOptions.Default.  These options match its strict
     // handling of missing and null values.
-    private static readonly JsonSerializerOptions _options = new(JsonSerializerDefaults.Web)
-    {
+    private static readonly JsonSerializerOptions _options = new(JsonSerializerDefaults.Web) {
         RespectRequiredConstructorParameters = true,
         RespectNullableAnnotations = true
     };

@@ -52,8 +52,7 @@ public class OptionExtTests
     {
         int numEnumerated = 0;
         IEnumerable<Option<int>> input = new Option<int>[] { Some(1), none, Some(2), none }
-            .Select((opt) =>
-            {
+            .Select((opt) => {
                 numEnumerated++;
                 return opt;
             });
@@ -134,8 +133,7 @@ public class OptionExtTests
     public void Bind_WhenNone_ReturnsNoneWithoutCallingFunction()
     {
         bool called = false;
-        Option<int> result = NoneE<string>().Bind((name) =>
-        {
+        Option<int> result = NoneE<string>().Bind((name) => {
             called = true;
             return Some(name.Length);
         });
@@ -160,8 +158,7 @@ public class OptionExtTests
     {
         bool called = false;
         Option<string> result = await Task.FromResult(NoneE<int>())
-            .Bind((x) =>
-            {
+            .Bind((x) => {
                 called = true;
                 return Some($"Value: {x}");
             });
@@ -177,8 +174,7 @@ public class OptionExtTests
     {
         Option<int> result =
             await Some(21)
-            .BindAsync(async (x) =>
-            {
+            .BindAsync(async (x) => {
                 await Task.Delay(1);
                 return Some(x * 2);
             });
@@ -192,8 +188,7 @@ public class OptionExtTests
         bool called = false;
         Option<int> result =
             await NoneE<int>().
-            BindAsync(async (x) =>
-            {
+            BindAsync(async (x) => {
                 called = true;
                 await Task.Delay(1);
                 return Some(x * 2);
@@ -209,8 +204,7 @@ public class OptionExtTests
     public async Task BindAsync_WhenSome_ChainsCorrectly()
     {
         Option<int> result = await Task.FromResult(Some(21))
-            .BindAsync(async (x) =>
-            {
+            .BindAsync(async (x) => {
                 await Task.Delay(1);
                 return Some(x * 2);
             });
@@ -223,8 +217,7 @@ public class OptionExtTests
     {
         Option<int> result =
             await Task.FromResult(Some(21))
-            .BindAsync(async Task<Option<int>> (x) =>
-            {
+            .BindAsync(async Task<Option<int>> (x) => {
                 await Task.Delay(1);
                 return none;
             });
@@ -237,8 +230,7 @@ public class OptionExtTests
     {
         bool called = false;
         Option<int> result = await Task.FromResult(NoneE<int>())
-            .BindAsync(async (x) =>
-            {
+            .BindAsync(async (x) => {
                 called = true;
                 await Task.Delay(1);
                 return Some(x * 2);
@@ -257,8 +249,7 @@ public class OptionExtTests
     public void BindNone_WhenSome_ReturnsInputWithoutCallingFunction()
     {
         bool called = false;
-        Option<int> result = Some(1).BindNone(() =>
-        {
+        Option<int> result = Some(1).BindNone(() => {
             called = true;
             return Some(5);
         });
@@ -297,8 +288,7 @@ public class OptionExtTests
     public async Task BindNone_Task_WhenSome_ReturnsInputWithoutCallingFunction()
     {
         bool called = false;
-        Option<int> result = await Task.FromResult(Some(1)).BindNone(() =>
-        {
+        Option<int> result = await Task.FromResult(Some(1)).BindNone(() => {
             called = true;
             return Some(5);
         });
@@ -312,8 +302,7 @@ public class OptionExtTests
     [Fact]
     public async Task BindNoneAsync_WhenNone_ReturnsFallbackOption()
     {
-        Option<int> result = await NoneE<int>().BindNoneAsync(async () =>
-        {
+        Option<int> result = await NoneE<int>().BindNoneAsync(async () => {
             await Task.Delay(1);
             return Some(5);
         });
@@ -325,8 +314,7 @@ public class OptionExtTests
     public async Task BindNoneAsync_WhenSome_ReturnsInputWithoutCallingFunction()
     {
         bool called = false;
-        Option<int> result = await Some(1).BindNoneAsync(async () =>
-        {
+        Option<int> result = await Some(1).BindNoneAsync(async () => {
             called = true;
             await Task.Delay(1);
             return Some(5);
@@ -339,8 +327,7 @@ public class OptionExtTests
     [Fact]
     public async Task BindNoneAsync_Task_WhenNone_ReturnsFallbackOption()
     {
-        Option<int> result = await Task.FromResult(NoneE<int>()).BindNoneAsync(async () =>
-        {
+        Option<int> result = await Task.FromResult(NoneE<int>()).BindNoneAsync(async () => {
             await Task.Delay(1);
             return Some(5);
         });
@@ -352,8 +339,7 @@ public class OptionExtTests
     public async Task BindNoneAsync_Task_WhenSome_ReturnsInputWithoutCallingFunction()
     {
         bool called = false;
-        Option<int> result = await Task.FromResult(Some(1)).BindNoneAsync(async () =>
-        {
+        Option<int> result = await Task.FromResult(Some(1)).BindNoneAsync(async () => {
             called = true;
             await Task.Delay(1);
             return Some(5);
@@ -411,8 +397,7 @@ public class OptionExtTests
     public async Task ChooseAsync_KeepsOnlySomeValuesInOrder()
     {
         int[] input = new[] { 1, 2, 3, 4 };
-        IEnumerable<int> result = await input.ChooseAsync(async (x) =>
-        {
+        IEnumerable<int> result = await input.ChooseAsync(async (x) => {
             await Task.Delay(1);
             return x % 2 == 0 ? Some(x * 10) : none;
         });
@@ -426,8 +411,7 @@ public class OptionExtTests
         var events = new List<string>();
         int[] input = new[] { 1, 2, 3 };
 
-        await input.ChooseAsync(async (x) =>
-        {
+        await input.ChooseAsync(async (x) => {
             events.Add($"start {x}");
             await Task.Delay(1);
             events.Add($"end {x}");
@@ -565,8 +549,7 @@ public class OptionExtTests
     public void DefaultWith_WhenSome_DoesNotCallFunction()
     {
         bool called = false;
-        Some("Fred").DefaultWith(() =>
-        {
+        Some("Fred").DefaultWith(() => {
             called = true;
             return "fallback";
         });
@@ -581,8 +564,7 @@ public class OptionExtTests
     {
         bool called = false;
         string val = await Task.FromResult(Some("Fred"))
-            .DefaultWith(() =>
-            {
+            .DefaultWith(() => {
                 called = true;
                 return "fallback";
             });
@@ -621,8 +603,7 @@ public class OptionExtTests
     public async Task DefaultWithAsync_WhenSome_DoesNotCallFunction()
     {
         bool called = false;
-        await Some("Fred").DefaultWithAsync(() =>
-        {
+        await Some("Fred").DefaultWithAsync(() => {
             called = true;
             return Task.FromResult("fallback");
         });
@@ -635,8 +616,7 @@ public class OptionExtTests
     {
         bool called = false;
         string val = await Task.FromResult(Some("Fred"))
-            .DefaultWithAsync(async () =>
-            {
+            .DefaultWithAsync(async () => {
                 called = true;
                 await Task.Delay(1);
                 return "fallback";
@@ -650,8 +630,7 @@ public class OptionExtTests
     public async Task DefaultWithAsync_Task_WhenNone_ReturnsComputedValue()
     {
         string val = await Task.FromResult(NoneE<string>())
-            .DefaultWithAsync(async () =>
-            {
+            .DefaultWithAsync(async () => {
                 await Task.Delay(1);
                 return "fallback";
             });
@@ -729,8 +708,7 @@ public class OptionExtTests
     {
         Option<int> input = Some(42);
 
-        bool result = await input.ExistsAsync(async (x) =>
-        {
+        bool result = await input.ExistsAsync(async (x) => {
             await Task.Delay(1);
             return x > 40;
         });
@@ -744,8 +722,7 @@ public class OptionExtTests
     {
         Option<int> input = Some(42);
 
-        bool result = await input.ExistsAsync(async (x) =>
-        {
+        bool result = await input.ExistsAsync(async (x) => {
             await Task.Delay(1);
             return x > 50;
         });
@@ -759,8 +736,7 @@ public class OptionExtTests
     {
         Option<int> input = none;
 
-        bool result = await input.ExistsAsync(async (x) =>
-        {
+        bool result = await input.ExistsAsync(async (x) => {
             await Task.Delay(1);
             return x > 40;
         });
@@ -775,8 +751,7 @@ public class OptionExtTests
         Option<int> input = none;
         bool predicateInvoked = false;
 
-        bool result = await input.ExistsAsync(async (x) =>
-        {
+        bool result = await input.ExistsAsync(async (x) => {
             predicateInvoked = true;
             await Task.Delay(1);
             return x > 40;
@@ -794,8 +769,7 @@ public class OptionExtTests
     {
         Task<Option<int>> input = Task.FromResult(Some(42));
 
-        bool result = await input.ExistsAsync(async (x) =>
-        {
+        bool result = await input.ExistsAsync(async (x) => {
             await Task.Delay(1);
             return x > 40;
         });
@@ -810,8 +784,7 @@ public class OptionExtTests
         Option<int> noneOption = none;
         Task<Option<int>> input = Task.FromResult(noneOption);
 
-        bool result = await input.ExistsAsync(async (x) =>
-        {
+        bool result = await input.ExistsAsync(async (x) => {
             await Task.Delay(1);
             return x > 40;
         });
@@ -890,8 +863,7 @@ public class OptionExtTests
     {
         Option<int> input = Some(5);
 
-        int result = await input.FoldAsync(async (state, value) =>
-        {
+        int result = await input.FoldAsync(async (state, value) => {
             await Task.Delay(1);
             return state + value;
         }, 10);
@@ -905,8 +877,7 @@ public class OptionExtTests
     {
         Option<int> input = none;
 
-        int result = await input.FoldAsync(async (state, value) =>
-        {
+        int result = await input.FoldAsync(async (state, value) => {
             await Task.Delay(1);
             return state + value;
         }, 10);
@@ -921,8 +892,7 @@ public class OptionExtTests
         Option<int> input = none;
         bool folderInvoked = false;
 
-        int result = await input.FoldAsync(async (state, value) =>
-        {
+        int result = await input.FoldAsync(async (state, value) => {
             folderInvoked = true;
             await Task.Delay(1);
             return state + value;
@@ -940,8 +910,7 @@ public class OptionExtTests
     {
         Task<Option<int>> input = Task.FromResult(Some(5));
 
-        int result = await input.FoldAsync(async (state, value) =>
-        {
+        int result = await input.FoldAsync(async (state, value) => {
             await Task.Delay(1);
             return state + value;
         }, 10);
@@ -956,8 +925,7 @@ public class OptionExtTests
         Option<int> noneOption = none;
         Task<Option<int>> input = Task.FromResult(noneOption);
 
-        int result = await input.FoldAsync(async (state, value) =>
-        {
+        int result = await input.FoldAsync(async (state, value) => {
             await Task.Delay(1);
             return state + value;
         }, 10);
@@ -991,8 +959,7 @@ public class OptionExtTests
     public void Gate_WhenNone_ReturnsNoneWithoutCallingGate()
     {
         bool called = false;
-        Option<int> result = NoneE<int>().Gate((x) =>
-        {
+        Option<int> result = NoneE<int>().Gate((x) => {
             called = true;
             return Some(true);
         });
@@ -1026,8 +993,7 @@ public class OptionExtTests
     [Fact]
     public async Task GateAsync_NonTaskInput_WhenGateReturnsSome_ReturnsOriginalOption()
     {
-        Option<int> result = await Some(10).GateAsync(async (x) =>
-        {
+        Option<int> result = await Some(10).GateAsync(async (x) => {
             await Task.Delay(1);
             return x > 5 ? Some(true) : none;
         });
@@ -1038,8 +1004,7 @@ public class OptionExtTests
     [Fact]
     public async Task GateAsync_NonTaskInput_WhenGateReturnsNone_ReturnsNone()
     {
-        Option<int> result = await Some(3).GateAsync(async (x) =>
-        {
+        Option<int> result = await Some(3).GateAsync(async (x) => {
             await Task.Delay(1);
             return x > 5 ? Some(true) : none;
         });
@@ -1053,8 +1018,7 @@ public class OptionExtTests
     public async Task GateAsync_WhenGateReturnsSome_ReturnsOriginalOption()
     {
         Option<int> result = await Task.FromResult(Some(10))
-            .GateAsync(async (x) =>
-            {
+            .GateAsync(async (x) => {
                 await Task.Delay(1);
                 return x > 5 ? Some(true) : none;
             });
@@ -1066,8 +1030,7 @@ public class OptionExtTests
     public async Task GateAsync_WhenGateReturnsNone_ReturnsNone()
     {
         Option<int> result = await Task.FromResult(Some(3))
-            .GateAsync(async (x) =>
-            {
+            .GateAsync(async (x) => {
                 await Task.Delay(1);
                 return x > 5 ? Some(true) : none;
             });
@@ -1080,8 +1043,7 @@ public class OptionExtTests
     {
         bool called = false;
         Option<int> result = await Task.FromResult(NoneE<int>())
-            .GateAsync(async (x) =>
-            {
+            .GateAsync(async (x) => {
                 called = true;
                 await Task.Delay(1);
                 return Some(true);
@@ -1151,8 +1113,7 @@ public class OptionExtTests
     public void Map_WhenNone_DoesNotCallMapFn()
     {
         bool called = false;
-        NoneE<string>().Map((name) =>
-        {
+        NoneE<string>().Map((name) => {
             called = true;
             return name.Length;
         });
@@ -1175,8 +1136,7 @@ public class OptionExtTests
     {
         bool called = false;
         Option<int> result = await Task.FromResult(NoneE<string>())
-            .Map((name) =>
-            {
+            .Map((name) => {
                 called = true;
                 return name.Length;
             });
@@ -1192,8 +1152,7 @@ public class OptionExtTests
     {
         Option<int> result = await
             Some("Fred")
-            .MapAsync(async (name) =>
-            {
+            .MapAsync(async (name) => {
                 await Task.Delay(1);
                 return name.Length;
             });
@@ -1205,8 +1164,7 @@ public class OptionExtTests
     public async Task MapAsync_NonTaskInput_WhenNone_ReturnsNoneWithoutCallingMapFn()
     {
         bool called = false;
-        Option<int> result = await NoneE<string>().MapAsync(async (name) =>
-        {
+        Option<int> result = await NoneE<string>().MapAsync(async (name) => {
             called = true;
             await Task.Delay(1);
             return name.Length;
@@ -1222,8 +1180,7 @@ public class OptionExtTests
     public async Task MapAsync_WhenSome_ReturnsSomeWithMappedValue()
     {
         Option<int> result = await Task.FromResult(Some("Fred"))
-            .MapAsync(async (name) =>
-            {
+            .MapAsync(async (name) => {
                 await Task.Delay(1);
                 return name.Length;
             });
@@ -1236,8 +1193,7 @@ public class OptionExtTests
     {
         bool called = false;
         Option<int> result = await Task.FromResult(NoneE<string>())
-            .MapAsync(async (name) =>
-            {
+            .MapAsync(async (name) => {
                 called = true;
                 await Task.Delay(1);
                 return name.Length;
@@ -1353,13 +1309,11 @@ public class OptionExtTests
     public async Task MatchAsync_NonTaskInput_WhenGivenASome_RunsTheSomeFunction()
     {
         int res = await Some("Fred").MatchAsync(
-            async (name) =>
-            {
+            async (name) => {
                 await Task.Delay(1);
                 return name.Length;
             },
-            async () =>
-            {
+            async () => {
                 await Task.Delay(1);
                 return 0;
             }
@@ -1372,13 +1326,11 @@ public class OptionExtTests
     public async Task MatchAsync_NonTaskInput_WhenGivenANone_RunsTheNoneFunction()
     {
         int res = await NoneE<string>().MatchAsync(
-            async (name) =>
-            {
+            async (name) => {
                 await Task.Delay(1);
                 return name.Length;
             },
-            async () =>
-            {
+            async () => {
                 await Task.Delay(1);
                 return 0;
             }
@@ -1392,13 +1344,11 @@ public class OptionExtTests
     {
         var calls = new List<string>();
         await Some("Fred").MatchAsync(
-            async (name) =>
-            {
+            async (name) => {
                 await Task.Delay(1);
                 calls.Add(name);
             },
-            async () =>
-            {
+            async () => {
                 await Task.Delay(1);
                 calls.Add("none");
             }
@@ -1412,13 +1362,11 @@ public class OptionExtTests
     {
         var calls = new List<string>();
         await NoneE<string>().MatchAsync(
-            async (name) =>
-            {
+            async (name) => {
                 await Task.Delay(1);
                 calls.Add(name);
             },
-            async () =>
-            {
+            async () => {
                 await Task.Delay(1);
                 calls.Add("none");
             }
@@ -1433,13 +1381,11 @@ public class OptionExtTests
     public async Task MatchAsync_WhenGivenASome_RunsTheSomeFunction()
     {
         int res = await Task.FromResult(Some("Fred")).MatchAsync(
-            async (name) =>
-            {
+            async (name) => {
                 await Task.Delay(1);
                 return name.Length;
             },
-            async () =>
-            {
+            async () => {
                 await Task.Delay(1);
                 return 0;
             }
@@ -1452,13 +1398,11 @@ public class OptionExtTests
     public async Task MatchAsync_WhenGivenANone_RunsTheNoneFunction()
     {
         int res = await Task.FromResult(NoneE<string>()).MatchAsync(
-            async (name) =>
-            {
+            async (name) => {
                 await Task.Delay(1);
                 return name.Length;
             },
-            async () =>
-            {
+            async () => {
                 await Task.Delay(1);
                 return 0;
             }
@@ -1472,13 +1416,11 @@ public class OptionExtTests
     {
         string captured = "";
         await Task.FromResult(Some("Fred")).MatchAsync(
-            async (name) =>
-            {
+            async (name) => {
                 await Task.Delay(1);
                 captured = name;
             },
-            async () =>
-            {
+            async () => {
                 await Task.Delay(1);
                 captured = "none";
             }
@@ -1492,13 +1434,11 @@ public class OptionExtTests
     {
         string captured = "";
         await Task.FromResult(NoneE<string>()).MatchAsync(
-            async (name) =>
-            {
+            async (name) => {
                 await Task.Delay(1);
                 captured = name;
             },
-            async () =>
-            {
+            async () => {
                 await Task.Delay(1);
                 captured = "none";
             }
@@ -1561,8 +1501,7 @@ public class OptionExtTests
     {
         int numEnumerated = 0;
         IEnumerable<int> input = Enumerable.Range(1, int.MaxValue)
-            .Select((x) =>
-            {
+            .Select((x) => {
                 numEnumerated++;
                 return x;
             });
@@ -1591,8 +1530,7 @@ public class OptionExtTests
     public void Select_WhenNone_ReturnsNoneWithoutCallingSelector()
     {
         bool called = false;
-        Option<int> result = NoneE<string>().Select((name) =>
-        {
+        Option<int> result = NoneE<string>().Select((name) => {
             called = true;
             return name.Length;
         });
@@ -1635,13 +1573,11 @@ public class OptionExtTests
         bool nextCalled = false;
         bool projectCalled = false;
         Option<string> result = NoneE<string>().SelectMany(
-            (name) =>
-            {
+            (name) => {
                 nextCalled = true;
                 return Some(name.Length);
             },
-            (name, length) =>
-            {
+            (name, length) => {
                 projectCalled = true;
                 return $"{name}:{length}";
             });
@@ -1657,8 +1593,7 @@ public class OptionExtTests
         bool projectCalled = false;
         Option<string> result = Some("Fred").SelectMany(
             (name) => NoneE<int>(),
-            (name, length) =>
-            {
+            (name, length) => {
                 projectCalled = true;
                 return $"{name}:{length}";
             });
@@ -1756,8 +1691,7 @@ public class OptionExtTests
     {
         int numEnumerated = 0;
         IEnumerable<Option<int>> input = new Option<int>[] { none, Some(1), Some(2) }
-            .Select((opt) =>
-            {
+            .Select((opt) => {
                 numEnumerated++;
                 return opt;
             });
@@ -1831,8 +1765,7 @@ public class OptionExtTests
         var calls = new List<string>();
         Option<int> opt = none;
 
-        Option<int> output = await opt.TapNoneAsync(async () =>
-        {
+        Option<int> output = await opt.TapNoneAsync(async () => {
             await Task.Delay(1);
             calls.Add("none");
         });
@@ -1848,8 +1781,7 @@ public class OptionExtTests
         var calls = new List<string>();
         Option<int> opt = Some(1);
 
-        Option<int> output = await opt.TapNoneAsync(async () =>
-        {
+        Option<int> output = await opt.TapNoneAsync(async () => {
             await Task.Delay(1);
             calls.Add("none");
         });
@@ -1864,8 +1796,7 @@ public class OptionExtTests
     {
         var calls = new List<string>();
 
-        Option<int> output = await Task.FromResult(NoneE<int>()).TapNoneAsync(async () =>
-        {
+        Option<int> output = await Task.FromResult(NoneE<int>()).TapNoneAsync(async () => {
             await Task.Delay(1);
             calls.Add("none");
         });
@@ -1936,8 +1867,7 @@ public class OptionExtTests
         var seen = new List<int>();
         Option<int> opt = Some(1);
 
-        Option<int> output = await opt.TapSomeAsync(async (x) =>
-        {
+        Option<int> output = await opt.TapSomeAsync(async (x) => {
             await Task.Delay(1);
             seen.Add(x);
         });
@@ -1953,8 +1883,7 @@ public class OptionExtTests
         var seen = new List<int>();
         Option<int> opt = none;
 
-        Option<int> output = await opt.TapSomeAsync(async (x) =>
-        {
+        Option<int> output = await opt.TapSomeAsync(async (x) => {
             await Task.Delay(1);
             seen.Add(x);
         });
@@ -1969,8 +1898,7 @@ public class OptionExtTests
     {
         var seen = new List<int>();
 
-        Option<int> output = await Task.FromResult(Some(1)).TapSomeAsync(async (x) =>
-        {
+        Option<int> output = await Task.FromResult(Some(1)).TapSomeAsync(async (x) => {
             await Task.Delay(1);
             seen.Add(x);
         });
@@ -2068,8 +1996,7 @@ public class OptionExtTests
     public void ThrowIfSome_MessageFn_WhenNone_DoesNotCallFunction()
     {
         bool called = false;
-        NoneE<string>().ThrowIfSome((name) =>
-        {
+        NoneE<string>().ThrowIfSome((name) => {
             called = true;
             return name;
         });
@@ -2111,8 +2038,7 @@ public class OptionExtTests
     public async Task ThrowIfSomeAsync_WhenSome_ThrowsWithMessageFromAsyncFunction()
     {
         InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await Some("Fred").ThrowIfSomeAsync(async (name) =>
-            {
+            async () => await Some("Fred").ThrowIfSomeAsync(async (name) => {
                 await Task.Delay(1);
                 return $"Unexpected: {name}";
             }));
@@ -2124,8 +2050,7 @@ public class OptionExtTests
     public async Task ThrowIfSomeAsync_WhenNone_DoesNotCallFunction()
     {
         bool called = false;
-        await NoneE<string>().ThrowIfSomeAsync(async (name) =>
-        {
+        await NoneE<string>().ThrowIfSomeAsync(async (name) => {
             called = true;
             await Task.Delay(1);
             return name;
@@ -2138,8 +2063,7 @@ public class OptionExtTests
     public async Task ThrowIfSomeAsync_Task_WhenSome_ThrowsWithMessageFromAsyncFunction()
     {
         InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await Task.FromResult(Some("Fred")).ThrowIfSomeAsync(async (name) =>
-            {
+            async () => await Task.FromResult(Some("Fred")).ThrowIfSomeAsync(async (name) => {
                 await Task.Delay(1);
                 return $"Unexpected: {name}";
             }));

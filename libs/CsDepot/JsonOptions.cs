@@ -22,8 +22,7 @@ public static class JsonOptions
     /// Web defaults (camelCase property names) plus strict handling of missing
     /// and null values.
     /// </summary>
-    public static readonly JsonSerializerOptions Default = new(JsonSerializerDefaults.Web)
-    {
+    public static readonly JsonSerializerOptions Default = new(JsonSerializerDefaults.Web) {
         // Accept JSON where "kind" is not the first property (for example, from non-.NET producers)
         AllowOutOfOrderMetadataProperties = true,
 

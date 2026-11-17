@@ -23,6 +23,7 @@ kinds of work. Read a guide only when the task calls for it.
 - **Physical quantities**: include the units.  For example, `timeoutMs`.
 - **Functions**: end the name of a parameter, property or field whose type is a function (`Func<...>`, `Action<...>`, or any other delegate type) with `Fn`. For example, `predicateFn`, `runFn`, `successFn`. This is a convention that tooling does not enforce. Exceptions: events, which keep the usual .NET event naming, and parameters of members that override or implement an API from outside this repo, which keep that API's names so that named arguments still match.
 - **`this.` qualification**: qualify every use of an instance member (field, property, method or event) with `this.`, including private `_camelCase` fields (`this._logger`). Do not qualify static members, locals or parameters. Enforced as a warning (IDE0009), which the build treats as an error. To fix a whole project at once, run `dotnet format style --diagnostics IDE0009 --severity warn`.
+- **Encoding**: every file is UTF-8 without a byte order mark (BOM). Enforced for `.cs` files by `dotnet format whitespace`, so do not let a tool or editor add a BOM.
 - See [.editorconfig](.editorconfig) for all formatting and style rules.
 
 ### Lambdas

@@ -80,7 +80,8 @@ internal sealed class OptionJsonConverter<T> : JsonConverter<Option<T>>
         JsonElement tagged = document.RootElement;
         JsonElement kind = TaggedJson.Kind(tagged, typeToConvert);
 
-        if (kind.ValueEquals(NoneKind)) return none;
+        if (kind.ValueEquals(NoneKind))
+            return none;
         if (kind.ValueEquals(SomeKind))
             return Some(TaggedJson.ReadValue<T>(tagged, typeToConvert, options));
 

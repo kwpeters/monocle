@@ -129,8 +129,7 @@ public class BufReaderTests
         BufReader reader = new(new byte[8]);
         reader.ReadBytes(1).ThrowIfError();
 
-        ReadOnlyMemory<byte> pad = reader.Attempt(r =>
-        {
+        ReadOnlyMemory<byte> pad = reader.Attempt(r => {
             r.ReadBytes(1).ThrowIfError();
             return r.Align(2);
         }).ThrowIfError();
@@ -191,8 +190,7 @@ public class BufReaderTests
     {
         BufReader reader = new(new byte[] { 0x01, 0x02, 0x03 });
 
-        byte second = reader.Attempt(r =>
-        {
+        byte second = reader.Attempt(r => {
             SampleReads.ReadByte(r).ThrowIfError();
             return SampleReads.ReadByte(r);
         }).ThrowIfError();
@@ -207,8 +205,7 @@ public class BufReaderTests
     {
         BufReader reader = new(new byte[] { 0x01, 0x02 });
 
-        Result<byte, string> result = reader.Attempt(r =>
-        {
+        Result<byte, string> result = reader.Attempt(r => {
             SampleReads.ReadByte(r).ThrowIfError();
             SampleReads.ReadByte(r).ThrowIfError();
             return SampleReads.ReadByte(r);
@@ -237,8 +234,7 @@ public class BufReaderTests
     {
         BufReader reader = new(new byte[] { 0x01, 0x02 });
 
-        byte first = reader.Attempt(r =>
-        {
+        byte first = reader.Attempt(r => {
             Result<byte, string> firstResult = SampleReads.ReadByte(r);
             Result<ReadOnlyMemory<byte>, string> nested = r.Attempt(nr => nr.ReadBytes(2));
             Assert.True(nested.IsError);
