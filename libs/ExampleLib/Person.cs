@@ -137,8 +137,8 @@ public sealed record class Person
     // them all.
     private Person(string firstName, string lastName)
     {
-        FirstName = firstName;
-        LastName = lastName;
+        this.FirstName = firstName;
+        this.LastName = lastName;
     }
 
     //------------------------------------------------------------------------------
@@ -150,8 +150,8 @@ public sealed record class Person
 
     // Cheap derived values may be computed properties, because domain types are
     // never serialized.
-    public string FullName => $"{FirstName} {LastName}";
-    public string Initials => $"{FirstName[0]}{LastName[0]}";
+    public string FullName => $"{this.FirstName} {this.LastName}";
+    public string Initials => $"{this.FirstName[0]}{this.LastName[0]}";
 
     //------------------------------------------------------------------------------
     // Instance methods

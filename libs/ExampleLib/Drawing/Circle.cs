@@ -16,5 +16,5 @@ public sealed record class Circle
 
     // A cheap derived value may be a computed property, because domain types
     // are never serialized.
-    public double Area => Math.PI * Radius * Radius;
+    public double Area => Math.PI * this.Radius * this.Radius;
 }

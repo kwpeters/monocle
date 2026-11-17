@@ -60,9 +60,9 @@ public sealed class BufReader
 
     private BufReader(ReadOnlyMemory<byte> buffer, int offsetBytes)
     {
-        _buffer = buffer;
-        _originOffsetBytes = offsetBytes;
-        OffsetBytes = offsetBytes;
+        this._buffer = buffer;
+        this._originOffsetBytes = offsetBytes;
+        this.OffsetBytes = offsetBytes;
     }
 
     //------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ public sealed class BufReader
     /// <summary>
     /// The number of bytes not yet read.
     /// </summary>
-    public int NumRemainingBytes => _buffer.Length - OffsetBytes;
+    public int NumRemainingBytes => this._buffer.Length - this.OffsetBytes;
 
     //------------------------------------------------------------------------------
     // Instance methods
@@ -99,15 +99,15 @@ public sealed class BufReader
             return Error($"Cannot read {numBytes} bytes. The number of bytes must not be negative.");
         }
 
-        if (NumRemainingBytes < numBytes)
+        if (this.NumRemainingBytes < numBytes)
         {
             return Error(
-                $"Cannot read {numBytes} byte(s) at offset {OffsetBytes}. " +
-                $"Only {NumRemainingBytes} are available.");
+                $"Cannot read {numBytes} byte(s) at offset {this.OffsetBytes}. " +
+                $"Only {this.NumRemainingBytes} are available.");
         }
 
-        ReadOnlyMemory<byte> bytes = _buffer.Slice(OffsetBytes, numBytes);
-        OffsetBytes += numBytes;
+        ReadOnlyMemory<byte> bytes = this._buffer.Slice(this.OffsetBytes, numBytes);
+        this.OffsetBytes += numBytes;
         return Success(bytes);
     }
 
@@ -140,10 +140,10 @@ public sealed class BufReader
                 "The boundary must be positive.");
         }
 
-        int distanceBytes = OffsetBytes - _originOffsetBytes;
+        int distanceBytes = this.OffsetBytes - this._originOffsetBytes;
         int numPadBytes = (boundaryBytes - (distanceBytes % boundaryBytes)) % boundaryBytes;
 
-        return ReadBytes(numPadBytes)
+        return this.ReadBytes(numPadBytes)
             .MapError(error => $"Cannot align to a {boundaryBytes}-byte boundary. {error}");
     }
 
@@ -174,11 +174,11 @@ public sealed class BufReader
         Func<BufReader, Result<T, string>> readFn
     )
     {
-        BufReader attemptReader = new(_buffer, OffsetBytes);
+        BufReader attemptReader = new(this._buffer, this.OffsetBytes);
         Result<T, string> result = readFn(attemptReader);
         if (result.IsSuccess)
         {
-            OffsetBytes = attemptReader.OffsetBytes;
+            this.OffsetBytes = attemptReader.OffsetBytes;
         }
 
         return result;

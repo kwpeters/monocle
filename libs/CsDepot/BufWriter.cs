@@ -41,13 +41,13 @@ public sealed class BufWriter
     /// <summary>
     /// The number of bytes written so far.
     /// </summary>
-    public int NumWrittenBytes => _buffer.WrittenCount;
+    public int NumWrittenBytes => this._buffer.WrittenCount;
 
 
     /// <summary>
     /// The bytes written so far.
     /// </summary>
-    public ReadOnlyMemory<byte> WrittenMemory => _buffer.WrittenMemory;
+    public ReadOnlyMemory<byte> WrittenMemory => this._buffer.WrittenMemory;
 
     //------------------------------------------------------------------------------
     // Instance methods
@@ -57,7 +57,7 @@ public sealed class BufWriter
     /// Appends the specified bytes, advancing past them.
     /// </summary>
     /// <param name="bytes">The bytes to append, such as a value's Encode() output.</param>
-    public void WriteBytes(ReadOnlyMemory<byte> bytes) => _buffer.Write(bytes.Span);
+    public void WriteBytes(ReadOnlyMemory<byte> bytes) => this._buffer.Write(bytes.Span);
 
 
     /// <summary>
@@ -76,8 +76,8 @@ public sealed class BufWriter
                 "The boundary must be positive.");
         }
 
-        int numPadBytes = (boundaryBytes - (NumWrittenBytes % boundaryBytes)) % boundaryBytes;
-        _buffer.GetSpan(numPadBytes)[..numPadBytes].Clear();
-        _buffer.Advance(numPadBytes);
+        int numPadBytes = (boundaryBytes - (this.NumWrittenBytes % boundaryBytes)) % boundaryBytes;
+        this._buffer.GetSpan(numPadBytes)[..numPadBytes].Clear();
+        this._buffer.Advance(numPadBytes);
     }
 }

@@ -39,7 +39,7 @@ public abstract record class Result<TSuccess, TError>
     public abstract bool IsSuccess { get; }
 
 
-    public bool IsError => !IsSuccess;
+    public bool IsError => !this.IsSuccess;
 }
 
 

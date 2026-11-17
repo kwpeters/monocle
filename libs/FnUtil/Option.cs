@@ -40,7 +40,7 @@ public abstract record class Option<T>
     public abstract bool IsSome { get; }
 
 
-    public bool IsNone => !IsSome;
+    public bool IsNone => !this.IsSome;
 }
 
 
@@ -89,7 +89,7 @@ internal sealed record class Some<T> : Option<T>
                 "Cannot wrap a null value in Some; use none instead.");
         }
 
-        Value = value;
+        this.Value = value;
     }
 
     //------------------------------------------------------------------------------

@@ -30,17 +30,17 @@ public sealed class AsyncDisposableResult<TSuccess, TError> : IAsyncDisposable
     // Constructors
     //------------------------------------------------------------------------------
 
-    internal AsyncDisposableResult(Result<TSuccess, TError> result) => _result = result;
+    internal AsyncDisposableResult(Result<TSuccess, TError> result) => this._result = result;
 
 
     //------------------------------------------------------------------------------
     // Properties
     //------------------------------------------------------------------------------
 
-    public bool IsSuccess => _result.IsSuccess;
+    public bool IsSuccess => this._result.IsSuccess;
 
 
-    public bool IsError => _result.IsError;
+    public bool IsError => this._result.IsError;
 
     //------------------------------------------------------------------------------
     // Instance methods
@@ -56,8 +56,8 @@ public sealed class AsyncDisposableResult<TSuccess, TError> : IAsyncDisposable
     /// </exception>
     public TSuccess Detach()
     {
-        _detached = true;
-        return _result.Match(
+        this._detached = true;
+        return this._result.Match(
             (s) => s,
             (e) => throw new InvalidOperationException(
                 $"Cannot detach success value from an error result: {e}")
@@ -74,7 +74,7 @@ public sealed class AsyncDisposableResult<TSuccess, TError> : IAsyncDisposable
     /// </exception>
     public TError GetError()
     {
-        return ThrowIfSuccess();
+        return this.ThrowIfSuccess();
     }
 
 
@@ -86,7 +86,7 @@ public sealed class AsyncDisposableResult<TSuccess, TError> : IAsyncDisposable
     /// </exception>
     public TError ThrowIfSuccess(string? errMsg = null)
     {
-        return _result.Match(
+        return this._result.Match(
             (s) => throw new InvalidOperationException(errMsg ?? $"Expected error result but got success: {s}"),
             (e) => e
         );
@@ -102,7 +102,7 @@ public sealed class AsyncDisposableResult<TSuccess, TError> : IAsyncDisposable
         Func<TError, TResult> errorFn
     )
     {
-        return _result.Match(successFn, errorFn);
+        return this._result.Match(successFn, errorFn);
     }
 
 
@@ -115,21 +115,21 @@ public sealed class AsyncDisposableResult<TSuccess, TError> : IAsyncDisposable
         Action<TError> errorFn
     )
     {
-        _result.Match(successFn, errorFn);
+        this._result.Match(successFn, errorFn);
     }
 
 
     public async ValueTask DisposeAsync()
     {
-        if (_disposed)
+        if (this._disposed)
         {
             return;
         }
 
-        _disposed = true;
-        if (!_detached && _result.IsSuccess)
+        this._disposed = true;
+        if (!this._detached && this._result.IsSuccess)
         {
-            await _result.Match(
+            await this._result.Match(
                 (s) => s.DisposeAsync(),
                 (e) => ValueTask.CompletedTask
             ).ConfigureAwait(false);

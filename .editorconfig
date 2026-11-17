@@ -15,10 +15,10 @@ dotnet_sort_system_directives_first = true
 dotnet_separate_import_directive_groups = false
 
 # this. and Me. preferences
-dotnet_style_qualification_for_field = false:warning
-dotnet_style_qualification_for_property = false:warning
-dotnet_style_qualification_for_method = false:warning
-dotnet_style_qualification_for_event = false:warning
+dotnet_style_qualification_for_field = true:warning
+dotnet_style_qualification_for_property = true:warning
+dotnet_style_qualification_for_method = true:warning
+dotnet_style_qualification_for_event = true:warning
 
 # Language keywords vs BCL types preferences
 # Disabled: CIP code benefits from explicit type sizes (Int32, UInt16, etc.)

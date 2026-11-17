@@ -5,7 +5,7 @@ public class DisposableResultTests
     private sealed class FakeDisposable : IDisposable
     {
         public bool IsDisposed { get; private set; }
-        public void Dispose() => IsDisposed = true;
+        public void Dispose() => this.IsDisposed = true;
     }
 
 

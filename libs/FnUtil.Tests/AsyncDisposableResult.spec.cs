@@ -8,7 +8,7 @@ public class AsyncDisposableResultTests
         public bool IsDisposed { get; private set; }
         public ValueTask DisposeAsync()
         {
-            IsDisposed = true;
+            this.IsDisposed = true;
             return ValueTask.CompletedTask;
         }
     }

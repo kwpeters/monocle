@@ -30,16 +30,16 @@ public sealed class DisposableResult<TSuccess, TError> : IDisposable
     // Constructors
     //------------------------------------------------------------------------------
 
-    internal DisposableResult(Result<TSuccess, TError> result) => _result = result;
+    internal DisposableResult(Result<TSuccess, TError> result) => this._result = result;
 
     //------------------------------------------------------------------------------
     // Properties
     //------------------------------------------------------------------------------
 
-    public bool IsSuccess => _result.IsSuccess;
+    public bool IsSuccess => this._result.IsSuccess;
 
 
-    public bool IsError => _result.IsError;
+    public bool IsError => this._result.IsError;
 
     //------------------------------------------------------------------------------
     // Instance methods
@@ -55,8 +55,8 @@ public sealed class DisposableResult<TSuccess, TError> : IDisposable
     /// </exception>
     public TSuccess Detach()
     {
-        _detached = true;
-        return _result.Match(
+        this._detached = true;
+        return this._result.Match(
             (s) => s,
             (e) => throw new InvalidOperationException(
                 $"Cannot detach value from an error result: {e}")
@@ -73,7 +73,7 @@ public sealed class DisposableResult<TSuccess, TError> : IDisposable
     /// </exception>
     public TError GetError()
     {
-        return ThrowIfSuccess();
+        return this.ThrowIfSuccess();
     }
 
 
@@ -85,7 +85,7 @@ public sealed class DisposableResult<TSuccess, TError> : IDisposable
     /// </exception>
     public TError ThrowIfSuccess(string? errMsg = null)
     {
-        return _result.Match(
+        return this._result.Match(
             (s) => throw new InvalidOperationException(errMsg ?? $"Expected error result but got success: {s}"),
             (e) => e
         );
@@ -101,7 +101,7 @@ public sealed class DisposableResult<TSuccess, TError> : IDisposable
         Func<TError, TResult> errorFn
     )
     {
-        return _result.Match(successFn, errorFn);
+        return this._result.Match(successFn, errorFn);
     }
 
 
@@ -114,21 +114,21 @@ public sealed class DisposableResult<TSuccess, TError> : IDisposable
         Action<TError> errorFn
     )
     {
-        _result.Match(successFn, errorFn);
+        this._result.Match(successFn, errorFn);
     }
 
 
     public void Dispose()
     {
-        if (_disposed)
+        if (this._disposed)
         {
             return;
         }
 
-        _disposed = true;
-        if (!_detached && _result.IsSuccess)
+        this._disposed = true;
+        if (!this._detached && this._result.IsSuccess)
         {
-            _result.Match(
+            this._result.Match(
                 (s) => s.Dispose(),
                 (e) => { }
             );

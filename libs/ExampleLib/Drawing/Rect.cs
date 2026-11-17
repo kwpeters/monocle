@@ -10,5 +10,5 @@ public sealed record class Rect
     public required double Width { get; init; }
     public required double Height { get; init; }
 
-    public double Area => Width * Height;
+    public double Area => this.Width * this.Height;
 }
