@@ -64,7 +64,12 @@ A domain type carries its own behavior. Static factories (`Create`), constants, 
 
 ### 3.2 Types without invariants
 
-When every combination of property values is valid, the type is publicly constructible with `required` `{ get; init; }` properties, or is positional when section 2.1 allows. See [Circle.cs](../libs/ExampleLib/Drawing/Circle.cs).
+When every combination of property values is valid, the type **may** be publicly constructible with `required` `{ get; init; }` properties, or positional when section 2.1 allows. See [Circle.cs](../libs/ExampleLib/Drawing/Circle.cs).
+
+It may instead follow the pattern in section 3.3: a private constructor and a static factory method, even though the factory cannot fail.
+Reasons to choose this include giving the construction a name (`UdaDeviceApp.Create(id)`), and being able to add an invariant later without changing every call site.
+Whether the factory returns the type itself or a `Result<T, string>` is the author's choice.
+Return a `Result` when an invariant is likely to be added, so that adding it changes no signatures.
 
 ### 3.3 Types with invariants
 

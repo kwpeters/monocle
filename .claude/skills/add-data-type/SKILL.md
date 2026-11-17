@@ -30,7 +30,8 @@ Model it on `libs/ExampleLib/Person.cs` (with invariants) or
    `public sealed record class <Type>`.
 2. Shape it by whether it has invariants (guide 3.2, 3.3):
    - **None**: `required` `{ get; init; }` properties, or positional when guide
-     2.1 allows.
+     2.1 allows. The "Some" shape below is also allowed, with a static factory
+     that may or may not return a `Result` (guide 3.2).
    - **Some**: a private constructor taking every value, `{ get; private init; }`
      properties, and a static `Create` on the type returning
      `Result<<Type>, string>`. Compose validations the way `Person.Create` does,

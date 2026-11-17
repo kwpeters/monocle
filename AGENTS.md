@@ -90,7 +90,7 @@ A generic method, such as `MapSuccess<TInSuccess, TOutSuccess, TError>`, always 
 
 ### Class and Record Member Ordering
 
-Declare members in this order, omitting sections that are not needed: Constants, Static fields, Static properties, Static methods, Instance fields, Constructors, Properties, Instance methods, Nested types.
+Declare members in this order, omitting sections that are not needed: Constants, Static fields, Static properties, Static methods, Instance fields, Constructors, Properties, Events, Instance methods, Nested types.
 
 Start each section with a separator comment naming it. The separators may be omitted when a class or record has only one section (as is often the case in unit test files).
 
@@ -125,6 +125,16 @@ but write a comment on the method that says why.
 
 - Always prefer use of the functional data types and patterns defined in the FnUtil library.
 - Never use null references.  Use `Option<T>` from FnUtil instead.
+  The one exception is events.
+  A C# event is null until a handler subscribes,
+  so declare it nullable and raise it with `?.Invoke`:
+
+  ```csharp
+  public event EventHandler<TemperatureChangedEventArgs>? TemperatureChanged;
+
+  this.TemperatureChanged?.Invoke(this, args);
+  ```
+
 - Reserve the throwing of exceptions for truly exception cases (cases that should never happen).
 - For operations that can fail and communicating the error reason is desirable,
   prefer returning `Result<TSuccess, TError>` over throwing exceptions.  This allows
