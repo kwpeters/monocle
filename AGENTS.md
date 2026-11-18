@@ -281,3 +281,15 @@ and the document refers to them by a relative path:
 ```markdown
 ![The architecture](design/images/architecture.drawio.png)
 ```
+
+### Markdown: diagrams
+
+Draw a diagram with draw.io, and export it as a PNG with the "Include a copy of my diagram" option on.
+Always use that option,
+whether you export in the draw.io app or with the `drawio-skill`.
+It embeds the diagram's source in the PNG,
+so that a person or an agent can open the PNG in draw.io and edit the diagram later.
+In the app, tick the option in the PNG export dialog.
+With the draw.io command line, which the `drawio-skill` uses, add the `-e` flag.
+Name the file `<name>.drawio.png`, and keep it in the document's `images` directory.
+A PNG exported without the option opens in draw.io as "Not a diagram file".
