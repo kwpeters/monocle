@@ -206,6 +206,15 @@ dotnet build
 dotnet test
 ```
 
+## Referencing Code
+
+Write every reference to a file in this repo as a Markdown link, so the reader can jump to it.
+Make the path relative to the repository root,
+and add a line anchor for a line or a range:
+[Person.cs](libs/ExampleLib/Person.cs),
+[Person.cs:10](libs/ExampleLib/Person.cs#L10),
+[Person.cs:10-20](libs/ExampleLib/Person.cs#L10-L20).
+
 ## Markdown Guidelines
 
 ### Markdown: semantic line breaks
