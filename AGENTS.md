@@ -270,3 +270,14 @@ Example:
 | Parser | Reads the input file  |
 | Cache  | Stores recent results |
 ```
+
+### Markdown: images
+
+Put the images that a Markdown document embeds
+in an `images` directory inside a directory named after the document, without its extension.
+The images for `docs/design.md` go in `docs/design/images/`,
+and the document refers to them by a relative path:
+
+```markdown
+![The architecture](design/images/architecture.drawio.png)
+```
