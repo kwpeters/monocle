@@ -29,6 +29,17 @@ kinds of work. Read a guide only when the task calls for it.
 ### Lambdas
 
 - Lambda parameters should be wrapped in parentheses when there are multiple parameters. Single-parameter lambdas may omit parentheses.
+- Keep lambdas flat and LINQ queries free of side effects, because queries run lazily.
+  Where a lambda would nest or a query would start work,
+  write a `foreach` with a named local per step:
+
+  ```csharp
+  foreach (UdaDeviceApp deviceApp in this.DeviceApps)
+  {
+      var runner = new UdaDeviceAppRunner(deviceApp, this.BrokerEndpoint, logger);
+      tasks.Add(Task.Run(() => RunUntilStopped(runner.RunAsync, stopSource)));
+  }
+  ```
 
 ### Ternary Formatting
 
@@ -104,18 +115,20 @@ Start each section with a separator comment naming it. The separators may be omi
 
 ### Decomposition
 
-Decompose aggressively into functions.
-Whenever a method or function does several things,
-move each operation into its own function,
-so that the original reads as a short sequence of named steps.
-Choose the home that fits the operation:
+Decompose a method that does several things into a short sequence of named steps,
+so that the caller reads without opening them.
+Give a step its own function when its name tells the reader something the code does not,
+when several places use it,
+or when it hides detail the caller does not need.
+Leave a step inline when it is a one-line wrapper used once,
+or when its name would nearly repeat an existing function's.
+
+Choose the home that fits the function:
 
 - A local function, when only that one method uses it.
 - A private method, when other members of the same class use it.
 - A reusable utility function, when other classes or projects could use it.
 
-Name each function for what it does,
-so that the caller reads without opening the steps.
 Decomposition has a cost in some code,
 such as hot paths where call overhead or lost inlining, allocations, or captured variables matter.
 In those cases you may keep the operations together,
