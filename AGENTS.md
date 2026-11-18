@@ -34,10 +34,10 @@ kinds of work. Read a guide only when the task calls for it.
   write a `foreach` with a named local per step:
 
   ```csharp
-  foreach (UdaDeviceApp deviceApp in this.DeviceApps)
+  foreach (Order order in orders)
   {
-      var runner = new UdaDeviceAppRunner(deviceApp, this.BrokerEndpoint, logger);
-      tasks.Add(Task.Run(() => RunUntilStopped(runner.RunAsync, stopSource)));
+      var processor = new OrderProcessor(order, logger);
+      tasks.Add(Task.Run(() => processor.RunAsync(token)));
   }
   ```
 
