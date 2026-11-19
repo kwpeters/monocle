@@ -2,6 +2,96 @@
   <PropertyGroup>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!--
+      Give ProjectDir an upper-case drive letter, so that a build with no changes
+      does not recompile anything.
+
+      THE PROBLEM
+
+      Before it compiles a project, the GenerateMSBuildEditorConfigFile target
+      (in Roslyn's Microsoft.Managed.Core.targets) writes the file
+      obj/<Configuration>/<TargetFramework>/<Project>.GeneratedMSBuildEditorConfig.editorconfig.
+      The file has one "build_property.<Name> = <value>" line for each
+      CompilerVisibleProperty item, so that analyzers and source generators can
+      read those properties. One of them is ProjectDir, the full path of the
+      project's directory, for example:
+
+        build_property.ProjectDir = C:\Users\me\dev\monocle\libs\FnUtil\
+
+      The file is rewritten only when its text changes, and it is an input to the
+      CoreCompile target. So when its text changes, the compiler runs again for
+      that project, even though no source file changed.
+
+      By default, ProjectDir is MSBuildProjectDirectory plus a trailing separator,
+      and MSBuildProjectDirectory keeps the casing of the path that MSBuild was
+      given. "dotnet build" run from a terminal gives it "C:\..." (upper case).
+      But VS Code opens a folder with a lower-case drive letter ("c:\..."), and
+      while it has this repo open, the lower-case path reaches the editorconfig
+      in two ways:
+
+      - Design-time builds. The C# Dev Kit's build host and the Roslyn language
+        server run design-time builds of every project with the "c:\" path. They
+        run in the background whenever project outputs change, and so after every
+        "dotnet build". A design-time build does not compile, but it does write
+        the editorconfig.
+      - Shared worker nodes. MSBuild runs a build on worker processes ("nodes"),
+        and by default it leaves them running afterwards, so that a later build
+        can reuse them. Dev Kit's build host starts nodes of its own, and they
+        have this repo's projects cached under "c:\" paths. A "dotnet build" that
+        connects to one of those nodes evaluates some of its projects as "c:\...",
+        and writes "c:" into their editorconfig files itself.
+
+      So the editorconfig of a project is written sometimes with "C:" and
+      sometimes with "c:", and the builds take turns changing it:
+
+        1. "dotnet build" writes one casing and compiles.
+        2. A design-time build, or a later build on a shared node, writes the
+           other casing into some of the editorconfig files.
+        3. The next "dotnet build" finds those files changed, and recompiles
+           those projects. Go back to step 2.
+
+      The projects that recompile differ from one build to the next, depending on
+      which builds ran in between and which nodes they ran on. Windows paths are
+      not case sensitive, so both values name the same directory; only the text
+      differs. Outside VS Code, or in a copy of the repo that VS Code does not
+      have open, the problem does not occur, even when "dotnet build" is started
+      from a "c:\" directory.
+
+      This fix covers the design-time builds. Directory.Build.rsp covers the
+      shared nodes: it makes every "dotnet build" in this repo start fresh nodes.
+      That matters here because builds on shared nodes also write "c:" into
+      files that this fix cannot normalize, such as the NuGet restore outputs
+      (project.assets.json, *.nuget.dgspec.json) and SourceLink's
+      obj/**/*.sourcelink.json, which is a compiler input.
+
+      THE FIX
+
+      Microsoft.Common.CurrentVersion.targets sets ProjectDir only when it is
+      still empty:
+
+        <ProjectDir Condition=" '$(ProjectDir)' == '' ">...</ProjectDir>
+
+      Directory.Build.props is imported before that, so the value set here is
+      the one every target sees. It is the default value with the first character
+      in upper case: MSBuildProjectDirectory with its first character converted
+      by ToUpperInvariant(), plus the trailing directory separator that the default
+      value also has. Every build, from any program, now writes the same text. On
+      Linux and macOS the first character is "/", which ToUpperInvariant() leaves
+      unchanged.
+
+      MSBuildProjectDirectory itself is a reserved property that a project cannot
+      set, so this fix cannot cover it. That matters only for projects that use
+      the Web SDK, which write it into the editorconfig too. No project here
+      does yet, but Directory.Build.targets already deals with it for any that
+      is added later.
+
+      The problem is a known one, and Microsoft has no plans to normalize path
+      casing:
+      - https://github.com/dotnet/roslyn/issues/62097 (closed as Won't Fix)
+      - https://github.com/dotnet/msbuild/issues/10968 (open)
+    -->
+    <ProjectDir>$([System.String]::Concat($(MSBuildProjectDirectory.Substring(0,1).ToUpperInvariant()), $(MSBuildProjectDirectory.Substring(1)), $([System.IO.Path]::DirectorySeparatorChar)))</ProjectDir>
   </PropertyGroup>
 
   <ItemGroup>

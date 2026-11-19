@@ -1,0 +1,24 @@
+# MSBuild reads this file automatically, and adds these switches to every
+# "dotnet build", "dotnet test" and "dotnet msbuild" run in this repo.
+#
+# -nodeReuse:false
+#
+#   Start fresh MSBuild worker nodes for each build, and shut them down at the
+#   end, instead of connecting to worker nodes left running by earlier builds.
+#
+#   While VS Code has this folder open, the C# Dev Kit's build host starts
+#   reusable worker nodes of its own. VS Code opens the folder with a lower-case
+#   drive letter, so those nodes have this repo's projects cached under
+#   "c:\..." paths. A command-line build that connected to them would evaluate
+#   some projects as "c:\..." and others as "C:\...", and would write the
+#   changed paths into files that the compiler and NuGet treat as inputs:
+#   obj/project.assets.json, obj/*.nuget.dgspec.json, obj/**/*.sourcelink.json
+#   and obj/**/*.GeneratedMSBuildEditorConfig.editorconfig. The next build then
+#   sees those files changed and recompiles projects, although nothing changed.
+#
+#   With fresh nodes, every command-line build sees the paths as "C:\...". The
+#   cost is the time to start the worker nodes, about a second per build.
+#
+#   The ProjectDir setting in Directory.Build.props covers the remaining case:
+#   the design-time builds that Dev Kit itself runs.
+-nodeReuse:false

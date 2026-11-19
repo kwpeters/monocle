@@ -1,0 +1,75 @@
+<Project>
+  <!--
+    Keep MSBuildProjectDirectory out of the generated editorconfig file, so that
+    a build with no changes does not recompile anything.
+
+    No project in this repo uses the Web SDK yet, so today this target does
+    nothing. It is here so that a Web SDK project added later is covered
+    without anyone having to remember to add it.
+
+    THE PROBLEM
+
+    This is the same problem that the ProjectDir setting in Directory.Build.props
+    fixes; read the comment there first. In short: "dotnet build" run from a
+    terminal sees the repo's path as "C:\...", while the C# Dev Kit in VS Code
+    sees it as "c:\...", and its background design-time builds use that path.
+    Both write the project's path into
+    obj/<Configuration>/<TargetFramework>/<Project>.GeneratedMSBuildEditorConfig.editorconfig,
+    that file is an input to the compiler, and so each change of the drive
+    letter's case makes the next "dotnet build" recompile the project.
+
+    Projects that use the Web SDK (Microsoft.NET.Sdk.Web) write the path a
+    second time. The Web SDK includes the Razor SDK, whose
+    _PrepareRazorSourceGenerators target (in
+    Microsoft.NET.Sdk.Razor.SourceGenerators.targets) adds, among others,
+
+      <CompilerVisibleProperty Include="MSBuildProjectDirectory" />
+
+    so the editorconfig also gets a line such as
+
+      build_property.MSBuildProjectDirectory = C:\Users\me\dev\monocle\apps\MyWebApp
+
+    Its drive letter changes case in the same way as ProjectDir's. But
+    MSBuildProjectDirectory is a reserved property: MSBuild sets it from the
+    project file's path and reports error MSB4004 if a project tries to set it.
+    So it cannot be given an upper-case drive letter as ProjectDir is.
+
+    THE FIX
+
+    Instead of normalizing the value, this target removes the property from the
+    editorconfig. Only the Razor source generator reads
+    build_property.MSBuildProjectDirectory, and it needs it only to process
+    .razor and .cshtml files. No project in this repo has any, so the generator
+    has nothing to process.
+
+    The removal has to happen in a target, not in a top-level ItemGroup, because
+    the Razor SDK adds the item in a target, which runs after all top-level items
+    are evaluated. The ordering works like this:
+
+    - GenerateMSBuildEditorConfigFile (in Roslyn's Microsoft.Managed.Core.targets)
+      depends on GenerateMSBuildEditorConfigFileShouldRun and then on
+      GenerateMSBuildEditorConfigFileCore, which writes the file from the
+      CompilerVisibleProperty items.
+    - _PrepareRazorSourceGenerators runs before
+      GenerateMSBuildEditorConfigFileShouldRun, and adds the item.
+    - This target runs before GenerateMSBuildEditorConfigFileCore, and so after
+      the item is added but before the file is written.
+
+    In projects that do not use the Web SDK, there is no such item, and the
+    Remove does nothing.
+
+    IF YOU ADD RAZOR FILES
+
+    If a project gains .razor or .cshtml files, the Razor source generator will
+    need build_property.MSBuildProjectDirectory. Make this target skip that
+    project (for example, with a Condition on the project's name), and accept
+    that the project will recompile more often than it needs to while VS Code
+    has the folder open.
+  -->
+  <Target Name="DropCaseVaryingCompilerVisibleProperties"
+          BeforeTargets="GenerateMSBuildEditorConfigFileCore">
+    <ItemGroup>
+      <CompilerVisibleProperty Remove="MSBuildProjectDirectory" />
+    </ItemGroup>
+  </Target>
+</Project>
